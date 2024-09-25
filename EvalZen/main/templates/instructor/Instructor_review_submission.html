@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>{% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Submissions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #343a40;
+            height: 100vh;
+            padding-top: 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .sidebar a.active {
+            background-color: #0d6efd;
+        }
+        .widget {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .btn {
+            margin-right: 10px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .widget {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .submission-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .submission-table th, .submission-table td {
+            padding: 10px;
+            text-align: left;
+        }
+        .submission-table th {
+            background-color: #343a40;
+            color: white;
+        }
+        .view-btn {
+            text-align: center;
+        }
+        /* Hide the results by default */
+        .result-section {
+            display: none;
+        }
+        .result-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 sidebar d-none d-md-block">
+                <div class="d-flex flex-column align-items-center">
+                    <img src="{%static 'main/adminlogo.png'%}" alt="logo" width="50" height="50">
+                    <h4>Instructor Zone</h4>
+                    <small>Manage Your Users</small>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_dashboard'%}"  class="nav-link">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_usermanagement'%}" class="nav-link">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_create_assessment'%}" class="nav-link">Create Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_review_submission' %}" class="nav-link active">Review Submissions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_report' %}" class="nav-link">Report</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_settings' %}" class="nav-link">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+     <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Top Bar with Toggle Button, Buttons, and Profile -->
+    <div class="d-flex align-items-center py-3 toggle-btn-wrapper">
+    <div class="container">
+        <h2>Review Submissions</h2>
+        <div class="widget">
+            <!-- Submissions List -->
+            <table class="submission-table table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Test Name</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample data, replace with dynamic data later -->
+                    <tr>
+                        <td>John Doe</td>
+                        <td>Python Basics</td>
+                        <td>2024-09-23</td>
+                        <td>Completed</td>
+                        <td class="view-btn">
+                            <button class="btn btn-primary" onclick="viewResult('result1')">View Results</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>Data Structures</td>
+                        <td>2024-09-22</td>
+                        <td>Completed</td>
+                        <td class="view-btn">
+                            <button class="btn btn-primary" onclick="viewResult('result2')">View Results</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Result Section for John Doe -->
+            <div id="result1" class="result-section">
+                <h4>Results for John Doe - Python Basics</h4>
+                <p><strong>Submission Date:</strong> 2024-09-23</p>
+                <p><strong>Status:</strong> Graded</p>
+                <div class="widget">
+                    <h5>Q1: What is Python?</h5>
+                    <p><strong>Student Answer:</strong> Python is a programming language.</p>
+                    <p><strong>Correct Answer:</strong> Python is a high-level programming language.</p>
+                    <p><strong>Result:</strong> Correct</p>
+                </div>
+                <div class="widget">
+                    <h5>Q2: What is a list in Python?</h5>
+                    <p><strong>Student Answer:</strong> A collection of items.</p>
+                    <p><strong>Correct Answer:</strong> A list is a mutable collection of items.</p>
+                    <p><strong>Result:</strong> Partially Correct</p>
+                </div>
+                <button class="btn btn-secondary mt-3" onclick="hideResult('result1')">Hide Results</button>
+            </div>
+
+            <!-- Result Section for Jane Smith -->
+            <div id="result2" class="result-section">
+                <h4>Results for Jane Smith - Data Structures</h4>
+                <p><strong>Submission Date:</strong> 2024-09-22</p>
+                <p><strong>Status:</strong> Graded</p>
+                <div class="widget">
+                    <h5>Q1: What is a Stack?</h5>
+                    <p><strong>Student Answer:</strong> Stack is a data structure.</p>
+                    <p><strong>Correct Answer:</strong> Stack is a linear data structure following LIFO order.</p>
+                    <p><strong>Result:</strong> Correct</p>
+                </div>
+                <div class="widget">
+                    <h5>Q2: Explain a Queue</h5>
+                    <p><strong>Student Answer:</strong> A queue is a line.</p>
+                    <p><strong>Correct Answer:</strong> Queue is a linear data structure following FIFO order.</p>
+                    <p><strong>Result:</strong> Incorrect</p>
+                </div>
+                <button class="btn btn-secondary mt-3" onclick="hideResult('result2')">Hide Results</button>
+            </div>
+        </div>
+    </div>
+    </div>
+</main>
+</div>
+</div>
+
+    <script>
+        // Function to display the results section
+        function viewResult(resultId) {
+            document.getElementById(resultId).classList.add('active');
+        }
+
+        // Function to hide the results section
+        function hideResult(resultId) {
+            document.getElementById(resultId).classList.remove('active');
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

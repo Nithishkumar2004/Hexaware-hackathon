@@ -1,0 +1,149 @@
+.con {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color:#ffffff;
+}
+
+.container {
+    display: flex;
+    width: 80%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: -10%;
+}
+
+.left-panel {
+    width: 60%;
+    background-color: #ffffff;
+    padding: 60px;
+    border-right: 1px solid #ccc;
+}
+
+.right-panel {
+    width: 40%;
+    background-color: #ffffff;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.camera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#webcam {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    object-fit: cover;
+    background: #000;
+}
+
+#camera-status {
+    font-size: 16px;
+    color: #333;
+    margin-top: 10px;
+}
+
+.timer {
+    font-size: 25px;
+    margin-top: 20px;
+}
+
+.question-card {
+    padding: 60px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.question-card h2 {
+    margin-top: 0;
+}
+
+.question {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+ul li {
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #e4f0ff;
+    border-bottom: 2px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-left, .nav-center, .nav-right {
+    flex: 1;
+}
+
+.nav-logo img {
+    width: 50px;
+    height: 50px;
+}
+
+.nav-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.icon {
+    width: 30px;
+    height: 30px;
+}
+
+.nav-right {
+    display: flex;
+    justify-content: flex-end; /* Align menu icon to the right */
+    align-items: center;
+}

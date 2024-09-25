@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Chatbot container */
+        #chat-container {
+            width: 400px;
+            height: 500px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+        }
+
+        #chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: scroll;
+            max-height: 400px;
+        }
+
+        .message-container {
+            display: flex;
+            margin: 5px 0;
+        }
+
+        .user-message {
+            background-color: #d1e7ff;
+            border-radius: 10px;
+            padding: 10px;
+            margin-left: auto; /* Align to the right */
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-right: auto; /* Align to the left */
+            max-width: 80%;
+        }
+
+        #input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #send-btn {
+            padding: 10px 15px;
+            margin-left: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Floating chat icon */
+        #chat-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #007bff;
+            border-radius: 50%;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #chat-icon img {
+            width: 30px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Chatbot window -->
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Type your message here..." />
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Floating chat icon -->
+    <div id="chat-icon">
+        <img src="{%static 'main/mentoricon.jpeg'%}" alt="Chat Icon">
+    </div>
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatContainer = document.getElementById('chat-container');
+        const chatIcon = document.getElementById('chat-icon');
+    
+        // Function to add message to chatbox
+        function addMessage(message, isUser) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-container');
+    
+            const messageElement = document.createElement('div');
+            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageElement.textContent = message;
+    
+            messageContainer.appendChild(messageElement);
+            chatBox.appendChild(messageContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the latest message
+        }
+    
+        // Function to get bot response from OpenAI API
+        async function getBotResponse(userMessage) {
+           //add the key here
+ 
+ 
+ 
+ 
+ 
+           // Replace with your actual OpenAI API key
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+    
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",  // Use the appropriate model version
+                    messages: [{ role: "user", content: userMessage }]
+                })
+            });
+    
+            const data = await response.json();
+            return data.choices[0].message.content;  // Extract the response text
+        }
+    
+        // Handle sending message
+        async function handleSendMessage() {
+            const userMessage = userInput.value.trim();
+            if (userMessage === "") return;
+    
+            addMessage(userMessage, true);  // User message aligned to right
+            userInput.value = '';
+    
+            try {
+                const botResponse = await getBotResponse(userMessage);
+                setTimeout(() => addMessage(botResponse, false), 1000);  // Display bot message aligned to left
+            } catch (error) {
+                addMessage('Error fetching response. Please try again later.', false);
+            }
+        }
+    
+        sendBtn.addEventListener('click', handleSendMessage);
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+    
+        // Show/hide chat window and icon toggle
+        chatIcon.addEventListener('click', () => {
+            chatContainer.style.display = 'flex';
+            chatIcon.style.display = 'none';  // Hide icon when chat window opens
+        });
+    
+        // Close chat window (optional: if needed you can add close button or handle outside click)
+        document.addEventListener('click', function (event) {
+            const isClickInside = chatContainer.contains(event.target) || chatIcon.contains(event.target);
+            if (!isClickInside && chatContainer.style.display === 'flex') {
+                chatContainer.style.display = 'none';
+                chatIcon.style.display = 'flex';  // Show icon when chat window closes
+            }
+        });
+    </script>
+    
+   
+</body>
+</html>

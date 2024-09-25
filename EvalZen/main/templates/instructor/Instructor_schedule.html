@@ -1,0 +1,201 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Assessment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #343a40;
+            height: 100vh;
+            padding-top: 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .sidebar a.active {
+            background-color: #0d6efd;
+        }
+        .widget {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        /* Mobile Sidebar Styles */
+        .mobile-sidebar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #343a40;
+            color: white;
+            transform: translateX(-250px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            padding-top: 20px;
+        }
+        .mobile-sidebar.show {
+            transform: translateX(0);
+        }
+        .mobile-sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .mobile-sidebar .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .toggle-btn-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Desktop Sidebar -->
+            <nav class="col-md-2 sidebar d-none d-md-block">
+                <div class="d-flex flex-column align-items-center">
+                    <img src="{%static 'main/adminlogo.png'%}" alt="logo" width="50" height="50">
+                    <h4>Instructor Zone</h4>
+                    <small>Manage Your Users</small>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_dashboard'%}" class="nav-link active">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_usermanagement'%}" class="nav-link">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_create_assessment'%}" class="nav-link">Create Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_review_submission' %}" class="nav-link">Review Submissions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_report' %}" class="nav-link">Report</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'instructor_settings' %}" class="nav-link">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Top Bar with Toggle Button and Profile -->
+                <div class="d-flex align-items-center py-3 toggle-btn-wrapper">
+                    <h2 class="ms-3">Schedule Assessment</h2>
+                </div>
+
+                <!-- Schedule/Edit Form -->
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="widget">
+                            <form id="scheduleForm">
+                                <div class="form-group">
+                                    <label for="assessment-title" class="form-label">Assessment Title</label>
+                                    <input type="text" class="form-control" id="assessment-title" name="assessment_title" placeholder="Enter title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="role" class="form-label">Role</label>
+                                    <input type="text" class="form-control" id="role" name="role" placeholder="Enter role" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="start-time" class="form-label">Start Date&Time</label>
+                                    <input type="datetime-local" class="form-control" id="start-time" name="start_time" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="end-time" class="form-label">End Date&Time</label>
+                                    <input type="datetime-local" class="form-control" id="end-time" name="end_time" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter a brief description"></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <!-- Button to open the modal -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assessmentModal" onclick="showAssessmentDetails()">
+                                        Schedule Assessment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="assessmentModal" tabindex="-1" aria-labelledby="assessmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assessmentModalLabel">Assessment Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Title:</strong> <span id="modalTitle"></span></p>
+                    <p><strong>Role:</strong> <span id="modalRole"></span></p>
+                    <p><strong>Start Time:</strong> <span id="modalStartTime"></span></p>
+                    <p><strong>End Time:</strong> <span id="modalEndTime"></span></p>
+                    <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="{%url 'instructor_create_assessment' %}" type="submit" class="btn btn-primary" form="scheduleForm">Confirm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for displaying assessment details in the modal -->
+    <script>
+        function showAssessmentDetails() {
+            const title = document.getElementById('assessment-title').value;
+            const role = document.getElementById('role').value;
+            const startTime = document.getElementById('start-time').value;
+            const endTime = document.getElementById('end-time').value;
+            const description = document.getElementById('description').value;
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalRole').textContent = role;
+            document.getElementById('modalStartTime').textContent = new Date(startTime).toLocaleString();
+            document.getElementById('modalEndTime').textContent = new Date(endTime).toLocaleString();
+            document.getElementById('modalDescription').textContent = description;
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

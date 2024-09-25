@@ -1,0 +1,111 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Sign Up - EvalZen</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .step-card {
+            display: none;
+        }
+        .step-card.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="text-center">
+            <img src="{% static 'main/logo.png' %}" style="text-align: center; height: 110px; width: 110px;" alt="logo">
+            <h2 class="text-center">Instructor Account Creation</h2>
+        </div>
+
+        <!-- Instructor Details Card -->
+        <!-- instructor_registration.html -->
+
+<!-- instructor_registration.html -->
+
+<form method="POST" action="{% url 'instructor_registration' %}">
+    {% csrf_token %}
+    <div class="card step-card active" id="step-1">
+        <div class="card-body">
+            <h5 class="card-title">Instructor Details</h5>
+            <div class="form-group">
+                <label for="employeeId">Employee ID</label>
+                <input type="text" name="employeeId" class="form-control" id="employeeId" placeholder="Enter Employee ID" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" name="name" class="form-control" id="name" placeholder="Enter Full Name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email ID</label>
+                <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email ID" required>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn btn-primary" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Credentials Card -->
+    <div class="card step-card" id="step-2">
+        <div class="card-body">
+            <h5 class="card-title">Create Credentials</h5>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" class="form-control" id="password" placeholder="Enter Password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn btn-secondary" onclick="prevStep(1)">Previous</button>
+                <button type="submit" class="btn btn-success" id="signupBtn" name="Signup">Signup</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+    </div>
+
+    <script>
+        function nextStep(step) {
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+        }
+
+        function checkPasswords() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const signupBtn = document.getElementById('signupBtn');
+            const passwordError = document.getElementById('passwordError');
+
+            if (password === confirmPassword && password !== "") {
+                signupBtn.disabled = false;
+                passwordError.style.display = 'none';
+            } else {
+                signupBtn.disabled = true;
+                passwordError.style.display = 'block';
+            }
+        }
+
+        function submitForm() {
+            alert('Instructor account created successfully!');
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

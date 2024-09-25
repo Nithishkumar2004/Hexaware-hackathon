@@ -1,0 +1,264 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #343a40;
+            height: 100vh;
+            padding-top: 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .sidebar a.active {
+            background-color: #0d6efd;
+        }
+        .widget {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .btn {
+            margin-right: 10px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        /* Mobile Sidebar Styles */
+        .mobile-sidebar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #343a40;
+            color: white;
+            transform: translateX(-250px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            padding-top: 20px;
+        }
+        .mobile-sidebar.show {
+            transform: translateX(0);
+        }
+        .mobile-sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .mobile-sidebar .nav-link.active {
+            background-color: #0d6efd;
+        }
+        /* Toggle Button Styles */
+        .toggle-btn {
+            position: absolute;
+            top: 50%;
+            left: -60px; /* Adjust as needed */
+            transform: translateY(-50%);
+            z-index: 1001;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .toggle-btn:hover {
+            background-color: #0b5ed7;
+        }
+        .toggle-btn.hidden {
+            display: none;
+        }
+        .toggle-btn-wrapper {
+            position: relative;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .mobile-sidebar {
+                display: block;
+            }
+            .toggle-btn {
+                left: 0; /* Adjust to make sure it's visible */
+                top: 50px; /* Adjust for proper spacing from the top */
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Desktop Sidebar -->
+            <nav class="col-md-2 sidebar d-none d-md-block">
+                <div class="d-flex flex-column align-items-center">
+                    <img src="{% static 'main/adminlogo.png' %}" alt="logo-2" width="50" height="50" border="0"></a>
+                    <h4>EvalZen</h4>
+                    <small>Assess With Confidence</small>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a href="{% url 'admindashboard' %}" class="nav-link active">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'usermanagement' %}" class="nav-link">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'adminassessment' %}" class="nav-link">Assessments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'manualquestionupload' %}" class="nav-link">Question Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'aiproctor' %}" class="nav-link">AI Proctoring</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'report' %}" class="nav-link">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'settings' %}" class="nav-link">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Top Bar with Toggle Button, Buttons, and Profile -->
+                <div class="d-flex align-items-center py-3 toggle-btn-wrapper">
+                    <!-- Toggle Button for Mobile Sidebar -->
+                    <button class="btn toggle-btn d-md-none" type="button" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="ms-3">Admin Dashboard</h2>
+                    <div class="d-flex align-items-center ms-auto">
+                        <button class="btn btn-primary me-2">Add User</button>
+                        <button class="btn btn-secondary me-2">Create Assessment</button>
+                        <img src="{% static 'main/aprofile.png' %}" alt="Profile Image" class="profile-img">
+                    </div>
+                </div>
+
+                <!-- Dashboard Widgets -->
+                <div class="row">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="widget">
+                            <h4>Total Users</h4>
+                            <p>120</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="widget">
+                            <h4>Active Assessment</h4>
+                            <p>34</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="widget">
+                            <h4>System Health</h4>
+                            <p>All Systems Operational</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="widget">
+                            <h4>Recent Activity</h4>
+                            <ul>
+                                <li>User Praveen added a new assessment.</li>
+                                <li>Admin Mike updated system settings.</li>
+                                <li>User Bala completed an assessment.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assessment Completion Rate & System Status -->
+                <div class="row">
+                    <!-- <div class="col-md-6 col-sm-12">
+                        <div class="widget">
+                            <h4>Assessment Completion Rate</h4>
+                            <p>[Chart Placeholder]</p>
+                        </div>
+                    </div> -->
+                    <div class="col-md-6 col-sm-12">
+                        <div class="widget">
+                            <h4>System Status</h4>
+                            <p>Server Load: 55%</p>
+                            <p>Database Status: Stable</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="Admindashboard.html" class="nav-link active">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="usermanagement.html" class="nav-link">Users</a>
+            </li>
+            <li class="nav-item">
+                <a href="assessment.html" class="nav-link">Assessments</a>
+            </li>
+            <li class="nav-item">
+                <a href="manualquestionupload.html" class="nav-link">Question Upload</a>
+            </li>
+            <li class="nav-item">
+                <a href="aiproctor.html" class="nav-link">AI Proctoring</a>
+            </li>
+            <li class="nav-item">
+                <a href="report.html" class="nav-link">Reports</a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">Settings</a>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            sidebar.classList.toggle('show');
+            // Hide the toggle button when the sidebar is open
+            toggleBtn.classList.toggle('hidden', sidebar.classList.contains('show'));
+        }
+    </script>
+</body>
+</html>

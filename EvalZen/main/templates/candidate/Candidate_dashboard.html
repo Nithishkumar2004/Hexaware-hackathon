@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalZen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+         <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap JS and Popper (Optional for advanced features) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #62ddff3a;
+    }
+
+    header {
+        position: fixed; /* Stick to the top */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #3197dbe1;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-bar input {
+        width: 300%;
+        padding: 8px;
+        border-radius: 5px;
+        background-color: rgb(255, 255, 255);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border: none;
+        outline: none;
+    }
+
+    .profile {
+        font-size: 1.5rem;
+        color: rgb(255, 255, 255);
+        margin-left: 940px;
+    }
+
+    .content {
+        margin-top: 60px; /* Add margin to avoid content going under the header */
+        margin-left: 70px;
+        padding: 20px;
+        transition: margin-left 0.3s;
+    }
+
+    .sidebar {
+        width: 50px;
+        position: fixed;
+        height: 100%;
+        padding: 20px;
+        left: 0;
+        top: 0; /* Stick the sidebar at the top */
+        margin-top: 50px; /* Adjust to fit under the fixed header */
+        background-color: #68acff;
+        color: rgb(255, 255, 255);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.3s;
+        gap: 25px;
+    }
+
+    .job-posts-container {
+        padding: 20px;
+    }
+        .job-post {
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .job-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+    
+       
+
+        a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar {
+            display: flex;
+            flex-direction: row !important;
+         gap: 50px;
+            
+               color: rgb(255, 255, 255);
+        }
+       
+       
+        .sidebar {
+            background-color: #3197dbe1;
+            color: white;
+        }
+
+        .sidebar {
+            width: 50px;
+            position: fixed;
+            height: 100%;
+            padding: 20px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s;
+            gap: 25px;
+            margin-top: 72px;
+        }
+
+        .full-sidebar {
+            width: 200px;
+            color: #ffffff;
+        }
+
+        .content {
+            margin-left: 70px;
+            margin-top: 50px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .search-bar input {
+            margin-left: 70px;
+            width: 300%;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-post {
+            container-type: inline-size;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 992px;
+            margin: 20px auto;
+        }
+
+        /* Default styles for the job post */
+        .job-post h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .job-post p,
+        .job-post ul {
+            margin-bottom: 15px;
+        }
+
+        .job-post ul {
+            padding-left: 20px;
+        }
+
+        .job-post li {
+            margin-bottom: 5px;
+        }
+
+        /* Register the container */
+        .job-post {
+            container-type: inline-size;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        /* Image styling */
+        .job-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Default styles for the job post */
+        .job-post h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .job-post h3 {
+            text-transform: uppercase;
+        }
+
+        .job-post p,
+        .job-post ul {
+            margin-bottom: 15px;
+        }
+
+        .job-post ul {
+            padding-left: 20px;
+        }
+
+        .job-post li {
+            margin-bottom: 5px;
+        }
+
+
+  .floating-icon:hover {
+    background-color: #0056b3; /* Hover effect */
+  }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        
+        <div class="navbar">
+            
+            <div class="open-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div> 
+            <div class="search-bar"><input type="text" placeholder="Search..."></div>
+            <div class="profile"><i class="fas fa-user-circle"></i></div>
+        </div>
+    </header>
+    <div class="sidebar" id="sidebar">
+        
+        <a href="#"><i class="fas fa-home"></i> <span class="link-text">Dashboard</span></a>
+        <a href="#"><i class="fas fa-bell"></i> <span class="link-text">Notifications</span></a>
+        <a href="#"><i class="fas fa-trophy"></i> <span class="link-text">Achievements</span></a>
+        <a href="#"><i the class="fas fa-history"></i> <span class="link-text">Quiz History</span></a>
+        <a href="{% url 'candidate_login' %}"><i class="fas fa-sign-out-alt"></i> <span class="link-text">Log Out</span></a>
+    </div>
+
+    <div class="content" id="content">
+
+    </div>
+    <div class="job-posts-container" id="job-posts-container">
+        <!-- Job posts will be rendered here -->
+    </div>
+    </div>
+   
+      
+
+
+    <script>
+
+        async function fetchJobData() {
+            const response = await fetch("{%static 'file/jobs.csv' %}"); // Update with the correct path
+            const data = await response.text();
+            const parsedData = parseCSV(data);
+            renderJobDetails(parsedData);
+        }
+
+        // Call the fetch function to get job data
+        fetchJobData();
+
+        function parseCSV(data) {
+            const rows = data.split('\n').map(row => row.split(','));
+            const headers = rows[0].map(header => header.trim());
+            return rows.slice(1).map(row => {
+                const job = {};
+                row.forEach((cell, index) => {
+                    job[headers[index]] = cell.trim().replace(/"/g, '');
+                });
+                return job;
+            });
+        }
+
+        
+    function renderJobDetails(jobDataArray) {
+        const container = document.getElementById('job-posts-container');
+        container.innerHTML = ''; // Clear previous content
+
+        jobDataArray.forEach(job => {
+            container.innerHTML += `
+               <div class="job-post">
+                <img src="{%static 'main/full_stack_banner.jpg'%}" alt="Job Image" class="job-image">
+                <h1>${job.job_title} at ${job.company_name}</h1>
+                <p>Location: ${job.location}</p>
+                <p>${job.job_description}</p>
+                <h3>Responsibilities:</h3>
+                <ul>${job.responsibilities.split('; ').map(item => `<li>${item}</li>`).join('')}</ul>
+                <h3>Requirements:</h3>
+                <p>Experience: ${job.experience}</p>
+                <p>Education: ${job.education}</p>
+                <p>Technical Skills: ${job.technical_skills.split('; ').join(', ')}</p>
+                <p>Soft Skills: ${job.soft_skills}</p>
+                <h3>Certifications:</h3>
+                <p>${job.certifications}</p>
+                <h3>Benefits:</h3>
+                <ul>${job.benefits.split('; ').map(item => `<li>${item}</li>`).join('')}</ul>
+                <h3>Application Process:</h3>
+                <ul>${job.application_steps.split('; ').map(step => `<li>${step}</li>`).join('')}</ul>
+                <p>Apply here: <a href="${job.apply_link}">Click to Apply</a></p>
+                <p>Posting Date: ${job.posting_date}</p>
+                <p>Application Deadline: ${job.application_deadline}</p>
+
+                <!-- Added Register Quiz and Start Quiz buttons -->
+                <a class="btn btn-primary" id="register-quiz-${job.job_id}">Register Quiz</a>
+                <a class="btn btn-success" href="{% url 'candidate_preassesment' %}" id="start-quiz-${job.job_id}">Start Quiz</a>
+            </div>
+            `;
+        });
+    }
+
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var content = document.getElementById('content');
+            if (sidebar.classList.contains('full-sidebar')) {
+                sidebar.classList.remove('full-sidebar');
+                content.style.marginLeft = '70px';
+                document.querySelectorAll('.link-text').forEach(text => text.style.display = 'none');
+            } else {
+                sidebar.classList.add('full-sidebar');
+                content.style.marginLeft = '220px';
+                document.querySelectorAll('.link-text').forEach(text => text.style.display = '');
+            }
+        }
+
+        document.querySelectorAll('.link-text').forEach(text => text.style.display = 'none'); // Initial state
+        document.addEventListener('DOMContentLoaded', renderJobDetails());
+    </script>
+</body>
+
+</html>
