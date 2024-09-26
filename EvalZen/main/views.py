@@ -1,46 +1,24 @@
 from datetime import datetime
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse, HttpResponse
 from django.core.mail import send_mail
-from main.forms import ContactForm
-from main.candidate_form import SignupForm
 import openai
 import os
-from dotenv import load_dotenv
-import pymongo
-from pymongo.mongo_client import MongoClient
-from django.contrib import messages  # Import messages for displaying alerts
-from django.shortcuts import redirect
-from pymongo.server_api import ServerApi
-from django.contrib import messages  # Make sure to import messages
 
-from django.shortcuts import redirect, render
-from django.contrib import messages
+from .models import Candidate, Instructor
+from main.forms import ContactForm
+from main.candidate_form import SignupForm
+
+# Candidate Views
 
 
 
-# Load environment variables from .env file
-load_dotenv()
+from django.shortcuts import render
 
-# Get the OpenAI API key from the environment
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+def index(request):
+    return render(request, 'main/index.html')
 
-# MongoDB Connection
-MONGO_URI = os.getenv('MONGO_URI')  # Make sure MONGO_URI is defined in your .env file
-
-
-client = pymongo.MongoClient(MONGO_URI,server_api=ServerApi('1'))
-
-#database
-db = client['users'] 
-
-#collections
-users_collection = db['candidate'] 
-instructors_collection = db['instructors']
-
-
-client.admin.command('ping')
-   
 def index(request):
     return render(request, 'main/index.html')
 
@@ -114,15 +92,132 @@ def adminlogin(request):
 def chatbot_view(request):
     return render(request, 'main/chatbot.html')
 
-def generate_auto_reply(message):
-    openai.api_key = OPENAI_API_KEY
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": message}]
-    )
-    return response.choices[0].message['content']
 
+def candidate_login(request):
+    if request.session.get('candidate_email'):
+        return redirect('candidate_dashboard')
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        candidate = Candidate.verify_candidate_login(email, password)
+
+        if candidate:
+            request.session['candidate_email'] = candidate['email']
+            return redirect('candidate_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials. Please try again.')
+
+    return render(request, 'candidate/Candidate_login.html')
+
+
+def candidate_registration(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            if Candidate.find_candidate_by_email(email):
+                messages.error(request, 'Email already registered.')
+                return redirect('candidate_login')
+
+            candidate_data = {
+                "first_name": form.cleaned_data['first_name'],
+                "last_name": form.cleaned_data['last_name'],
+                'dob': datetime.strptime(request.POST.get('dob'), '%Y-%m-%d'),
+                "gender": form.cleaned_data['gender'],
+                "mobile": form.cleaned_data['mobile'],
+                "email": email,
+                "address": form.cleaned_data['address'],
+                "state": form.cleaned_data['state'],
+                "country": form.cleaned_data['country'],
+                "pincode": form.cleaned_data['pincode'],
+                "qualification": form.cleaned_data['qualification'],
+                "institution": form.cleaned_data['institution'],
+                "password": form.cleaned_data['password'],
+            }
+
+            Candidate.add_candidate(candidate_data)
+            messages.success(request, 'Registration successful! Please log in.')
+            return redirect('candidate_login')
+    else:
+        form = SignupForm()
+
+    return render(request, 'candidate/Candidate_registration.html', {'form': form})
+
+
+def candidate_dashboard(request):
+    if 'candidate_email' not in request.session:
+        return redirect('candidate_login')
+    return render(request, 'candidate/Candidate_dashboard.html')
+
+
+def candidate_logout(request):
+    request.session.flush()
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('candidate_login')
+
+
+# Instructor Views
+
+def instructor_login(request):
+    if request.session.get('instructor_email'):
+        return redirect('instructor_dashboard')
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        instructor = Instructor.verify_instructor_login(email, password)
+
+        if instructor:
+            request.session['instructor_email'] = instructor['email']
+            return redirect('instructor_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials. Please try again.')
+
+    return render(request, 'instructor/Instructor_login.html')
+
+
+def instructor_registration(request):
+    if request.method == 'POST':
+        employee_id = request.POST.get('employeeId')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if Instructor.find_instructor_by_email(email):
+            messages.error(request, 'Email is already registered.')
+            return redirect('instructor_registration')
+
+        instructor_data = {
+            "employee_id": employee_id,
+            "name": name,
+            "email": email,
+            "password": password,
+            "status": 'deactive',
+        }
+
+        Instructor.add_instructor(instructor_data)
+        messages.success(request, 'Instructor account created successfully!')
+        return redirect('instructor_login')
+
+    return render(request, 'instructor/Instructor_registration.html')
+
+
+def instructor_dashboard(request):
+    if 'instructor_email' not in request.session:
+        return redirect('instructor_login')
+    return render(request, 'instructor/Instructor_dashboard.html')
+
+
+def instructor_logout(request):
+    request.session.flush()
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('instructor_login')
+
+
+# Contact Form & Auto-Reply View
 def contact_us(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
@@ -131,10 +226,8 @@ def contact_us(request):
             email = form.cleaned_data['email']
             message = form.cleaned_data['message']
 
-            # Generate auto-reply using OpenAI
             auto_reply = generate_auto_reply(message)
 
-            # Send auto-reply email
             send_mail(
                 'Re: Your Contact Form Submission',
                 auto_reply,
@@ -149,163 +242,34 @@ def contact_us(request):
 
     return render(request, 'main/Main_contact_us.html', {'form': form})
 
-def instructor_registration(request):
-    if request.method == 'POST':
-        employee_id = request.POST.get('employeeId')
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
 
-        # Check if email is already registered
-        existing_instructor = instructors_collection.find_one({"email": email})
-        if existing_instructor:
-            messages.error(request, 'Email is already registered. Please use a different email.')
-            return redirect('Instructor_registration')  # Redirect back to registration
-
-        # Save instructor data to MongoDB
-        instructor_data = {
-            "employee_id": employee_id,
-            "name": name,
-            "email": email,
-            "password": password,  
-
-            "status":'deactive',
-            #initial status deacitve
-            
-            # You might want to hash the password before storing it
-        }
-
-        instructors_collection.insert_one(instructor_data)
-
-        messages.success(request, 'Instructor account created successfully!')
-        return redirect('Instructor_login')  # Redirect to login page after successful registration
-
-    return render(request, 'instructor/Instructor_registration.html')
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from datetime import datetime
-from datetime import datetime
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
-def candidate_registration(request):
-    # Check if the request method is POST
-    if request.method == 'POST':
-        print("Form Submitted: ", request.POST)  # Debug line to see form data
-
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            print("Form is valid")  # Debug line
-            email = form.cleaned_data['email']
-
-            # Check if the email already exists in MongoDB
-            existing_candidate = users_collection.find_one({"email": email})
-            if existing_candidate:
-                messages.error(request, 'Email is already registered. Please log in or use a different email.')
-                return redirect('candidate_login')  # Redirect to login page if email exists
-
-            # Prepare candidate data
-            candidate_data = {
-                "first_name": form.cleaned_data['first_name'],
-                "last_name": form.cleaned_data['last_name'],
-                'dob': datetime.strptime(request.POST.get('dob'), '%Y-%m-%d'),  # Convert to datetime
-                "gender": form.cleaned_data['gender'],
-                "mobile": form.cleaned_data['mobile'],
-                "email": email,
-                "address": form.cleaned_data['address'],
-                "state": form.cleaned_data['state'],
-                "country": form.cleaned_data['country'],
-                "pincode": form.cleaned_data['pincode'],
-                "qualification": form.cleaned_data['qualification'],
-                "institution": form.cleaned_data['institution'],
-                "password": form.cleaned_data['password'],  # Consider hashing this
-            }
-
-            # Insert candidate data into MongoDB
-            users_collection.insert_one(candidate_data)
-
-            # Set a success message and redirect to login page
-            messages.success(request, 'Registration Successful! Please log in.')
-            return redirect('candidate_login')  # Redirect to login after successful registration
-        else:
-            print("Form is not valid")  # Debug line
-    else:
-        form = SignupForm()  # Initialize the form for GET requests
-
-    return render(request, 'candidate/Candidate_registration.html', {'form': form})  # Render registration page with form
-
-
-def candidate_login(request):
-    # Check if the user is already logged in
-    if request.session.get('candidate_email'):
-        return redirect('candidate_dashboard')
-
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        # Query MongoDB to find the user by email
-        candidate = users_collection.find_one({"email": email})
-
-        if candidate:
-            # Check if the entered password matches the stored password
-            if candidate['password'] == password:
-                # Store user information in session
-                request.session['candidate_email'] = candidate['email']
-                
-                # Redirect to candidate dashboard
-                return redirect('candidate_dashboard')
-            else:
-                # Password is incorrect, display an error message
-                messages.error(request, 'Incorrect password. Please try again.')
-        else:
-            # User with the provided email does not exist
-            messages.error(request, 'User does not exist. Please check your email or sign up.')
-
-    return render(request, 'candidate/Candidate_login.html')
-
-
-# Logout View
-def candidate_logout(request):
-    # Clear the session data
-    request.session.flush()  # This clears all session data, effectively logging the user out
-
-    # Redirect to login page
-    messages.success(request, 'You have been logged out successfully.')
-    return redirect('candidate_login')
-
-
-# Dashboard View
-def candidate_dashboard(request):
-    # Check if candidate is logged in by looking for the session data
-    if 'candidate_email' not in request.session:
-        # If no session, redirect to login page
-        return redirect('candidate_login')
-
-    # Proceed with dashboard logic if logged in
-    return render(request, 'candidate/Candidate_dashboard.html')
-
+# Chatbot View
 def chatbot_view(request):
     if request.method == 'POST':
         user_message = request.POST.get('message')
-
         if user_message:
-            openai.api_key = OPENAI_API_KEY
+            openai.api_key = os.getenv('OPENAI_API_KEY')
             try:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": user_message}]
                 )
-                print(response)
                 bot_reply = response.choices[0].message['content']
                 return JsonResponse({'response': bot_reply})
-            
             except Exception as e:
-                
                 return JsonResponse({'response': 'Unexpected error occurred.'}, status=500)
         else:
             return JsonResponse({'response': 'No message provided.'}, status=400)
 
     return JsonResponse({'response': 'Invalid request method.'}, status=405)
 
+
+# Generate Auto-Reply for Contact Us
+def generate_auto_reply(message):
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": message}]
+    )
+    return response.choices[0].message['content']

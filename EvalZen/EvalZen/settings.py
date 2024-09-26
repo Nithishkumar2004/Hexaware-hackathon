@@ -107,3 +107,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
+# settings.py
+
+# MONGO_URI='mongodb+srv://evalzen24:MQ2NoopxOdWTYBv3@clusterzencoders.jjpdb.mongodb.net/users?retryWrites=true&w=majority&authSource=admin'
+# DB_NAME='users'

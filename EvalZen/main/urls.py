@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import  chatbot_view, index, instructor_create_assessment, instructor_dashboard, instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings,usermanagement,adminlogin,candidate_logout
-
+from .views import  (chatbot_view, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings,usermanagement,adminlogin)
+# from .models import (instructor_login,instructor_logout,instructor_registration,candidate_login,candidate_logout,candidate_registration)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -14,6 +14,8 @@ urlpatterns = [
     path('instructor_review_submission/', instructor_review_submission, name='instructor_review_submission'),
     path('instructor_report/', instructor_report, name='instructor_report'),
     path('instructor_settings/', instructor_settings, name='instructor_settings'),
+    path('instructor_logout/',instructor_logout, name='instructor_logout'),
+
 
     
     #candidate

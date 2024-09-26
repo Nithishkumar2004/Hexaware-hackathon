@@ -114,93 +114,87 @@
     <div id="chat-container">
         <div id="chat-box"></div>
         <div id="input-container">
-            <input type="text" id="user-input" placeholder="Type your message here..." />
-            <button id="send-btn">Send</button>
+            <!-- Create a form to submit messages -->
+            <form id="chat-form" method="POST" action="/your-chatbot-endpoint/">
+                {% csrf_token %} <!-- Django's CSRF protection -->
+                <input type="text" id="user-input" name="message" placeholder="Type your message here..." />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
         </div>
     </div>
 
     <!-- Floating chat icon -->
     <div id="chat-icon">
-        <img src="{%static 'main/mentoricon.jpeg'%}" alt="Chat Icon">
+        <img src="{% static 'main/mentoricon.jpeg' %}" alt="Chat Icon">
     </div>
+
     <script>
         const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const chatContainer = document.getElementById('chat-container');
         const chatIcon = document.getElementById('chat-icon');
-    
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
         // Function to add message to chatbox
         function addMessage(message, isUser) {
             const messageContainer = document.createElement('div');
             messageContainer.classList.add('message-container');
-    
+
             const messageElement = document.createElement('div');
             messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
             messageElement.textContent = message;
-    
+
             messageContainer.appendChild(messageElement);
             chatBox.appendChild(messageContainer);
             chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the latest message
         }
-    
-        // Function to get bot response from OpenAI API
-        async function getBotResponse(userMessage) {
-           //add the key here
- 
- 
- 
- 
- 
-           // Replace with your actual OpenAI API key
-            const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-3.5-turbo",  // Use the appropriate model version
-                    messages: [{ role: "user", content: userMessage }]
-                })
-            });
-    
-            const data = await response.json();
-            return data.choices[0].message.content;  // Extract the response text
+
+        // Function to get CSRF token from the form
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
         }
-    
-        // Handle sending message
-        async function handleSendMessage() {
+
+        // Intercept form submission to handle response without reloading the page
+        chatForm.addEventListener('submit', async function (event) {
+            event.preventDefault();  // Prevent default form submission (reload)
+            
             const userMessage = userInput.value.trim();
             if (userMessage === "") return;
-    
-            addMessage(userMessage, true);  // User message aligned to right
-            userInput.value = '';
-    
+
+            // Add user's message to the chat box
+            addMessage(userMessage, true);
+            userInput.value = '';  // Clear input field
+
+            // Send the form data using FormData API
+            const formData = new FormData(chatForm);
+
             try {
-                const botResponse = await getBotResponse(userMessage);
-                setTimeout(() => addMessage(botResponse, false), 1000);  // Display bot message aligned to left
+                const response = await fetch(chatForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),  // Add CSRF token to headers
+                    },
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Add bot's reply to the chat box
+                    addMessage(data.response, false);
+                } else {
+                    addMessage('Error fetching reshigiuugponse. Please try again later.', false);
+                }
             } catch (error) {
-                addMessage('Error fetching response. Please try again later.', false);
-            }
-        }
-    
-        sendBtn.addEventListener('click', handleSendMessage);
-        userInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                handleSendMessage();
+                addMessage('Error fetching fyyfyresponse. Please try again later.', false);
             }
         });
-    
+
         // Show/hide chat window and icon toggle
         chatIcon.addEventListener('click', () => {
             chatContainer.style.display = 'flex';
             chatIcon.style.display = 'none';  // Hide icon when chat window opens
         });
-    
-        // Close chat window (optional: if needed you can add close button or handle outside click)
+
         document.addEventListener('click', function (event) {
             const isClickInside = chatContainer.contains(event.target) || chatIcon.contains(event.target);
             if (!isClickInside && chatContainer.style.display === 'flex') {
@@ -209,7 +203,5 @@
             }
         });
     </script>
-    
-   
 </body>
 </html>
