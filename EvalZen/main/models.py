@@ -16,7 +16,6 @@ db = client['users']
 # Collections for candidates and instructors
 users_collection = db['candidate']
 instructors_collection = db['instructors']
-
 # Candidate Model
 class Candidate:
     @staticmethod
@@ -33,7 +32,11 @@ class Candidate:
         if candidate and candidate['password'] == password:
             return candidate
         return None
-
+    
+    def get_all_candidates():
+        """Retrieve all candidates from the collection."""
+        candidates = list(users_collection.find())  # Convert cursor to list
+        return candidates
 
 # Instructor Model
 class Instructor:
@@ -50,4 +53,11 @@ class Instructor:
         instructor = instructors_collection.find_one({"email": email})
         if instructor and instructor['password'] == password:
             return instructor
-        return None
+        return False
+    
+    @staticmethod
+    def get_all_instructors():
+        """Retrieve all instructors from the collection."""
+        instructors = list(instructors_collection.find())  # Convert cursor to list
+        return instructors
+    

@@ -101,106 +101,19 @@
                             </tr>
                         </thead>
                         <tbody id="userTable">
+
+                            {% for candidate in candidates %}
                             <tr>
-                                <td>Praveen Kumar</td>
-                                <td>Admin</td>
-                                <td>Active</td>
+                                <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
+                                <td>{{ candidate.email }}</td>
+                                <td>{{ candidate.password }}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm">Edit</button>
                                     <button class="btn btn-secondary btn-sm">Deactivate</button>
                                     <button class="btn btn-danger btn-sm">Delete</button>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Balachandar</td>
-                                <td>User</td>
-                                <td>Inactive</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Nithishkumar</td>
-                                <td>Admin</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Roshini</td>
-                                <td>User</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Rohit</td>
-                                <td>Moderator</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Virat</td>
-                                <td>User</td>
-                                <td>Inactive</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Butchar</td>
-                                <td>User</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Steve</td>
-                                <td>Admin</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Sanjai</td>
-                                <td>User</td>
-                                <td>Inactive</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Gopi</td>
-                                <td>Moderator</td>
-                                <td>Active</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

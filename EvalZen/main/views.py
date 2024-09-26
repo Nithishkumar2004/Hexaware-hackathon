@@ -52,8 +52,12 @@ def instructor_dashboard(request):
     return render(request,'instructor/Instructor_dashboard.html')
 def instructor_schedule(request):
     return render(request,'instructor/Instructor_schedule.html')
+
+
 def instructor_usermanagement(request):
-    return render(request,'instructor/Instructor_usermanagement.html')
+    can = Candidate.get_all_candidates()
+    return render(request,'instructor/Instructor_usermanagement.html',{'candidates':can})
+
 def instructor_create_assessment(request):
     return render(request,'instructor/Instructor_create_assessment.html')
 def instructor_review_submission(request):
@@ -85,7 +89,10 @@ def settings(request):
     return render(request, 'admin/Admin_settings.html')
 
 def usermanagement(request):
-    return render(request, 'admin/Admin_usermanagement.html')
+    candidates = Candidate.get_all_candidates()  # Assuming this method returns a queryset of candidates
+    instructors = Instructor.get_all_instructors()  # Ensure to call the method with parentheses
+  
+    return render(request, 'admin/Admin_usermanagement.html', {'candidates': candidates, 'instructors': instructors})
 
 def adminlogin(request):
     return render(request, 'admin/Admin_login.html')
@@ -168,16 +175,21 @@ def instructor_login(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        instructor = Instructor.verify_instructor_login(email, password)
+        # Check if the instructor exists
+        instructor = Instructor.verify_instructor_login(email,password)
 
         if instructor:
-            request.session['instructor_email'] = instructor['email']
-            return redirect('instructor_dashboard')
+            # If instructor exists, verify the password
+            if Instructor.verify_instructor_login(email, password):
+                request.session['instructor_email'] = email
+
+                return redirect('instructor_dashboard')
+            else:
+                messages.error(request, 'Invalid password. Please try again.')
         else:
-            messages.error(request, 'Invalid credentials. Please try again.')
+            messages.error(request, 'User does not exist. Please check your email.')
 
     return render(request, 'instructor/Instructor_login.html')
-
 
 def instructor_registration(request):
     if request.method == 'POST':
