@@ -250,7 +250,7 @@
         <a href="#"><i class="fas fa-bell"></i> <span class="link-text">Notifications</span></a>
         <a href="#"><i class="fas fa-trophy"></i> <span class="link-text">Achievements</span></a>
         <a href="#"><i the class="fas fa-history"></i> <span class="link-text">Quiz History</span></a>
-        <a href="{% url 'candidate_login' %}"><i class="fas fa-sign-out-alt"></i> <span class="link-text">Log Out</span></a>
+        <a href="{% url 'candidate_logout' %}"><i class="fas fa-sign-out-alt"></i> <span class="link-text">Log Out</span></a>
     </div>
 
     <div class="content" id="content">
@@ -318,8 +318,8 @@
                 <p>Application Deadline: ${job.application_deadline}</p>
 
                 <!-- Added Register Quiz and Start Quiz buttons -->
-                <a class="btn btn-primary" id="register-quiz-${job.job_id}">Register Quiz</a>
-                <a class="btn btn-success" href="{% url 'candidate_preassesment' %}" id="start-quiz-${job.job_id}">Start Quiz</a>
+                <a class="btn btn-primary" id="register-quiz-${job.job_id}">Register</a>
+                <a class="btn btn-success" href="{% url 'candidate_preassesment' %}" id="start-quiz-${job.job_id}">Start</a>
             </div>
             `;
         });

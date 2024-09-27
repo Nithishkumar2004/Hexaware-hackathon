@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Platform</title>
+ 
+    <style>
+        /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    text-align: center;
+}
+
+header {
+    background-color: #0056b3;
+    color: #fff;
+    padding: 1.5rem;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.project-info {
+    margin: 2rem;
+}
+
+.card-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem;
+}
+
+.card {
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 2rem;
+    width: 250px;
+    transition: transform 0.3s ease;
+}
+
+.card h3 {
+    color: #0056b3;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+button.view-details {
+    background-color: #0056b3;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+button.view-details:hover {
+    background-color: #004494;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 500px;
+    position: relative;
+    text-align: left;
+}
+
+.modal-content h3 {
+    color: #0056b3;
+    margin-bottom: 1rem;
+}
+
+.modal-content p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+footer {
+    background-color: #0056b3;
+    color: #fff;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+/* Modal Sections */
+#modal-overview, #modal-features, #modal-how-it-works {
+    margin-bottom: 1rem;
+}
+
+#modal-features ul {
+    padding-left: 1.5rem;
+}
+
+#modal-features ul li {
+    margin: 0.5rem 0;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the EvalZen</h1>
+        <p>Manage assessments for candidates, instructors, and admins effectively.</p>
+    </header>
+    
+    <main>
+        <section class="project-info">
+            <h2>Project Features</h2>
+            <p>This platform offers functionalities for candidates, instructors, and admins. Select a card to view more details.</p>
+        </section>
+
+        <section class="card-container">
+            <!-- Candidate Card -->
+            <div class="card" id="candidate-card">
+                <h3>Candidate</h3>
+                <p>Manage your assessments and track progress.</p>
+                <button class="view-details" onclick="showDetails('candidate')">View Details</button>
+            </div>
+
+            <!-- Instructor Card -->
+            <div class="card" id="instructor-card">
+                <h3>Instructor</h3>
+                <p>Create and review assessments for candidates.</p>
+                <button class="view-details" onclick="showDetails('instructor')">View Details</button>
+            </div>
+
+            <!-- Admin Card -->
+            <div class="card" id="admin-card">
+                <h3>Admin</h3>
+                <p>Manage platform, users, and assessment reports.</p>
+                <button class="view-details" onclick="showDetails('admin')">View Details</button>
+            </div>
+        </section>
+
+        <!-- Modal for displaying detailed content -->
+        <div class="modal" id="details-modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h3 id="modal-title"></h3>
+                <div id="modal-body">
+                    <div id="modal-overview"></div>
+                    <div id="modal-features"></div>
+                    <div id="modal-how-it-works"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <br><br><br><br><br>
+
+    <footer style="margin-top: 40px;">
+        <p>Assessment Platform &copy; 2024. All Rights Reserved.</p>
+    </footer>
+
+<script>
+    // Function to show modal with detailed content for each role
+function showDetails(role) {
+    const modal = document.getElementById('details-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalOverview = document.getElementById('modal-overview');
+    const modalFeatures = document.getElementById('modal-features');
+    const modalHowItWorks = document.getElementById('modal-how-it-works');
+
+    if (role === 'candidate') {
+        modalTitle.innerText = 'Candidate';
+        modalOverview.innerHTML = `
+            <h4>Overview</h4>
+            <p>Candidates can log in, view their dashboard, and participate in assessments. They can track their progress and view detailed reports on their performance.</p>`;
+        modalFeatures.innerHTML = `
+            <h4>Features</h4>
+            <ul>
+                <li>Login & Registration</li>
+                <li>Dashboard Access</li>
+                <li>Participate in Assessments</li>
+                <li>View Assessment Results</li>
+            </ul>`;
+        modalHowItWorks.innerHTML = `
+            <h4>How It Works</h4>
+            <p>Once a candidate logs in, they can access their dashboard where they can participate in assessments and review their performance. The system is designed to track progress and provide instant feedback.</p>`;
+    } else if (role === 'instructor') {
+        modalTitle.innerText = 'Instructor';
+        modalOverview.innerHTML = `
+            <h4>Overview</h4>
+            <p>Instructors can manage candidates, create and review assessments, and generate reports. They also have access to a settings panel for managing the assessment process.</p>`;
+        modalFeatures.innerHTML = `
+            <h4>Features</h4>
+            <ul>
+                <li>Login & Registration</li>
+                <li>Dashboard Access</li>
+                <li>Manage Candidates</li>
+                <li>Create and Review Assessments</li>
+                <li>Generate Reports</li>
+            </ul>`;
+        modalHowItWorks.innerHTML = `
+            <h4>How It Works</h4>
+            <p>Instructors can log in to create new assessments or review submitted assessments. They can manage candidates and generate detailed reports on their performance.</p>`;
+    } else if (role === 'admin') {
+        modalTitle.innerText = 'Admin';
+        modalOverview.innerHTML = `
+            <h4>Overview</h4>
+            <p>The admin panel provides complete control over the platform, allowing admins to upload questions, manage users, view reports, and use AI proctoring features.</p>`;
+        modalFeatures.innerHTML = `
+            <h4>Features</h4>
+            <ul>
+                <li>Login with Admin ID</li>
+                <li>Manage Users</li>
+                <li>Upload Questions</li>
+                <li>View Reports</li>
+                <li>AI Proctoring</li>
+            </ul>`;
+        modalHowItWorks.innerHTML = `
+            <h4>How It Works</h4>
+            <p>Admins have full access to the system, allowing them to manage users and assessments. They can upload new questions for assessments and use AI tools for proctoring and managing reports.</p>`;
+    }
+
+    modal.style.display = 'flex';
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById('details-modal');
+    modal.style.display = 'none';
+}
+
+</script>
+</body>
+</html>

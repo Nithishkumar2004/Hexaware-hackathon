@@ -53,36 +53,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-2 sidebar d-none d-md-block">
-                <div class="d-flex flex-column align-items-center">
-                    <img src="{% static 'main/adminlogo.png' %}" alt="logo-2" width="50" height="50" border="0"></a>
-                    <h4>EvalZen</h4>
-                    <small>Assess With Confidence</small>
-                </div>
-                <ul class="nav flex-column mt-4">
-                    <li class="nav-item">
-                        <a href="{% url 'admindashboard' %}" class="nav-link ">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'usermanagement' %}" class="nav-link">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'adminassessment' %}" class="nav-link">Assessments</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'manualquestionupload' %}" class="nav-link">Question Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'aiproctor' %}" class="nav-link">AI Proctoring</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'report' %}" class="nav-link active">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'settings' %}" class="nav-link">Settings</a>
-                    </li>
-                </ul>
-            </nav>
+            {% include 'admin/sidebar.html' %}
 
 
 

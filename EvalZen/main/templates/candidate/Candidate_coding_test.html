@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">{% load static %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT Interview Questions - Assessment Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-javascript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-python.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/theme-monokai.js"></script>
+
+  <style>
+    /* Body styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background-color: #e4f0ff;
+      border-bottom: 2px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-left, .nav-center, .nav-right {
+      flex: 1;
+  }
+  
+  .nav-logo img {
+      width: 50px;
+      height: 50px;
+  }
+  
+  .nav-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+  }
+  
+  .icon {
+      width: 30px;
+      height: 30px;
+  }
+  
+  .nav-right {
+      display: flex;
+      justify-content: flex-end; /* Align menu icon to the right */
+      align-items: center;
+  }
+
+    /* Container styling */
+    .container {
+      display: flex;
+      justify-content: space-between;
+      
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Question Section */
+    .question-section {
+      width:50vw;
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #eef2f7;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .question-section h2 {
+      margin: 0;
+      font-size: 1.5em;
+      color: #333;
+    }
+
+    .question-section p {
+      font-size: 1.2em;
+      color: #555;
+    }
+
+    /* Code Execution Section */
+    .code-execution {
+      width: 60%;
+      padding: 15px;
+    }
+
+    .code-execution h1 {
+      color: #007BFF;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+
+    .language-selection {
+      margin-bottom: 20px;
+    }
+
+    .language-selection label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    .code-editor {
+      width: 100%;
+      height: 200px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1em;
+      resize: vertical;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .btn {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .output-card {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f9f9f9;
+    }
+
+    .output-card h3 {
+      margin-bottom: 10px;
+      color: #007BFF;
+    }
+
+    #output {
+      white-space: pre-wrap;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    /* Right Panel */
+    .right-panel {
+      width: 45%;
+      padding: 15px;
+    }
+
+    .camera {
+      margin-bottom: 20px;
+      text-align: center;
+      height:60vh;
+      width:50vw;
+    }
+
+    #webcam {
+      width: 200px;
+      height: 200px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    /* Timer styling */
+    .timer {
+      text-align: center;
+      margin-left:60px;
+    }
+
+    .timer h4 {
+      margin-bottom: 10px;
+    }
+
+    .timer span {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #007BFF;
+    }
+  </style>
+
+  <script>
+    // Access user's webcam and display it on the video element
+    async function startWebcam() {
+      const video = document.getElementById('webcam');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        monitorUserActivity(video);
+      } catch (err) {
+        console.error("Error accessing webcam:", err);
+        document.getElementById('camera-status').innerText = "Webcam access denied.";
+      }
+    }
+
+    // Function to monitor user activity using a basic face detection model
+    async function monitorUserActivity(video) {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights');
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+        if (detections.length === 0) {
+          document.getElementById('camera-status').innerText = "No face detected!";
+          console.log("No face detected, possible malpractice");
+        } else if (detections.length > 1) {
+          document.getElementById('camera-status').innerText = "Multiple faces detected!";
+          console.log("Multiple faces detected, possible malpractice");
+        } else {
+          document.getElementById('camera-status').innerText = "Monitoring User Activity";
+        }
+      }, 5000);
+    }
+
+    window.addEventListener('load', () => {
+      startWebcam();
+      fetchQuestion(); // Fetch the question when the page loads
+    });
+
+    // Timer functionality (30-minute countdown)
+  // Timer functionality (30-minute countdown)
+let timeLeft = 1800; // 30 minutes in seconds
+
+function startTimer() {
+    const timerElement = document.getElementById('time');
+    const timerInterval = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        if (seconds < 10) {
+            seconds = '0' + seconds; // Adds a leading zero for single digit seconds
+        }
+        timerElement.innerHTML = `${minutes}:${seconds}`; // Update the timer display
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert('Time is up!');
+        }
+        timeLeft--; // Decrement time by 1 second
+    }, 1000); // Interval set to 1 second
+}
+
+
+    // Fetch question from MongoDB (backend integration needed)
+    async function fetchQuestion() {
+      try {
+        const response = await fetch('/api/get-question'); // Adjust the API endpoint as per your backend
+        const data = await response.json();
+        document.getElementById('question-text').textContent = data.question;
+      } catch (error) {
+        console.error('Error fetching question:', error);
+        document.getElementById('question-text').textContent = 'Error loading question.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const editor = ace.edit('editor');
+      editor.setTheme('ace/theme/monokai');
+      editor.session.setMode('ace/mode/javascript');
+
+      const languageSelect = document.getElementById('language');
+      const outputElement = document.getElementById('output');
+
+      languageSelect.addEventListener('change', function () {
+        const selectedLanguage = languageSelect.value;
+        editor.session.setMode(`ace/mode/${selectedLanguage}`);
+      });
+
+      async function runCode() {
+        const code = editor.getValue();
+        const selectedLanguage = languageSelect.value;
+        const payload = {
+          code: code,
+          language: selectedLanguage === 'javascript' ? 'js' : 'py',
+        };
+
+        try {
+          const response = await fetch('https://api.codex.jaagrav.in/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(payload).toString(),
+          });
+
+          const result = await response.json();
+          if (result.status === 200) {
+            outputElement.textContent = result.output || 'No output generated';
+          } else {
+            outputElement.textContent = result.error || 'Error executing code';
+          }
+        } catch (error) {
+          console.error('Error running code:', error);
+          outputElement.textContent = 'Error executing code';
+        }
+      }
+
+      async function submitCode() {
+        const code = editor.getValue();
+        const selectedLanguage = languageSelect.value;
+
+        try {
+          const response = await fetch('/api/submit-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code, language: selectedLanguage })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            alert('Code submitted successfully!');
+          } else {
+            alert('Error submitting code');
+          }
+        } catch (error) {
+          console.error('Error submitting code:', error);
+          alert('Error submitting code');
+        }
+      }
+
+      window.runCode = runCode;
+      window.submitCode = submitCode;
+    });
+    window.addEventListener('load', () => {
+      startWebcam();
+      fetchQuestion(); // Fetch the question when the page loads
+      startTimer(); // Start the 30-minute countdown timer
+  });
+  
+  </script>
+</head>
+<body>
+ 
+  {% include 'candidate/assessment_header.html' %}
+  <div class="container">
+    <!-- Left Side Panel: Code Execution Section -->
+    <div class="code-execution">
+      <div class="question-section">
+        <h2>Question:</h2>
+        <p id="question-text">Fetching question...</p>
+      </div>
+
+      <h1>Code Execution</h1>
+      
+      <!-- Programming Language Selection -->
+      <div class="language-selection">
+        <label for="language">Select Language:</label>
+        <select id="language">
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+        </select>
+      </div>
+
+      <!-- Code Editor -->
+      <div id="editor" class="code-editor">// Write your code here...</div>
+
+      <!-- Run and Submit Buttons -->
+      <div class="actions">
+        <button class="btn" onclick="runCode()">Run Code</button>
+        <button class="btn" onclick="submitCode()">Submit Code</button>
+      </div>
+
+      <!-- Output Section -->
+      <div class="output-card">
+        <h3>Output:</h3>
+        <div id="output">Your output will be displayed here...</div>
+      </div>
+    </div>
+
+    <!-- Right Side Panel: Webcam and Timer -->
+    <div class="right-panel">
+      <!-- Webcam Section -->
+      <div class="camera">
+        <h1>Webcam Monitoring</h1>
+        <video id="webcam" autoplay></video>
+        <p id="camera-status">Monitoring User Activity...</p>
+      </div>
+
+      <!-- Timer Section -->
+      <div class="timer">
+        <h4>Time Remaining:</h4>
+        <span id="time">25:00</span> <!-- Example for a 30-minute timer -->
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -19,8 +19,11 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'main/index.html')
 
-def index(request):
-    return render(request, 'main/index.html')
+def features(request):
+    return render(request, 'main/features.html')
+
+def forgotpassword(request):
+    return render(request, 'main/forgotpass.html')
 
 def candidate_login(request):
     return render(request, 'candidate/Candidate_login.html')
@@ -163,6 +166,12 @@ def candidate_logout(request):
     request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
     return redirect('candidate_login')
+
+def canididate_assessment_choice(request):
+    return render(request, 'candidate/Candidate_assessment_choice.html')
+
+def candidate_coding_test(request):
+    return render(request, 'candidate/Candidate_coding_test.html')
 
 
 # Instructor Views

@@ -15,7 +15,7 @@ let questions = [];
 
 // Load questions from a CSV file
 function loadQuestions() {
-    fetch('{%static `file/questions.csv`%}')
+    fetch("{%static 'file/questions.csv'%}")
         .then(response => response.text())
         .then(data => {
             const rows = data.split('\n');
@@ -122,21 +122,8 @@ window.onload = function() {
         
 </head>
 <body>     
-    <nav class="navbar">
-        <div class="nav-left">
-            <!-- Logo -->
-            <a href="logo.png" class="nav-logo">
-                <img src="{% static 'main/logo.png' %}" alt="Assessment Logo" class="logo">
-            </a>
-        </div>
-        <div class="nav-center">
-            <span class="nav-title">Assessment Platform</span>
-        </div>
-        <div class="nav-right">
-            <!-- Menu Icon -->
-            <img src="{%static 'main/dots.png'%}" alt="Menu" class="icon">
-        </div>
-    </nav>
+  
+    {% include 'candidate/assessment_header.html' %}
     
   
     <div class="con">
