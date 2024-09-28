@@ -56,6 +56,11 @@
         .preview-section {
             margin-top: 20px;
         }
+
+        #mcq-options,
+        #mcq-answer {
+            display: block;
+        }
     </style>
 </head>
 
@@ -73,63 +78,38 @@
                     <h4>Upload Questions Manually</h4>
                     <form id="uploadForm">
                         <div class="mb-3">
-                            <label for="questionText" class="form-label">Question Text</label>
-                            <input type="text" class="form-control" id="questionText"
-                                placeholder="Enter the question text">
+                            <label for="test-type" class="form-label">Select Question Type</label>
+                            <select class="form-control" id="test-type" required>
+                                <option value="">Choose test type...</option>
+                                <option value="mcq">MCQ</option>
+                                <option value="coding">Coding Test</option>
+                            </select>
                         </div>
                         <div class="mb-3">
+                            <label for="questionText" class="form-label">Question Text</label>
+                            <input type="text" class="form-control" id="questionText"
+                                placeholder="Enter the question text" required>
+                        </div>
+                        <div id="mcq-options" class="mb-3">
                             <label for="options" class="form-label">Options (comma-separated)</label>
                             <input type="text" class="form-control" id="options" placeholder="Enter options">
                         </div>
-                        <div class="mb-3">
+                        <div id="mcq-answer" class="mb-3">
                             <label for="answer" class="form-label">Correct Answer</label>
                             <input type="text" class="form-control" id="answer" placeholder="Enter the correct answer">
                         </div>
                         <div class="mb-3">
                             <label for="tags" class="form-label">Tags (comma-separated)</label>
-                            <input type="text" class="form-control" id="tags" placeholder="Enter tags">
+                            <input type="text" class="form-control" id="tags" placeholder="Enter tags" required>
                         </div>
-
-                        <!-- Image Upload with Preview -->
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Upload Image</label>
-                            <img id="imagePreview"
-                            style="display:none; margin-left: 10px;" />
-            
-                            <div class="d-flex">
-                               
-                                <input type="file" class="form-control" id="image" accept="image/*"
-                                    onchange="previewImage(event)">
-                                      </div>
-                        </div>
-
                         <button type="submit" class="btn btn-primary">Add Question</button>
                     </form>
-
-
-
                 </div>
 
-                <!-- Bulk Upload -->
-                <div class="widget">
-                    <h4>Bulk Upload Questions</h4>
-                    <form id="bulkUploadForm">
-                        <div class="mb-3">
-                            <label for="fileUpload" class="form-label">Upload CSV or Excel File</label>
-                            <input type="file" class="form-control" id="fileUpload" accept=".jpg">
-                        </div>
-                        <button type="submit" class="btn btn-success">Upload</button>
-                    </form>
-                    <div class="progress mt-3" style="display:none;" id="uploadProgress">
-                        <div class="progress-bar" role="progressbar" style="width: 0%;" id="progressBar"
-                            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                    </div>
-                </div>
-
-                <!-- Preview Section -->
-                <div class="widget preview-section" id="previewSection">
-                    <h4>Preview Questions</h4>
-                    <table class="table table-bordered" id="previewTable">
+                <!-- Preview Section for MCQ -->
+                <div class="widget preview-section" id="mcq-preview">
+                    <h4>Preview MCQ Questions</h4>
+                    <table class="table table-bordered" id="mcqTable">
                         <thead>
                             <tr>
                                 <th>Question Text</th>
@@ -139,80 +119,145 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Preview rows will be added here dynamically -->
+                            <!-- MCQ Preview rows will be added here dynamically -->
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Preview Section for Coding Test -->
+                <div class="widget preview-section" id="coding-preview">
+                    <h4>Preview Coding Test Questions</h4>
+                    <table class="table table-bordered" id="codingTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Tags</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Coding Test Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <form id="assessmentForm" method="POST">
+                    {% csrf_token %}
+                    <div class="widget">
+                        <label for="assessmentNo" class="form-label">Assessment No. or Name</label>
+                        <input type="text" class="form-control" id="assessmentNo"
+                            placeholder="Enter the assessment number or name" required>
+                        <input type="hidden" class="mb-3">
+                        <br>
+                        <button type="submit" class="btn btn-success">Submit Assessment</button>
+                    </div>
+                </form>
             </main>
         </div>
     </div>
 
     <script>
+        // Global object to store all question data
+        let globalQuestionData = {
+            assessment_no: "",
+            mcq: [],
+            coding: []
+        };
 
-        function previewImage(event) {
-            const imagePreview = document.getElementById('imagePreview');
-            const file = event.target.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                imagePreview.style.display = 'none';
-                imagePreview.src = '';
-            }
-        }
-        // Handle form submission and preview
+        // Handle form submission and question preview
         document.getElementById('uploadForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            // Simulate adding a question manually
+
+            // Get form values
+            const questionType = document.getElementById('test-type').value;
             const questionText = document.getElementById('questionText').value;
             const options = document.getElementById('options').value;
             const answer = document.getElementById('answer').value;
             const tags = document.getElementById('tags').value;
 
-            const table = document.getElementById('previewTable').getElementsByTagName('tbody')[0];
-            const newRow = table.insertRow();
-            newRow.insertCell(0).textContent = questionText;
-            newRow.insertCell(1).textContent = options;
-            newRow.insertCell(2).textContent = answer;
-            newRow.insertCell(3).textContent = tags;
-
-            // Clear the form
-            document.getElementById('uploadForm').reset();
-        });
-
-        // Handle bulk file upload
-        document.getElementById('bulkUploadForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const file = document.getElementById('fileUpload').files[0];
-            if (!file) {
-                alert('Please select a file to upload.');
+            // Validate input
+            if (!questionText || !tags || (questionType === 'mcq' && (!options || !answer))) {
+                alert('Please fill in all required fields.');
                 return;
             }
 
-            // Simulate file upload and progress
-            const progress = document.getElementById('uploadProgress');
-            const progressBar = document.getElementById('progressBar');
-            progress.style.display = 'block';
+            // Prepare new question object
+            const newQuestion = {
+                question_text: questionText,
+                options: options ? options.split(',') : [],
+                answer: answer || null,
+                tags: tags.split(',')
+            };
 
-            let progressValue = 0;
-            const interval = setInterval(() => {
-                progressValue += 10;
-                progressBar.style.width = progressValue + '%';
-                progressBar.textContent = progressValue + '%';
-                if (progressValue >= 100) {
-                    clearInterval(interval);
-                    alert('Upload complete!');
-                }
-            }, 500); // Simulate progress every 500ms
+            // Append to the appropriate section and global object
+            if (questionType === 'mcq') {
+                // Add to global data
+                globalQuestionData.mcq.push(newQuestion);
+
+                // Add to MCQ preview
+                const table = document.getElementById('mcqTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+                newRow.insertCell(0).textContent = questionText;
+                newRow.insertCell(1).textContent = options;
+                newRow.insertCell(2).textContent = answer;
+                newRow.insertCell(3).textContent = tags;
+            } else if (questionType === 'coding') {
+                // Add to global data
+                globalQuestionData.coding.push(newQuestion);
+
+                // Add to Coding preview
+                const table = document.getElementById('codingTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+                newRow.insertCell(0).textContent = questionText;
+                newRow.insertCell(1).textContent = tags;
+            }
+
+            // Clear the form after submission
+            document.getElementById('uploadForm').reset();
+        });
+
+        // Handle assessment submission
+        document.getElementById('assessmentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get assessment number/name
+            const assessmentNo = document.getElementById('assessmentNo').value;
+            console.log(globalQuestionData)
+            globalQuestionData.assessment_no = assessmentNo;
+
+            // Send global question data to the backend
+            fetch('/add-assessment/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(globalQuestionData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Assessment submitted successfully!');
+                    } else {
+                        alert('Error submitting assessment');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Clear the global data after submission
+            globalQuestionData = {
+                assessment_no: "",
+                mcq: [],
+                coding: []
+            };
+        });
+
+        // Toggle MCQ options and answer based on question type
+        document.getElementById('test-type').addEventListener('change', function () {
+            const selectedType = this.value;
+            document.getElementById('mcq-options').style.display = selectedType === 'mcq' ? 'block' : 'none';
+            document.getElementById('mcq-answer').style.display = selectedType === 'mcq' ? 'block' : 'none';
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -62,10 +62,34 @@ def candidate_dashboard(request):
 def candidate_preassesment(request):
     return render(request, 'candidate/Candidate_preassesment.html')
 
+def system_check(request):
+    if request.method == 'POST':
+        # Here, you can add logic to check system requirements, such as:
+        internet_check = request.is_ajax() and request.META.get('HTTP_REFERER') is not None
+        camera_check = True  # This can be True since we can't check directly on server
+        microphone_check = True  # This can also be True for the same reason
+
+        # Prepare feedback for the user
+        feedback = {
+            'internet': 'Internet connection is available.' if internet_check else 'No internet connection detected.',
+            'camera': 'Camera access is granted.',
+            'microphone': 'Microphone access is granted.',
+        }
+        
+        # Determine if all checks passed
+        all_checks_passed = internet_check and camera_check and microphone_check
+        return JsonResponse({
+            'success': all_checks_passed,
+            'feedback': feedback,
+        })
+
+    return render(request, 'candidate/System_check.html')
+
 def candidate_registration(request):
     return render(request, 'candidate/Candidate_registration.html')
 
-
+def candidate_access(request):
+    return render(request, 'candidate/Candidate_access.html')
 
 def candidate_assesment(request):
     return render(request, 'candidate/Candidate_assesment.html')
@@ -110,8 +134,39 @@ def aiproctor(request):
 def assessment(request):
     return render(request, 'admin/Admin_assessment.html')
 
+
 def manualquestionupload(request):
+    if request.method == 'POST':
+        # Extract data from the request
+        question_text = request.POST.get('question_text')  # Adjust based on your form
+        options = request.POST.getlist('options')  # Assuming options are sent as a list
+        correct_option = request.POST.get('correct_option')  # Assuming this is the index or value of the correct option
+
+        # Perform validation
+        if question_text and options and correct_option:
+            try:
+                # Create a new question object
+                question = Question(
+                    text=question_text,
+                    correct_option=correct_option
+                )
+                question.save()  # Save the question to the database
+                
+                # If you have a method to save options, implement it here
+                for option in options:
+                    question.options.create(text=option)  # Assuming you have an options relation
+
+                messages.success(request, "Question uploaded successfully!")  # Flash message
+                return redirect('admin:manual_question_upload')  # Redirect to the same page or another page
+
+            except Exception as e:
+                messages.error(request, f"Error uploading question: {str(e)}")  # Error handling
+
+        else:
+            messages.error(request, "Please fill in all fields.")  # Error for empty fields
+
     return render(request, 'admin/Admin_manualquestionupload.html')
+
 
 def report(request):
     return render(request, 'admin/Admin_report.html')

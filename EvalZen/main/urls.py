@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (candidate_access, candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 # from .models import (instructor_login,instructor_logout,instructor_registration,candidate_login,candidate_logout,candidate_registration)
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('candidate_login/', candidate_login, name='candidate_login'),
     path('candidate_registration/', candidate_registration, name='candidate_registration'),
     path('candidate_dashboard/', candidate_dashboard, name='candidate_dashboard'),
+    path('candidate_access/', system_check, name='candidate_access'),
     path('candidate_preassesment/', candidate_preassesment, name='candidate_preassesment'),
     path('candidate_assesment/', candidate_assesment, name='candidate_assesment'),
     path('Assessment_choice/', canididate_assessment_choice, name='candidate_assesment_choice'),
