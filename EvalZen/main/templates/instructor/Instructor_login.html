@@ -81,6 +81,15 @@
                 <button type="button" class="btn btn-outline-secondary w-100 mt-3">
                     <i class="fab fa-google me-2"></i> Sign in with Google
                 </button>
+
+                   <!-- Display messages here -->
+                   {% if messages %}
+                   <div class="alert alert-danger mt-3" role="alert">
+                       {% for message in messages %}
+                       {{ message }}
+                       {% endfor %}
+                   </div>
+                   {% endif %}
             </form>
             
             <p class="text-center mt-3">Don't have an account? <a href="{% url 'instructor_registration' %}">Sign up</a></p>

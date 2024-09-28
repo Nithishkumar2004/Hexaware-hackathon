@@ -97,12 +97,55 @@ def candidate_assesment(request):
 def contact_us(request):
     return render(request, 'main/Main_contact_us.html')
 #Instructor views
-
 def instructor_login(request):
+    if request.session.get('instructor_email'):
+        return redirect('instructor_dashboard')
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Check if the instructor exists
+        instructor = Instructor.verify_instructor_login(email,password)
+
+        if instructor:
+            # If instructor exists, verify the password
+            if Instructor.verify_instructor_login(email, password):
+                request.session['instructor_email'] = email
+
+                return redirect('instructor_dashboard')
+            else:
+                messages.error(request, 'Invalid password. Please try again.')
+        else:
+            messages.error(request, 'User does not exist. Please check your email.')
+
     return render(request, 'instructor/Instructor_login.html')
 
 def instructor_registration(request):
-    return render(request,'instructor/Instructor_registration.html')
+    if request.method == 'POST':
+        employee_id = request.POST.get('employeeId')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if Instructor.find_instructor_by_email(email):
+            messages.error(request, 'Email is already registered.')
+            return redirect('instructor_login')
+
+        instructor_data = {
+            "employee_id": employee_id,
+            "name": name,
+            "email": email,
+            "password": password,
+            "status": 'deactive',
+        }
+
+        Instructor.add_instructor(instructor_data)
+        messages.success(request, 'Instructor account created successfully!')
+        return redirect('instructor_login')
+
+    return render(request, 'instructor/Instructor_registration.html')
+
 def instructor_dashboard(request):
     return render(request,'instructor/Instructor_dashboard.html')
 def instructor_schedule(request):
