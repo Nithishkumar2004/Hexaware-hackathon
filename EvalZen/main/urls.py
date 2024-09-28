@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import  (candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings,usermanagement,adminlogin,canididate_assessment_choice)
+from .views import  (candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback,usermanagement,admin_login,canididate_assessment_choice)
 # from .models import (instructor_login,instructor_logout,instructor_registration,candidate_login,candidate_logout,candidate_registration)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
-
+    path('feedback/', submit_feedback, name='feedback'),
     path('features/', features, name='features'),
     path('forgotpassword/', forgotpassword, name='forgotpassword'),
     #instructor
@@ -39,7 +39,7 @@ urlpatterns = [
     path('Admin_report/',report,name='report'),
     path('Admin_settings/',settings,name='settings'),
     path('Admin_usermanagement/',usermanagement,name='usermanagement'),
-    path('Admin_login/',adminlogin,name='adminlogin'),
+    path('Admin_login/',admin_login,name='adminlogin'),
     path('chatbot/', chatbot_view, name='chatbot_view'),
 
 

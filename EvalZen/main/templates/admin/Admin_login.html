@@ -44,14 +44,29 @@
             <h2 class="text-uppercase">Admin Login</h2>
             <p>Secure access to your dashboard.</p>
             <!-- Login Form -->
-            <form class="mt-4">
+            <form class="mt-4" method="POST" action="{% url 'adminlogin' %}">
+                {% csrf_token %}
                 <div class="mb-3">
                     <label for="adminid" class="form-label">Admin ID</label>
-                    <input type="text" class="form-control" id="adminid" placeholder="Enter your Admin ID">
+                    <input type="text" class="form-control" id="adminid" name="adminid" placeholder="Enter your Admin ID">
+                </div>
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
                 </div>
 
-                <a href="{% url 'admindashboard' %}" class="btn btn-primary w-100">Login</a>
+                {% if messages %}
+                <div class="alert alert-danger" role="alert">
+                    {% for message in messages %}
+                    {{ message }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
+            
         </div>
 
         <!-- Illustration Section -->

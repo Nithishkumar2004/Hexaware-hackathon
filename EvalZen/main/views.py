@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 import openai
 import os
 
-from .models import Candidate, Instructor
+from .models import Admin, Candidate, Instructor
 from main.forms import ContactForm
 from main.candidate_form import SignupForm
 
@@ -15,6 +15,34 @@ from main.candidate_form import SignupForm
 
 
 from django.shortcuts import render
+
+from .models import FeedbackModel 
+
+def submit_feedback(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        feedback = request.POST.get('feedback')
+
+        # Prepare the data to insert
+        feedback_data = {
+            'name': name,
+            'email': email,
+            'feedback': feedback
+        }
+
+        # Insert into MongoDB using the FeedbackModel
+        FeedbackModel.insert_feedback(feedback_data)
+
+        # Show success message and redirect or return a response
+        messages.success(request, 'Thank you for your feedback!')
+        return redirect('feedback')  # Assuming 'feedback' is the name of the feedback page's URL
+
+    # Render the form on GET request
+    return render(request, 'main/Main_contact_us.html')
+
+
+
 
 def index(request):
     return render(request, 'main/index.html')
@@ -97,8 +125,24 @@ def usermanagement(request):
   
     return render(request, 'admin/Admin_usermanagement.html', {'candidates': candidates, 'instructors': instructors})
 
-def adminlogin(request):
-    return render(request, 'admin/Admin_login.html')
+def admin_login(request):
+    if request.method == 'POST':
+        admin_id = request.POST.get('adminid')
+        password = request.POST.get('password')
+
+        # Fetch static admin credentials using the Admin model
+        admin_credentials = Admin.get_admin_credentials(admin_id)
+
+        if admin_credentials and admin_credentials['password'] == password:
+            # Successful login, redirect to the admin dashboard
+            return redirect('admindashboard')
+        
+        else:
+            messages.error(request, 'Invalid Admin ID or Password')
+            return render(request, 'admin/Admin_login.html')
+    else:
+        return render(request, 'admin/Admin_login.html')
+
 def chatbot_view(request):
     return render(request, 'main/chatbot.html')
 

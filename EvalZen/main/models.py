@@ -2,7 +2,11 @@ import os
 from dotenv import load_dotenv
 import pymongo
 from pymongo.server_api import ServerApi
-
+import json
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+from django.contrib import messages
+from django.urls import reverse
 # Load environment variables from .env file
 load_dotenv()
 
@@ -12,11 +16,34 @@ client = pymongo.MongoClient(MONGO_URI, server_api=ServerApi('1'))
 
 # Database
 db = client['users']
-
-# Collections for candidates and instructors
 users_collection = db['candidate']
 instructors_collection = db['instructors']
-# Candidate Model
+
+
+questions_db = client['Questions']
+mcq_collection = questions_db['mcq']
+coding_collection = questions_db['coding_test']
+
+admin_db=client['AdminAuth']
+admin_collection=admin_db['Admin Details']
+
+
+feedback_db = client['Feedback']  
+collection =feedback_db['Details']
+
+class Admin:
+    @staticmethod
+    def get_admin_credentials(admin_id):
+        """Fetch admin credentials from MongoDB."""
+        return admin_collection.find_one({"admin_id": admin_id})
+
+
+class FeedbackModel:
+    @staticmethod
+    def insert_feedback(data):
+        """Insert feedback data into MongoDB."""
+        collection.insert_one(data)
+
 class Candidate:
     @staticmethod
     def add_candidate(candidate_data):
