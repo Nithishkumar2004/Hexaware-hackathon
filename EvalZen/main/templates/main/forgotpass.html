@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">{% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,15 +54,6 @@
             border-color: #003366;
         }
 
-        .btn-outline-secondary {
-            color: #333;
-            border-color: #ccc;
-        }
-
-        p.text-center a {
-            color: #EA4335;
-        }
-
         .error-message {
             color: red;
             font-size: 14px;
@@ -69,94 +61,179 @@
         }
     </style>
 </head>
+
 <body>
     {% include 'main/header.html' %}
     <div class="main">
-    <div class="blur-overlay"></div>
+        <div class="blur-overlay"></div>
 
-    <!-- Forgot Password Section -->
-    <div class="card p-5" style="max-width: 500px; width: 100%; z-index: 10;">
-        <h2 class="text-uppercase text-center">Forgot Password</h2>
-        <p class="text-center">Reset your password by verifying your email and role.</p>
-        <!-- Forgot Password Form -->
-        <form class="mt-4">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter your email">
-            </div>
-            <div class="mb-3">
-                <label for="role" class="form-label">Select Role</label>
-                <select class="form-select" id="role">
-                    <option value="candidate">Candidate</option>
-                    <option value="instructor">Instructor</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
-            <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">Verify OTP</button>
-
-            <!-- OTP Input Field (Hidden initially) -->
-            <div class="mt-3 d-none" id="otpSection">
+        <!-- Forgot Password Section -->
+        <div class="card p-5" style="max-width: 500px; width: 100%; z-index: 10;">
+            <h2 class="text-uppercase text-center">Forgot Password</h2>
+            <p class="text-center">Reset your password by verifying your email and role.</p>
+            <!-- Forgot Password Form -->
+            <form class="mt-4" id="forgotPasswordForm">
                 <div class="mb-3">
-                    <label for="otp" class="form-label">Enter OTP</label>
-                    <input type="text" class="form-control" id="otp" placeholder="Enter the OTP">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
                 </div>
-                <button type="button" class="btn btn-primary w-100" id="submitOtpBtn">Submit</button>
-            </div>
-        </form>
-    </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Select Role</label>
+                    <select class="form-select" id="role" required>
+                        <option value="candidate">Candidate</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
 
-    <!-- Password Reset Section (Redirected after OTP submission) -->
-    <div class="card p-5 d-none" id="passwordResetSection" style="max-width: 500px; width: 100%; z-index: 10;">
-        <h2 class="text-uppercase text-center">Welcome</h2>
-        <h2 class="text-uppercase text-center">Update Password</h2>
-        <p class="text-center">Enter your new password.</p>
-        <!-- Password Update Form -->
-        <form class="mt-4" id="updatePasswordForm">
-            <div class="mb-3">
-                <label for="newPassword" class="form-label">New Password</label>
-                <input type="password" class="form-control" id="newPassword" placeholder="Create new password">
-            </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
-            </div>
-            <p class="error-message" id="passwordError">Passwords do not match or fields are empty.</p>
-            <button type="button" class="btn btn-primary w-100" id="updatePasswordBtn">Update Password</button>
-        </form>
-        <p class="text-center mt-4">
-            <a href="" class="text-danger">Back to Login</a>
-        </p>
+                <button type="button" class="btn btn-primary w-100" id="getOtpBtn">GET OTP</button>
+
+                <!-- OTP Input Field (Hidden initially) -->
+                <div class="mt-3 d-none" id="otpSection">
+                    <div class="mb-3">
+                        <label for="otp" class="form-label">Enter OTP</label>
+                        <input type="text" class="form-control" id="otp" placeholder="Enter the OTP" required>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100" id="verifyOtpBtn">Verify OTP</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Password Reset Section (Redirected after OTP submission) -->
+        <div class="card p-5 d-none" id="passwordResetSection" style="max-width: 500px; width: 100%; z-index: 10;">
+            <h2 class="text-uppercase text-center">Update Password</h2>
+            <p class="text-center">Enter your new password.</p>
+            <!-- Password Update Form -->
+            <form method="POST" class="mt-4" id="updatePasswordForm">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="newPassword" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" name="new_password"
+                        placeholder="Create new password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirm_password"
+                        placeholder="Confirm new password" required>
+                </div>
+
+                <p class="error-message" id="passwordError" style="display:none;">Passwords do not match or fields are empty.</p>
+
+                <!-- Hidden fields to hold email and role -->
+                <input type="hidden" id="hiddenEmail" name="email">
+                <input type="hidden" id="hiddenRole" name="role">
+
+                <button type="submit" class="btn btn-primary w-100" id="updatePasswordBtn">Update Password</button>
+            </form>
+
+            <p class="text-center mt-4">
+                <a href="" class="text-danger">Back to Login</a>
+            </p>
+        </div>
     </div>
-</div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Script to Handle OTP Verification and Page Switch -->
     <script>
-        document.getElementById('verifyOtpBtn').addEventListener('click', function() {
-            document.getElementById('otpSection').classList.remove('d-none');
+        document.getElementById('getOtpBtn').addEventListener('click', function () {
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+
+            // Send the email and role to the backend to generate and send OTP
+            fetch('/send-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Add CSRF token for security
+                },
+                body: JSON.stringify({ email: email, role: role })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('otpSection').classList.remove('d-none');
+                        alert('OTP sent to your email!');
+                    } else {
+                        alert('Failed to send OTP. Please try again.');
+                    }
+                });
         });
 
-        document.getElementById('submitOtpBtn').addEventListener('click', function() {
-            document.querySelector('.card').classList.add('d-none');
-            document.getElementById('passwordResetSection').classList.remove('d-none');
+        document.getElementById('verifyOtpBtn').addEventListener('click', function () {
+            const enteredOtp = document.getElementById('otp').value;
+            const email = document.getElementById('email').value;
+
+            // Verify the OTP with the backend
+            fetch('/verify-otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email: email, otp: enteredOtp })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('passwordResetSection').classList.remove('d-none');
+                        document.getElementById('forgotPasswordForm').classList.add('d-none');  // Hide the form
+                        document.getElementById('hiddenEmail').value = email;  // Pass the email to the password reset form
+                        document.getElementById('hiddenRole').value = document.getElementById('role').value;  // Pass the role
+                        alert('OTP verified! You can now change your password.');
+                    } else {
+                        alert('Invalid OTP. Please try again.');
+                    }
+                });
         });
 
-        document.getElementById('updatePasswordBtn').addEventListener('click', function() {
+        document.getElementById('updatePasswordForm').addEventListener('submit', function (event) {
+            event.preventDefault();  // Prevent default form submission
+
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorMessage = document.getElementById('passwordError');
+            const passwordError = document.getElementById('passwordError');
 
-            if (newPassword === '' || confirmPassword === '' || newPassword !== confirmPassword) {
-                errorMessage.style.display = 'block';
+            if (newPassword !== confirmPassword) {
+                passwordError.style.display = 'block';  // Show error message
+                return;  // Exit function
             } else {
-                errorMessage.style.display = 'none';
-                // Simulate a successful password update and redirect to login page
-                alert('Password updated successfully!');
-                window.history.back().back();
+                passwordError.style.display = 'none';  // Hide error message
             }
+
+            // Create FormData object to send data
+            const formData = new FormData(this);
+
+            // Submit the form data via fetch
+            fetch('/update-password/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);  // Success message
+
+                        const role = document.getElementById('role').value;
+                        if (role === 'candidate') {
+                            window.location.href = '/candidate_login/';
+                        } else {
+                            window.location.href = '/instructor_login/';
+                        }
+                    } else {
+                        alert(data.message);  // Error message
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
     </script>
 </body>
+
 </html>

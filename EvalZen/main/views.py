@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.core.mail import send_mail
+from dotenv import load_dotenv
 import openai
 import os
 
@@ -194,6 +195,96 @@ from .models import QuestionDB  # Make sure to import your QuestionDB model
 import json
 from django.shortcuts import render
 from .models import QuestionDB  # Make sure to import your QuestionDB model or service
+
+
+from datetime import datetime
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse, HttpResponse
+from django.core.mail import send_mail
+import openai
+import os
+
+from .models import Admin, Candidate, Instructor
+from main.forms import ContactForm
+from main.candidate_form import SignupForm
+
+# Candidate Views
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import random
+import smtplib
+import json
+# Store OTP temporarily for verification
+otp_storage = {}
+
+load_dotenv()
+host_email = os.getenv("EMAIL_HOST_USER")
+email_password = os.getenv("EMAIL_HOST_PASSWORD")
+def send_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data['email']
+        role = data['role']
+    
+        # Generate OTP
+        otp = random.randint(100000, 999999)
+        otp_storage[email] = otp  # Store OTP for verification
+
+        # Send OTP via email
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(host_email, email_password)
+            message = f'Subject: Your OTP\n\nYour OTP is {otp}.'
+            server.sendmail(host_email, email, message)
+            server.quit()
+            return JsonResponse({'message': 'OTP sent'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def verify_otp(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data['email']
+        entered_otp = data['otp']
+
+        # Check OTP
+        if email in otp_storage and otp_storage[email] == int(entered_otp):
+            del otp_storage[email]  # Clear OTP after successful verification
+            return JsonResponse({'message': 'OTP verified'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid OTP'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def update_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        role = request.POST.get('role')  # Retrieve the role from the form
+
+        # Ensure passwords match
+        if new_password != confirm_password:
+            return JsonResponse({'status': 'error', 'message': 'Passwords do not match.'})
+
+        # Based on the role, update password in MongoDB
+        if role == 'candidate':
+            Candidate.update_password(email, new_password)
+        elif role == 'instructor':
+            Instructor.update_password(email, new_password)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid role selected.'})
+
+        messages.success(request, 'Password updated successfully!')
+        return JsonResponse({'status': 'success', 'message': 'Password updated successfully!'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 def manualquestionupload(request):
     question_db = QuestionDB()  # Create an instance of QuestionDB

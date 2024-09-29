@@ -145,6 +145,16 @@ class Candidate:
             return candidate
         return None
     
+    @staticmethod
+    def update_password(email, new_password):
+        users_collection.update_one(
+            {'email': email},
+            {'$set': {'password': new_password}}
+        )
+
+    
+
+    
     def get_all_candidates():
         """Retrieve all candidates from the collection."""
         candidates = list(users_collection.find())  # Convert cursor to list
@@ -152,6 +162,14 @@ class Candidate:
 
 # Instructor Model
 class Instructor:
+
+    @staticmethod
+    def update_password(email, new_password):
+        instructors_collection.update_one(
+            {'email': email},
+            {'$set': {'password': new_password}}
+        )
+    
     @staticmethod
     def add_instructor(instructor_data):
         return instructors_collection.insert_one(instructor_data)

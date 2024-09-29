@@ -1,11 +1,15 @@
 from django.urls import path
-from .views import  (candidate_access, candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (candidate_access,send_otp, update_password,verify_otp, candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
     path('feedback/', submit_feedback, name='feedback'),
     path('features/', features, name='features'),
     path('forgotpassword/', forgotpassword, name='forgotpassword'),
+    path('send-otp/', send_otp, name='send-otp'),
+    path('verify-otp/', verify_otp, name='verify-otp'),
+    path('update-password/', update_password, name='update_password'),
+
     #instructor
     path('instructor_login/', instructor_login, name='instructor_login'),
     path('instructor_registration/', instructor_registration, name='instructor_registration'),
