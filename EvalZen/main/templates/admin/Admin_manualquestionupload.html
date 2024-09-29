@@ -61,6 +61,15 @@
         #mcq-answer {
             display: block;
         }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .update-btn {
+            display: none;
+        }
     </style>
 </head>
 
@@ -116,6 +125,7 @@
                                 <th>Options</th>
                                 <th>Answer</th>
                                 <th>Tags</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -132,6 +142,7 @@
                             <tr>
                                 <th>Question Text</th>
                                 <th>Tags</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -181,18 +192,22 @@
             }
 
             // Prepare new question object
-            const newQuestion = {
+        
+
+            // Append to the appropriate section and global object
+            if (questionType === 'mcq') {
+                // Add to global data
+
+                const newQuestion = {
                 question_text: questionText,
                 options: options ? options.split(',') : [],
                 answer: answer || null,
                 tags: tags.split(',')
             };
 
-            // Append to the appropriate section and global object
-            if (questionType === 'mcq') {
-                // Add to global data
                 globalQuestionData.mcq.push(newQuestion);
 
+             
                 // Add to MCQ preview
                 const table = document.getElementById('mcqTable').getElementsByTagName('tbody')[0];
                 const newRow = table.insertRow();
@@ -200,8 +215,26 @@
                 newRow.insertCell(1).textContent = options;
                 newRow.insertCell(2).textContent = answer;
                 newRow.insertCell(3).textContent = tags;
+
+                // Add edit and delete buttons
+                const actionsCell = newRow.insertCell(4);
+                actionsCell.innerHTML = `
+                    <div class="edit-buttons">
+                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                        <button class="btn btn-success btn-sm update-btn">Update</button>
+                    </div>
+                `;
+
+                // Attach event listeners for edit and delete
+                attachActionListeners(newRow, 'mcq');
             } else if (questionType === 'coding') {
                 // Add to global data
+
+                const newQuestion = {
+                question_text: questionText,
+                tags: tags.split(',')
+            };
                 globalQuestionData.coding.push(newQuestion);
 
                 // Add to Coding preview
@@ -209,6 +242,19 @@
                 const newRow = table.insertRow();
                 newRow.insertCell(0).textContent = questionText;
                 newRow.insertCell(1).textContent = tags;
+
+                // Add edit and delete buttons
+                const actionsCell = newRow.insertCell(2);
+                actionsCell.innerHTML = `
+                    <div class="edit-buttons">
+                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                        <button class="btn btn-success btn-sm update-btn">Update</button>
+                    </div>
+                `;
+
+                // Attach event listeners for edit and delete
+                attachActionListeners(newRow, 'coding');
             }
 
             // Clear the form after submission
@@ -216,16 +262,48 @@
         });
 
         // Handle assessment submission
-        document.getElementById('assessmentForm').addEventListener('submit', function (e) {
+            document.getElementById('assessmentForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Get assessment number/name
-            const assessmentNo = document.getElementById('assessmentNo').value;
-            console.log(globalQuestionData)
-            globalQuestionData.assessment_no = assessmentNo;
+            const assessmentNo = document.getElementById('assessmentNo');
+            globalQuestionData.assessment_no = assessmentNo.value;
+            assessmentNo.value = '';  // Clear the input field
 
+            let preview1 = document.getElementById("coding-preview")
+            let preview2 = document.getElementById("mcq-preview")
+
+
+            preview2.innerHTML = `<h4>Preview MCQ Questions</h4>
+                    <table class="table table-bordered" id="mcqTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Options</th>
+                                <th>Answer</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- MCQ Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>`
+            
+            preview1.innerHTML = `<h4>Preview Coding Test Questions</h4>
+                    <table class="table table-bordered" id="codingTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Coding Test Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>`
             // Send global question data to the backend
-            fetch('/add-assessment/', {
+            fetch('/Admin_manualquestionupload/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -234,14 +312,9 @@
                 body: JSON.stringify(globalQuestionData)
             })
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Assessment submitted successfully!');
-                    } else {
-                        alert('Error submitting assessment');
-                    }
-                })
                 .catch(error => console.error('Error:', error));
+            
+            alert("Assessment submitted successfullly")
 
             // Clear the global data after submission
             globalQuestionData = {
@@ -250,6 +323,77 @@
                 coding: []
             };
         });
+
+        // Attach event listeners for edit, delete, and update
+        function attachActionListeners(row, questionType) {
+            const editBtn = row.querySelector('.edit-btn');
+            const deleteBtn = row.querySelector('.delete-btn');
+            const updateBtn = row.querySelector('.update-btn');
+
+            // Edit button handler
+            editBtn.addEventListener('click', function () {
+                const cells = row.cells;
+                for (let i = 0; i < cells.length - 1; i++) {
+                    const cell = cells[i];
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cell.textContent;
+                    cell.textContent = '';
+                    cell.appendChild(input);
+                }
+                updateBtn.style.display = 'inline-block';
+            });
+
+            // Delete button handler
+            deleteBtn.addEventListener('click', function () {
+                row.remove();
+                // Remove from global data
+                const questionText = row.cells[0].textContent;
+                globalQuestionData[questionType] = globalQuestionData[questionType].filter(
+                    (q) => q.question_text !== questionText
+                );
+            });
+
+            // Update button handler
+            updateBtn.addEventListener('click', function () {
+                const cells = row.cells;
+                const updatedQuestionText = cells[0].querySelector('input').value;
+                const updatedTags = cells[1].querySelector('input').value;
+
+                if (questionType === 'mcq') {
+                    const updatedOptions = cells[1].querySelector('input').value;
+                    const updatedAnswer = cells[2].querySelector('input').value;
+
+                    // Update row content
+                    cells[0].textContent = updatedQuestionText;
+                    cells[1].textContent = updatedOptions;
+                    cells[2].textContent = updatedAnswer;
+                    cells[3].textContent = updatedTags;
+
+                    // Update global data
+                    const mcqIndex = globalQuestionData.mcq.findIndex((q) => q.question_text === updatedQuestionText);
+                    globalQuestionData.mcq[mcqIndex] = {
+                        question_text: updatedQuestionText,
+                        options: updatedOptions.split(','),
+                        answer: updatedAnswer,
+                        tags: updatedTags.split(',')
+                    };
+                } else if (questionType === 'coding') {
+                    // Update row content
+                    cells[0].textContent = updatedQuestionText;
+                    cells[1].textContent = updatedTags;
+
+                    // Update global data
+                    const codingIndex = globalQuestionData.coding.findIndex((q) => q.question_text === updatedQuestionText);
+                    globalQuestionData.coding[codingIndex] = {
+                        question_text: updatedQuestionText,
+                        tags: updatedTags.split(',')
+                    };
+                }
+
+                updateBtn.style.display = 'none';
+            });
+        }
 
         // Toggle MCQ options and answer based on question type
         document.getElementById('test-type').addEventListener('change', function () {

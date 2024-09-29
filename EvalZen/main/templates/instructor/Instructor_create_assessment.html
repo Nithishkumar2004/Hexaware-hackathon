@@ -1,51 +1,36 @@
-
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Assessment</title>
+    <title>Manual Question Upload</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             background-color: #f8f9fa;
         }
-        .container {
-            margin-top: 20px;
-        }
-        .widget {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .question-type-section {
-            display: none;
-        }
-        body {
-            background-color: #f8f9fa;
-        }
+
         .sidebar {
             background-color: #343a40;
             height: 100vh;
             padding-top: 20px;
             color: white;
-            position: sticky;
-            top: 0;
         }
+
         .sidebar a {
             color: white;
             text-decoration: none;
             padding: 10px;
             display: block;
         }
+
         .sidebar a.active {
             background-color: #0d6efd;
         }
+
         .widget {
             background-color: white;
             padding: 15px;
@@ -53,202 +38,370 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .navbar .btn {
             margin-right: 10px;
         }
+
         .profile-img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
         }
+
+        .progress {
+            height: 25px;
+        }
+
+        .preview-section {
+            margin-top: 20px;
+        }
+
+        #mcq-options,
+        #mcq-answer {
+            display: block;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .update-btn {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
-    <nav class="col-md-2 sidebar d-none d-md-block">
-        <div class="d-flex flex-column align-items-center">
-            <img src="{%static 'main/adminlogo.png'%}" alt="logo" width="50" height="50">
-            <h4>Instructor Zone</h4>
-            <small>Manage Your Users</small>
-        </div>
-        <ul class="nav flex-column mt-4">
-            <li class="nav-item">
-                <a href="{% url 'instructor_dashboard'%}"  class="nav-link">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'instructor_usermanagement'%}" class="nav-link">Users</a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'instructor_create_assessment' %}" class="nav-link active">Create Assessment</a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'instructor_review_submission' %}" class="nav-link">Review Submissions</a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'instructor_report' %}" class="nav-link">Report</a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'instructor_settings' %}l" class="nav-link">Settings</a>
-            </li>
-        </ul>
-    </nav>
-    <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
-        <!-- Top Bar with Toggle Button, Buttons, and Profile -->
-        <div class="d-flex align-items-center py-3 toggle-btn-wrapper">
-    <div class="container">
-        <h2>Create Assessment</h2>
-        <div class="widget">
-            <!-- Select Test Type -->
-            <div class="form-group">
-                <label for="test-type" class="form-label">Select Question Type</label>
-                <select class="form-control" id="test-type" onchange="displayQuestionTypeSection()">
-                    <option value="">Choose test type...</option>
-                    <option value="mcq">MCQ</option>
-                    <option value="coding">Coding Test</option>
-                    <option value="communication">Communication Test</option>
-                </select>
-            </div>
+            <!-- Sidebar -->
+            {% include 'instructor/sidebar.html' %}
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <h2 class="my-3">Manual Question Upload</h2>
 
-            <!-- MCQ Question Type Section -->
-            <div id="mcq-section" class="question-type-section">
-                <h4>MCQ Question</h4>
-                <div class="form-group">
-                    <label for="mcq-question" class="form-label">Question</label>
-                    <input type="text" class="form-control" id="mcq-question" placeholder="Enter question">
+                <!-- Upload Form -->
+                <div class="widget">
+                    <h4>Upload Questions Manually</h4>
+                    <form id="uploadForm">
+                        <div class="mb-3">
+                            <label for="test-type" class="form-label">Select Question Type</label>
+                            <select class="form-control" id="test-type" required>
+                                <option value="">Choose test type...</option>
+                                <option value="mcq">MCQ</option>
+                                <option value="coding">Coding Test</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="questionText" class="form-label">Question Text</label>
+                            <input type="text" class="form-control" id="questionText"
+                                placeholder="Enter the question text" required>
+                        </div>
+                        <div id="mcq-options" class="mb-3">
+                            <label for="options" class="form-label">Options (comma-separated)</label>
+                            <input type="text" class="form-control" id="options" placeholder="Enter options">
+                        </div>
+                        <div id="mcq-answer" class="mb-3">
+                            <label for="answer" class="form-label">Correct Answer</label>
+                            <input type="text" class="form-control" id="answer" placeholder="Enter the correct answer">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags (comma-separated)</label>
+                            <input type="text" class="form-control" id="tags" placeholder="Enter tags" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Question</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="mcq-option1" class="form-label">Option 1</label>
-                    <input type="text" class="form-control" id="mcq-option1" placeholder="Enter option 1">
-                </div>
-                <div class="form-group">
-                    <label for="mcq-option2" class="form-label">Option 2</label>
-                    <input type="text" class="form-control" id="mcq-option2" placeholder="Enter option 2">
-                </div>
-                <div class="form-group">
-                    <label for="mcq-option3" class="form-label">Option 3</label>
-                    <input type="text" class="form-control" id="mcq-option3" placeholder="Enter option 3">
-                </div>
-                <div class="form-group">
-                    <label for="mcq-option4" class="form-label">Option 4</label>
-                    <input type="text" class="form-control" id="mcq-option4" placeholder="Enter option 4">
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary" onclick="saveMcq()">Save MCQ</button>
-                </div>
-            </div>
 
-            <!-- Coding Test Section -->
-            <div id="coding-section" class="question-type-section">
-                <h4>Coding Test</h4>
-                <div class="form-group">
-                    <label for="coding-question" class="form-label">Question</label>
-                    <input type="text" class="form-control" id="coding-question" placeholder="Enter coding question">
+                <!-- Preview Section for MCQ -->
+                <div class="widget preview-section" id="mcq-preview">
+                    <h4>Preview MCQ Questions</h4>
+                    <table class="table table-bordered" id="mcqTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Options</th>
+                                <th>Answer</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- MCQ Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label for="language" class="form-label">Programming Language</label>
-                    <select class="form-control" id="language">
-                        <option value="python">Python</option>
-                        <option value="c">C</option>
-                        <option value="c++">C++</option>
-                        <option value="java">Java</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="coding-solution" class="form-label">Output:</label>
-                    <textarea class="form-control" id="coding-solution" rows="6" placeholder="Enter output"></textarea>
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary" onclick="saveCodingTest()">Save Coding Test</button>
-                </div>
-            </div>
 
-            <!-- Communication Test Section -->
-            <div id="communication-section" class="question-type-section">
-                <h4>Communication Test</h4>
-                <div class="form-group">
-                    <label for="comm-question" class="form-label">Question</label>
-                    <input type="text" class="form-control" id="comm-question" placeholder="Enter question">
+                <!-- Preview Section for Coding Test -->
+                <div class="widget preview-section" id="coding-preview">
+                    <h4>Preview Coding Test Questions</h4>
+                    <table class="table table-bordered" id="codingTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Coding Test Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label for="comm-option1" class="form-label">Option 1</label>
-                    <input type="text" class="form-control" id="comm-option1" placeholder="Enter option 1">
-                </div>
-                <div class="form-group">
-                    <label for="comm-option2" class="form-label">Option 2</label>
-                    <input type="text" class="form-control" id="comm-option2" placeholder="Enter option 2">
-                </div>
-                <div class="form-group">
-                    <label for="comm-option3" class="form-label">Option 3</label>
-                    <input type="text" class="form-control" id="comm-option3" placeholder="Enter option 3">
-                </div>
-                <div class="form-group">
-                    <label for="comm-option4" class="form-label">Option 4</label>
-                    <input type="text" class="form-control" id="comm-option4" placeholder="Enter option 4">
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary" onclick="saveCommunicationTest()">Save Communication Test</button>
-                </div>
-            </div>
-        </div>
-    </main>
+
+                <form id="assessmentForm" method="POST">
+                    {% csrf_token %}
+                    <div class="widget">
+                        <label for="assessmentNo" class="form-label">Assessment No. or Name</label>
+                        <input type="text" class="form-control" id="assessmentNo"
+                            placeholder="Enter the assessment number or name" required>
+                        <input type="hidden" class="mb-3">
+                        <br>
+                        <button type="submit" class="btn btn-success">Submit Assessment</button>
+                    </div>
+                </form>
+            </main>
         </div>
     </div>
-    
 
     <script>
-        // Function to display the relevant section based on the selected test type
-        function displayQuestionTypeSection() {
-            const testType = document.getElementById('test-type').value;
-            document.querySelectorAll('.question-type-section').forEach(section => {
-                section.style.display = 'none'; // Hide all sections
+        // Global object to store all question data
+        let globalQuestionData = {
+            assessment_no: "",
+            mcq: [],
+            coding: []
+        };
+
+        // Handle form submission and question preview
+        document.getElementById('uploadForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get form values
+            const questionType = document.getElementById('test-type').value;
+            const questionText = document.getElementById('questionText').value;
+            const options = document.getElementById('options').value;
+            const answer = document.getElementById('answer').value;
+            const tags = document.getElementById('tags').value;
+
+            // Validate input
+            if (!questionText || !tags || (questionType === 'mcq' && (!options || !answer))) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Prepare new question object
+        
+
+            // Append to the appropriate section and global object
+            if (questionType === 'mcq') {
+                // Add to global data
+
+                const newQuestion = {
+                question_text: questionText,
+                options: options ? options.split(',') : [],
+                answer: answer || null,
+                tags: tags.split(',')
+            };
+
+                globalQuestionData.mcq.push(newQuestion);
+
+             
+                // Add to MCQ preview
+                const table = document.getElementById('mcqTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+                newRow.insertCell(0).textContent = questionText;
+                newRow.insertCell(1).textContent = options;
+                newRow.insertCell(2).textContent = answer;
+                newRow.insertCell(3).textContent = tags;
+
+                // Add edit and delete buttons
+                const actionsCell = newRow.insertCell(4);
+                actionsCell.innerHTML = `
+                    <div class="edit-buttons">
+                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                        <button class="btn btn-success btn-sm update-btn">Update</button>
+                    </div>
+                `;
+
+                // Attach event listeners for edit and delete
+                attachActionListeners(newRow, 'mcq');
+            } else if (questionType === 'coding') {
+                // Add to global data
+
+                const newQuestion = {
+                question_text: questionText,
+                tags: tags.split(',')
+            };
+                globalQuestionData.coding.push(newQuestion);
+
+                // Add to Coding preview
+                const table = document.getElementById('codingTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+                newRow.insertCell(0).textContent = questionText;
+                newRow.insertCell(1).textContent = tags;
+
+                // Add edit and delete buttons
+                const actionsCell = newRow.insertCell(2);
+                actionsCell.innerHTML = `
+                    <div class="edit-buttons">
+                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                        <button class="btn btn-success btn-sm update-btn">Update</button>
+                    </div>
+                `;
+
+                // Attach event listeners for edit and delete
+                attachActionListeners(newRow, 'coding');
+            }
+
+            // Clear the form after submission
+            document.getElementById('uploadForm').reset();
+        });
+
+        // Handle assessment submission
+            document.getElementById('assessmentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const assessmentNo = document.getElementById('assessmentNo');
+            globalQuestionData.assessment_no = assessmentNo.value;
+            assessmentNo.value = '';  // Clear the input field
+
+            let preview1 = document.getElementById("coding-preview")
+            let preview2 = document.getElementById("mcq-preview")
+
+
+            preview2.innerHTML = `<h4>Preview MCQ Questions</h4>
+                    <table class="table table-bordered" id="mcqTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Options</th>
+                                <th>Answer</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- MCQ Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>`
+            
+            preview1.innerHTML = `<h4>Preview Coding Test Questions</h4>
+                    <table class="table table-bordered" id="codingTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Coding Test Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>`
+            // Send global question data to the backend
+            fetch('/Admin_manualquestionupload/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(globalQuestionData)
+            })
+                .then(response => response.json())
+                .catch(error => console.error('Error:', error));
+            
+            alert("Assessment submitted successfullly")
+
+            // Clear the global data after submission
+            globalQuestionData = {
+                assessment_no: "",
+                mcq: [],
+                coding: []
+            };
+        });
+
+        // Attach event listeners for edit, delete, and update
+        function attachActionListeners(row, questionType) {
+            const editBtn = row.querySelector('.edit-btn');
+            const deleteBtn = row.querySelector('.delete-btn');
+            const updateBtn = row.querySelector('.update-btn');
+
+            // Edit button handler
+            editBtn.addEventListener('click', function () {
+                const cells = row.cells;
+                for (let i = 0; i < cells.length - 1; i++) {
+                    const cell = cells[i];
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cell.textContent;
+                    cell.textContent = '';
+                    cell.appendChild(input);
+                }
+                updateBtn.style.display = 'inline-block';
             });
 
-            if (testType === 'mcq') {
-                document.getElementById('mcq-section').style.display = 'block';
-            } else if (testType === 'coding') {
-                document.getElementById('coding-section').style.display = 'block';
-            } else if (testType === 'communication') {
-                document.getElementById('communication-section').style.display = 'block';
-            }
+            // Delete button handler
+            deleteBtn.addEventListener('click', function () {
+                row.remove();
+                // Remove from global data
+                const questionText = row.cells[0].textContent;
+                globalQuestionData[questionType] = globalQuestionData[questionType].filter(
+                    (q) => q.question_text !== questionText
+                );
+            });
+
+            // Update button handler
+            updateBtn.addEventListener('click', function () {
+                const cells = row.cells;
+                const updatedQuestionText = cells[0].querySelector('input').value;
+                const updatedTags = cells[1].querySelector('input').value;
+
+                if (questionType === 'mcq') {
+                    const updatedOptions = cells[1].querySelector('input').value;
+                    const updatedAnswer = cells[2].querySelector('input').value;
+
+                    // Update row content
+                    cells[0].textContent = updatedQuestionText;
+                    cells[1].textContent = updatedOptions;
+                    cells[2].textContent = updatedAnswer;
+                    cells[3].textContent = updatedTags;
+
+                    // Update global data
+                    const mcqIndex = globalQuestionData.mcq.findIndex((q) => q.question_text === updatedQuestionText);
+                    globalQuestionData.mcq[mcqIndex] = {
+                        question_text: updatedQuestionText,
+                        options: updatedOptions.split(','),
+                        answer: updatedAnswer,
+                        tags: updatedTags.split(',')
+                    };
+                } else if (questionType === 'coding') {
+                    // Update row content
+                    cells[0].textContent = updatedQuestionText;
+                    cells[1].textContent = updatedTags;
+
+                    // Update global data
+                    const codingIndex = globalQuestionData.coding.findIndex((q) => q.question_text === updatedQuestionText);
+                    globalQuestionData.coding[codingIndex] = {
+                        question_text: updatedQuestionText,
+                        tags: updatedTags.split(',')
+                    };
+                }
+
+                updateBtn.style.display = 'none';
+            });
         }
 
-        // Save MCQ Function
-        function saveMcq() {
-            const question = document.getElementById('mcq-question').value;
-            const options = [
-                document.getElementById('mcq-option1').value,
-                document.getElementById('mcq-option2').value,
-                document.getElementById('mcq-option3').value,
-                document.getElementById('mcq-option4').value
-            ];
-            console.log('Saved MCQ:', { question, options });
-            alert('MCQ question saved!');
-        }
-
-        // Save Coding Test Function
-        function saveCodingTest() {
-            const question = document.getElementById('coding-question').value;
-            const language = document.getElementById('language').value;
-            const solution = document.getElementById('coding-solution').value;
-            console.log('Saved Coding Test:', { question, language, solution });
-            alert('Coding test saved!');
-        }
-
-        // Save Communication Test Function
-        function saveCommunicationTest() {
-            const question = document.getElementById('comm-question').value;
-            const options = [
-                document.getElementById('comm-option1').value,
-                document.getElementById('comm-option2').value,
-                document.getElementById('comm-option3').value,
-                document.getElementById('comm-option4').value
-            ];
-            console.log('Saved Communication Test:', { question, options });
-            alert('Communication test saved!');
-        }
+        // Toggle MCQ options and answer based on question type
+        document.getElementById('test-type').addEventListener('change', function () {
+            const selectedType = this.value;
+            document.getElementById('mcq-options').style.display = selectedType === 'mcq' ? 'block' : 'none';
+            document.getElementById('mcq-answer').style.display = selectedType === 'mcq' ? 'block' : 'none';
+        });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

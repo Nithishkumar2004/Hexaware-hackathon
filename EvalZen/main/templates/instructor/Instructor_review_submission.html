@@ -82,33 +82,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 sidebar d-none d-md-block">
-                <div class="d-flex flex-column align-items-center">
-                    <img src="{%static 'main/adminlogo.png'%}" alt="logo" width="50" height="50">
-                    <h4>Instructor Zone</h4>
-                    <small>Manage Your Users</small>
-                </div>
-                <ul class="nav flex-column mt-4">
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_dashboard'%}"  class="nav-link">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_usermanagement'%}" class="nav-link">Users</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_create_assessment'%}" class="nav-link">Create Assessment</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_review_submission' %}" class="nav-link active">Review Submissions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_report' %}" class="nav-link">Report</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'instructor_settings' %}" class="nav-link">Settings</a>
-                    </li>
-                </ul>
-            </nav>
+            {% include 'instructor/sidebar.html' %}
      <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
                 <!-- Top Bar with Toggle Button, Buttons, and Profile -->
     <div class="d-flex align-items-center py-3 toggle-btn-wrapper">

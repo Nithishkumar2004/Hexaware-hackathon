@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 import openai
 import os
 
-from .models import Admin, Candidate, Instructor
+from .models import Admin, Candidate, Instructor, QuestionDB
 from main.forms import ContactForm
 from main.candidate_form import SignupForm
 
@@ -178,36 +178,55 @@ def assessment(request):
     return render(request, 'admin/Admin_assessment.html')
 
 
+from django.http import JsonResponse
+from django.shortcuts import render
+import json
+
+
+from django.http import JsonResponse
+from django.shortcuts import render
+import json
+
+import json
+from django.shortcuts import render
+from .models import QuestionDB  # Make sure to import your QuestionDB model
+
+import json
+from django.shortcuts import render
+from .models import QuestionDB  # Make sure to import your QuestionDB model or service
+
 def manualquestionupload(request):
+    question_db = QuestionDB()  # Create an instance of QuestionDB
+
     if request.method == 'POST':
-        # Extract data from the request
-        question_text = request.POST.get('question_text')  # Adjust based on your form
-        options = request.POST.getlist('options')  # Assuming options are sent as a list
-        correct_option = request.POST.get('correct_option')  # Assuming this is the index or value of the correct option
+        try:
+            # Parse JSON data from the request body
+            body_unicode = request.body.decode('utf-8')
+            body_data = json.loads(body_unicode)
 
-        # Perform validation
-        if question_text and options and correct_option:
-            try:
-                # Create a new question object
-                question = Question(
-                    text=question_text,
-                    correct_option=correct_option
-                )
-                question.save()  # Save the question to the database
-                
-                # If you have a method to save options, implement it here
-                for option in options:
-                    question.options.create(text=option)  # Assuming you have an options relation
+            # Extract assessment number, MCQ list, and coding list from the data
+            assessment_no = body_data.get('assessment_no')
+            mcq_list = body_data.get('mcq', [])
+            coding_list = body_data.get('coding', [])
 
-                messages.success(request, "Question uploaded successfully!")  # Flash message
-                return redirect('admin:manual_question_upload')  # Redirect to the same page or another page
+        
+            # Insert MCQs if available
+            if mcq_list:
+                mcq_result = question_db.insert_mcq(assessment_no, mcq_list)
+              
 
-            except Exception as e:
-                messages.error(request, f"Error uploading question: {str(e)}")  # Error handling
+            if coding_list:
+               coding_result = question_db.insert_coding_question(assessment_no, coding_list)
+           
+            # On successful upload, render a success message
+            return render(request, 'admin/Admin_manualquestionupload.html', {'success': 'Questions uploaded successfully!'})
 
-        else:
-            messages.error(request, "Please fill in all fields.")  # Error for empty fields
+        except json.JSONDecodeError:
+            return render(request, 'admin/Admin_manualquestionupload.html', {'error': 'Invalid JSON data. Please ensure your request contains valid JSON.'})
+        except Exception as e:
+            return render(request, 'admin/Admin_manualquestionupload.html', {'error': str(e)})
 
+    # For GET requests or other methods, return the form page (if needed)
     return render(request, 'admin/Admin_manualquestionupload.html')
 
 
