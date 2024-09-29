@@ -45,76 +45,7 @@
             height: 40px;
             border-radius: 50%;
         }
-        /* Mobile Sidebar Styles */
-        .mobile-sidebar {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            background-color: #343a40;
-            color: white;
-            transform: translateX(-250px);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            padding-top: 20px;
-        }
-        .mobile-sidebar.show {
-            transform: translateX(0);
-        }
-        .mobile-sidebar .nav-link {
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            display: block;
-        }
-        .mobile-sidebar .nav-link.active {
-            background-color: #0d6efd;
-        }
-        /* Toggle Button Styles */
-        .toggle-btn {
-            position: absolute;
-            top: 50%;
-            left: -60px; /* Adjust as needed */
-            transform: translateY(-50%);
-            z-index: 1001;
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .toggle-btn:hover {
-            background-color: #0b5ed7;
-        }
-        .toggle-btn.hidden {
-            display: none;
-        }
-        .toggle-btn-wrapper {
-            position: relative;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .mobile-sidebar {
-                display: block;
-            }
-            .toggle-btn {
-                left: 0; /* Adjust to make sure it's visible */
-                top: 50px; /* Adjust for proper spacing from the top */
-                transform: none;
-            }
-        }
+        
     </style>
 </head>
 <body>
