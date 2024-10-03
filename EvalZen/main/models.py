@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 import pymongo
@@ -24,9 +25,11 @@ users_collection = db['candidate']
 instructors_collection = db['instructors']
 
 
+
 questions_db = client['Questions']
 mcq_collection = questions_db['mcq']
 coding_collection = questions_db['coding_test']
+assessment_collection=questions_db['Assessment']
 
 admin_db=client['AdminAuth']
 admin_collection=admin_db['Admin Details']
@@ -90,7 +93,7 @@ class QuestionDB:
             for coding_data in coding_list:
                 # Assuming each coding_data is a dictionary
                 coding_doc = {
-                    'assessment_no': assessment_no,
+                    'Assessment_name': assessment_no,
                     'question_text': coding_data['question_text'],  # Ensure this key exists in coding_data
                     'tags': coding_data.get('tags', []),  # Use .get() to handle missing keys
                 }
@@ -102,7 +105,25 @@ class QuestionDB:
         except Exception as e:
             return False, f"Error inserting coding question: {str(e)}"
 
+    def insert_assessment_name(self, assessment_no):
+        # Get the current timestamp for created_at and updated_at
+        current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        
+        # Insert the assessment name into the 'Assessment' collection
+        ass_doc = {
+            "assessment_name": assessment_no, 
+            "status": "not scheduled",  # Possible values: "not scheduled", "active", "completed", "started"
+            "schedule_status": "created",  # Possible values: "created", "scheduled"
+            "schedule": {
+                "scheduled_time": None,  # Not scheduled yet, can be updated later
+                "initialized": 0  # 0 means not scheduled, 1 means scheduled
+            },
+            "created_at": current_time,  # Timestamp when the assessment was created
+            "updated_at": current_time  # Timestamp for the last update (can be updated when schedule/status changes)
+        }
 
+        # Insert the document into the collection and return the result
+        return assessment_collection.insert_one(ass_doc)
 
     def fetch_mcqs_by_assessment(self, assessment_no):
         """
@@ -111,6 +132,7 @@ class QuestionDB:
         :param assessment_no: Assessment number to filter MCQs.
         :return: List of MCQ documents or error message.
         """
+
         try:
             mcqs = list(self.mcq_collection.find({'assessment_no': assessment_no}))  # Fetch MCQs
             if mcqs:
@@ -119,6 +141,28 @@ class QuestionDB:
                 return False, "No MCQs found for this assessment number"
         except Exception as e:
             return False, f"Error fetching MCQs: {str(e)}"
+    
+    def get_all_assessment():
+        """Retrieve all candidates from the collection."""
+        assessments = list(assessment_collection.find())  # Convert cursor to list
+        return assessments
+    
+
+    def schedule_assessment_in_db(assessment_name, scheduled_time):
+        # Fetch the relevant assessment
+       
+        query = {"assessment_name": assessment_name}
+        # Update the status and scheduled time
+        new_values = {
+            "$set": {
+                "status": "scheduled",
+                "schedule.scheduled_time": scheduled_time,
+                "schedule_status": "scheduled",
+                "schedule.initialized": 1,
+                "updated_at": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+            }
+        }
+        assessment_collection.update_one(query, new_values)
 
 class Admin:
     @staticmethod

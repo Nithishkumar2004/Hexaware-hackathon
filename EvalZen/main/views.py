@@ -3,64 +3,22 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.core.mail import send_mail
-from dotenv import load_dotenv
-import openai
-import os
-from .models import Admin, Candidate, Instructor, QuestionDB
-from .forms import ContactForm
-from .forms import SignupForm
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import logout
+from django.views.decorators.csrf import csrf_exempt
+
 import os
 import json
 import random
 import smtplib
 import time
-from django.http import JsonResponse
-from dotenv import load_dotenv
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.shortcuts import render
-import json
-
-from django.contrib import messages
-from django.shortcuts import redirect
-
-
-from django.http import JsonResponse
-from django.shortcuts import render
-import json
-
-import json
-from django.shortcuts import render
-from .models import QuestionDB  # Make sure to import your QuestionDB model
-
-import json
-from django.shortcuts import render
-from .models import QuestionDB  # Make sure to import your QuestionDB model or service
-from django.contrib.auth.hashers import make_password
-
-
-from datetime import datetime
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
-from django.core.mail import send_mail
 import openai
-import os
+from dotenv import load_dotenv
 
-from .models import Admin, Candidate, Instructor
-from .forms import ContactForm
-from .forms import SignupForm
+# Importing models and forms
+from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
+from .forms import ContactForm, SignupForm
 
-# Candidate Views
-
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import random
-import smtplib
-import json
-
-from .models import FeedbackModel 
 
 
 # Store OTP and its timestamp for verification
@@ -302,8 +260,6 @@ def candidate_registration(request):
 
     return render(request, 'candidate/Candidate_registration.html', {'form': form})
 
-from django.http import JsonResponse
-import json
 
 def change_account_status(request):
     if request.method == 'POST':
@@ -421,11 +377,25 @@ def candidate_logout(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('candidate_login')
 
+def schedule_assessment(request):
+    if request.method == 'POST':
+        assessment_name = request.POST.get('assessment_name')
+        assessment_date = request.POST.get('assessment_date')
+        assessment_time = request.POST.get('assessment_time')
+        time_period = request.POST.get('time_period')
 
-# Admin views
-from django.shortcuts import render, redirect
-from django.contrib import messages
-import json
+        # Format the time
+        scheduled_time_str = f"{assessment_date} {assessment_time} {time_period}"
+        scheduled_time = datetime.strptime(scheduled_time_str, "%Y-%m-%d %H:%M %p")
+
+        # Call the function to update the MongoDB document
+        QuestionDB.schedule_assessment_in_db(assessment_name, scheduled_time)
+        
+        assessments = QuestionDB.get_all_assessment() 
+        return render(request, 'admin/Admin_assessment.html',{'assessments':assessments})
+      
+    # Render the same page (assuming 'schedule.html' is your template)
+    return render(request, 'admin/Admin_assessment.html')
 
 def admindashboard(request):
     # Check if the admin is logged in
@@ -446,14 +416,12 @@ def assessment(request):
     if 'admin_id' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('admin_login')  # Redirect to the login page
-    return render(request, 'admin/Admin_assessment.html')
+    
+    assessments = QuestionDB.get_all_assessment() 
+    return render(request, 'admin/Admin_assessment.html',{'assessments':assessments})
+
 
 def manualquestionupload(request):
-    # Check if the admin is logged in
-    if 'admin_id' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('admin_login')  # Redirect to the login page
-
     question_db = QuestionDB()  # Create an instance of QuestionDB
 
     if request.method == 'POST':
@@ -469,22 +437,24 @@ def manualquestionupload(request):
 
             # Insert MCQs if available
             if mcq_list:
-                mcq_result = question_db.insert_mcq(assessment_no, mcq_list)
+                question_db.insert_mcq(assessment_no, mcq_list)
 
+            # Insert coding questions if available
             if coding_list:
-                coding_result = question_db.insert_coding_question(assessment_no, coding_list)
+                question_db.insert_coding_question(assessment_no, coding_list)
 
-            # On successful upload, render a success message
-            return render(request, 'admin/Admin_manualquestionupload.html', {'success': 'Questions uploaded successfully!'})
+            question_db.insert_assessment_name(assessment_no)
+
+            # Return a JSON success response
+            return JsonResponse({'success': 'Questions uploaded successfully!'})
 
         except json.JSONDecodeError:
-            return render(request, 'admin/Admin_manualquestionupload.html', {'error': 'Invalid JSON data. Please ensure your request contains valid JSON.'})
+            return JsonResponse({'error': 'Invalid JSON data. Please ensure your request contains valid JSON.'}, status=400)
         except Exception as e:
-            return render(request, 'admin/Admin_manualquestionupload.html', {'error': str(e)})
+            return JsonResponse({'error': str(e)}, status=500)
 
     # For GET requests or other methods, return the form page (if needed)
     return render(request, 'admin/Admin_manualquestionupload.html')
-
 
 def report(request):
     # Check if the admin is logged in
@@ -536,8 +506,6 @@ def admin_login(request):
     else:
         return render(request, 'admin/Admin_login.html')
 
-from django.shortcuts import redirect
-from django.contrib.auth import logout
 
 def admin_logout(request):
     # Log out the user by clearing the session and logging them out

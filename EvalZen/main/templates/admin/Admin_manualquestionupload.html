@@ -15,10 +15,9 @@
 
         .sidebar {
             background-color: #343a40;
-            height: 100vh;
             padding-top: 20px;
             color: white;
-        }
+    }
 
         .sidebar a {
             color: white;
@@ -304,16 +303,29 @@
                     </table>`
             // Send global question data to the backend
             fetch('/Admin_manualquestionupload/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify(globalQuestionData)
-            })
-                .then(response => response.json())
-                .catch(error => console.error('Error:', error));
-            
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(globalQuestionData)
+})
+    .then(response => {
+        if (!response.ok) {
+            // If the response is not OK, throw an error
+            return response.json().then(err => { throw err });
+        }
+        return response.json();  // Ensure the response is parsed as JSON
+    })
+    .then(data => {
+        console.log('Success:', data);
+        alert('Assessment submitted successfully');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting the assessment: ' + error.error || error);
+    });
+
             alert("Assessment submitted successfullly")
 
             // Clear the global data after submission
@@ -401,6 +413,8 @@
             document.getElementById('mcq-options').style.display = selectedType === 'mcq' ? 'block' : 'none';
             document.getElementById('mcq-answer').style.display = selectedType === 'mcq' ? 'block' : 'none';
         });
+
+        
     </script>
 </body>
 
