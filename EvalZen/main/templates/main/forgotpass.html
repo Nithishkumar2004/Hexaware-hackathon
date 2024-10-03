@@ -10,7 +10,6 @@
     <style>
         .main {
             font-family: 'Arial', sans-serif;
-            background: url('background.jpg') no-repeat center center fixed;
             background-size: cover;
             backdrop-filter: blur(8px);
             height: 100vh;
@@ -68,7 +67,7 @@
         <div class="blur-overlay"></div>
 
         <!-- Forgot Password Section -->
-        <div class="card p-5" style="max-width: 500px; width: 100%; z-index: 10;">
+        <div id="forgotPasswordcard" class="card p-5" style="max-width: 500px; width: 100%; z-index: 10;">
             <h2 class="text-uppercase text-center">Forgot Password</h2>
             <p class="text-center">Reset your password by verifying your email and role.</p>
             <!-- Forgot Password Form -->
@@ -181,6 +180,7 @@
                         document.getElementById('forgotPasswordForm').classList.add('d-none');  // Hide the form
                         document.getElementById('hiddenEmail').value = email;  // Pass the email to the password reset form
                         document.getElementById('hiddenRole').value = document.getElementById('role').value;  // Pass the role
+                        document.getElementById('forgotPasswordcard').classList.add('d-none');
                         alert('OTP verified! You can now change your password.');
                     } else {
                         alert('Invalid OTP. Please try again.');

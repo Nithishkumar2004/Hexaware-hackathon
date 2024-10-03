@@ -7,6 +7,10 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.contrib import messages
 from django.urls import reverse
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
+
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -140,19 +144,41 @@ class Candidate:
 
     @staticmethod
     def verify_candidate_login(email, password):
+    # Fetch the candidate from the database
         candidate = users_collection.find_one({"email": email})
-        if candidate and candidate['password'] == password:
-            return candidate
-        return None
-    
+
+        # Check if the candidate exists
+        if candidate is None:
+            return None  # Candidate not found
+
+        # Check if the candidate is deactivated
+        status = candidate.get('status')  # Use get to avoid KeyError
+        if status == "deactivated":  # Check if the status is 'deactive'
+            return "not activated, please contact instructor"
+        
+        # Check if the password is correct
+        is_correct = check_password(password, candidate['password'])
+
+        if is_correct:
+            return candidate  # Return candidate information if login is successful
+
+        return None  # Return None if the password is incorrect
+
     @staticmethod
     def update_password(email, new_password):
         users_collection.update_one(
             {'email': email},
-            {'$set': {'password': new_password}}
+            {'$set': {'password': make_password(new_password)}}
         )
 
-    
+    @staticmethod
+    def update_status(email, new_status):
+        result = users_collection.update_one(
+            {'email': email},
+            {'$set': {'status': new_status}}
+        )
+        return result.modified_count > 0  # Return True if the update was successful
+
 
     
     def get_all_candidates():
@@ -162,12 +188,21 @@ class Candidate:
 
 # Instructor Model
 class Instructor:
+    @staticmethod
+    def update_status(email, new_status):
+        result = instructors_collection.update_one(
+            {'email': email},
+            {'$set': {'status': new_status}}
+        )
+        print("\n\n",result,"asdas")
+        return result.modified_count > 0  # Return True if the update was successful
+
 
     @staticmethod
     def update_password(email, new_password):
         instructors_collection.update_one(
             {'email': email},
-            {'$set': {'password': new_password}}
+            {'$set': {'password': make_password(new_password)}}
         )
     
     @staticmethod
@@ -181,10 +216,18 @@ class Instructor:
     @staticmethod
     def verify_instructor_login(email, password):
         instructor = instructors_collection.find_one({"email": email})
-        if instructor and instructor['password'] == password:
-            return instructor
-        return False
-    
+
+        # Check if the instructor exists
+        if instructor:
+            # Use a secure password verification method
+            if check_password(password, instructor['password']):
+                if instructor['status'] == 'activated':
+                    return instructor  # Account is active
+                else:
+                    return "Account created but not activated. Please contact admin."  # Account not activated
+        
+        return False  # No such instructor found or password is incorrect
+
     @staticmethod
     def get_all_instructors():
         """Retrieve all instructors from the collection."""

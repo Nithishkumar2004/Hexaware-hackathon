@@ -59,19 +59,8 @@
                     <a href="{% url 'forgotpassword' %}" class="remember-me">Forgot password?</a>
                 </div>
 
-                <!-- Display messages here -->
-                {% if messages %}
-                <div class="alert alert-danger" role="alert">
-                    {% for message in messages %}
-                    {{ message }}
-                    {% endfor %}
-                </div>
-                {% endif %}
-
                 <button type="submit" class="btn btn-primary w-100">Sign in</button>
-                <button type="button" class="btn btn-outline-secondary w-100 mt-3">
-                    <i class="fab fa-google me-2"></i> Sign in with Google
-                </button>
+              
             </form>
             <p class="text-center mt-4">
                 Don't have an account? <a href="{% url 'candidate_registration' %}" class="text-danger">Sign up for free!</a>
@@ -84,8 +73,41 @@
         </div>
     </section>
 
+    <!-- Modal for displaying messages -->
+    {% if messages %}
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Alert</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Bootstrap JS and Font Awesome -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    {% if messages %}
+
+    <script>
+        // Show the modal if there are messages
+        document.addEventListener('DOMContentLoaded', function() {
+            var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+            messageModal.show();
+        });
+      
+    </script>
+      {% endif %}
 </body>
 
 </html>

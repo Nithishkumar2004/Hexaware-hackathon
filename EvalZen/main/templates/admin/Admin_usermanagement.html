@@ -72,6 +72,37 @@
                         <button class="btn btn-primary">Export Users</button>
                     </div>
                 </div>
+                <div class="widget">
+                    <!-- Edit button to show the details -->
+<button id="editButton">Edit</button>
+
+<!-- Hidden div containing user details -->
+<div id="detailsDiv" style="display:none;">
+    <form id="editForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName"><br>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName"><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"><br>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob"><br>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address"><br>
+
+        <label for="mobile">Mobile:</label>
+        <input type="text" id="mobile" name="mobile"><br>
+
+        <button type="submit">Save</button>
+    </form>
+</div>
+  
+                </div>
+                
 
                 <!-- Candidates Table -->
                 <h4>Candidates</h4>
@@ -90,14 +121,21 @@
                             <tr>
                                 <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
                                 <td>{{ candidate.email }}</td>
-                                <td>{{ candidate.mobile }}</td>
+                                <td>{{ candidate.status }}</td>
                                 <td>
                                     <button class="btn btn-warning btn-sm">Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
+                                    <button class="status btn btn-secondary btn-sm">
+                                        {% if candidate.status == "deactivated" %}
+                                            Activate
+                                        {% else %}
+                                            Deactivate
+                                        {% endif %}
+                                    </button>
                                     <button class="btn btn-danger btn-sm">Delete</button>
                                 </td>
                             </tr>
                             {% endfor %}
+                            
                         </tbody>
                         
                     </table>
@@ -123,8 +161,13 @@
                                 <td>{{ instructor.status }}</td>
                                 <td>
                                     <button type="submit" class="btn btn-warning btn-sm" >Edit</button>
-                                    <button class="btn btn-secondary btn-sm">Deactivate</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                    <button class="status btn btn-secondary btn-sm">
+                                        {% if instructor.status == "deactivated" %}
+                                            Activate
+                                        {% else %}
+                                            Deactivate
+                                        {% endif %}
+                                    </button> <button class="btn btn-danger btn-sm">Delete</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -175,6 +218,66 @@
                 }
             });
         });
+
+        document.querySelectorAll(".status").forEach(button => {
+    button.addEventListener('click', function(e) {
+        // Get the candidate's/instructor's email from the second column (index 1)
+        let email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
+        let action = e.target.innerHTML.trim(); // Get the button's text to determine action
+
+        // Check whether the button belongs to a candidate or instructor table
+        let userType = e.target.closest("#userTable") ? 'candidate' : 'instructor';
+
+        // Confirm the action with the user
+        if (window.confirm("Do you want to " + action.toLowerCase() + " the " + userType + " " + email + "?")) {
+
+            // Determine new status based on the button text (Activate or Deactivate)
+            let newStatus = action === 'Activate' ? 'activated' : 'deactivated';
+
+            // Send the update request to the server using fetch
+            fetch('/change_status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // CSRF token is required in Django
+                },
+                body: JSON.stringify({ email: email, status: newStatus, userType: userType }) // Send email, status, and userType as JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If successful, update the button text and status accordingly
+                    e.target.innerHTML = newStatus === 'activated' ? 'Deactivate' : 'Activate';
+                    alert('User status updated successfully!');
+                } else {
+                    alert('Failed to update user status.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error occurred while updating user status.');
+            });
+        }
+    });
+});
+
+// Function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }window.location.reload();
+
+    return cookieValue;
+}
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

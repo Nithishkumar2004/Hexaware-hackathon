@@ -106,25 +106,43 @@
             width: 30px;
             height: 30px;
         }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 480px) {
+            #chat-container {
+                width: 90%;
+                height: 400px;
+            }
+
+            #chat-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            #chat-icon img {
+                width: 25px;
+                height: 25px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- Chatbot window -->
-    <div id="chat-container">
-        <div id="chat-box"></div>
+    <div id="chat-container" aria-hidden="true">
+        <div id="chat-box" role="log" aria-live="polite"></div>
         <div id="input-container">
             <!-- Create a form to submit messages -->
-            <form id="chat-form" method="POST" action="/your-chatbot-endpoint/">
+            <form id="chat-form" method="POST" action="/chatbot_view/">
                 {% csrf_token %} <!-- Django's CSRF protection -->
-                <input type="text" id="user-input" name="message" placeholder="Type your message here..." />
-                <button type="submit" id="send-btn">Send</button>
+                <input type="text" id="user-input" name="message" placeholder="Type your message here..." aria-label="User input" />
+                <button type="submit" id="send-btn" aria-label="Send message">Send</button>
             </form>
         </div>
     </div>
 
     <!-- Floating chat icon -->
-    <div id="chat-icon">
+    <div id="chat-icon" aria-label="Open chat" role="button" tabindex="0">
         <img src="{% static 'main/mentoricon.jpeg' %}" alt="Chat Icon">
     </div>
 
@@ -169,30 +187,35 @@
             const formData = new FormData(chatForm);
 
             try {
-                const response = await fetch(chatForm.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': getCSRFToken(),  // Add CSRF token to headers
-                    },
-                });
+    const response = await fetch(chatForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+        },
+    });
 
-                const data = await response.json();
-                if (response.ok) {
-                    // Add bot's reply to the chat box
-                    addMessage(data.response, false);
-                } else {
-                    addMessage('Error fetching reshigiuugponse. Please try again later.', false);
-                }
-            } catch (error) {
-                addMessage('Error fetching fyyfyresponse. Please try again later.', false);
-            }
+    if (!response.ok) {
+        const errorData = await response.json(); // Parse error response
+        console.error("Error:", errorData); // Log error details
+        addMessage('Error: ' + errorData.response, false);
+        return;
+    }
+
+    const data = await response.json();
+    addMessage(data.response, false);
+} catch (error) {
+    console.error("Fetch error:", error); // Log fetch error
+    addMessage('Error fetching response. Please try again later.', false);
+}
+
         });
 
         // Show/hide chat window and icon toggle
         chatIcon.addEventListener('click', () => {
             chatContainer.style.display = 'flex';
             chatIcon.style.display = 'none';  // Hide icon when chat window opens
+            chatContainer.setAttribute('aria-hidden', 'false');  // Update ARIA attribute
         });
 
         document.addEventListener('click', function (event) {
@@ -200,6 +223,7 @@
             if (!isClickInside && chatContainer.style.display === 'flex') {
                 chatContainer.style.display = 'none';
                 chatIcon.style.display = 'flex';  // Show icon when chat window closes
+                chatContainer.setAttribute('aria-hidden', 'true');  // Update ARIA attribute
             }
         });
     </script>

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (candidate_access,send_otp, update_password,verify_otp, candidate_coding_test, chatbot_view, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (admin_logout, candidate_access, change_account_status,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -35,6 +35,7 @@ urlpatterns = [
     path('Assessment_choice/', canididate_assessment_choice, name='candidate_assesment_choice'),
     path('candidate_coding_test/', candidate_coding_test, name='candidate_coding_test'),
     path('contact_us/', contact_us, name='contact_us'),
+    path('change_status/',change_account_status,name="change_status"),
     #admin
     path('Admin_dashboard/',admindashboard,name='admindashboard'),
     path('Admin_aiproctor/',aiproctor,name='aiproctor'),
@@ -43,10 +44,8 @@ urlpatterns = [
     path('Admin_report/',report,name='report'),
     path('Admin_settings/',settings,name='settings'),
     path('Admin_usermanagement/',usermanagement,name='usermanagement'),
-    path('Admin_login/',admin_login,name='adminlogin'),
-    path('chatbot/', chatbot_view, name='chatbot_view'),
-
-
+    path('admin_login/',admin_login,name='admin_login'),
+    path('Admin_logout/',admin_logout,name='adminlogout'),
 
 
     

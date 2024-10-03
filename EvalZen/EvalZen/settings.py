@@ -55,12 +55,12 @@ WSGI_APPLICATION = 'EvalZen.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': config('DB_NAME', default='users'),  # Database name defaults to 'users'
+        'NAME': config('DB_NAME', default='users'),  
         'CLIENT': {
-            'host': config('MONGO_URI'),  # MongoDB URI (e.g., 'mongodb://localhost:27017/')
-            'username': config('DB_USER', default=None),  # Use if authentication is enabled
-            'password': config('DB_PASSWORD', default=None),  # Use if authentication is enabled
-            'authSource': config('DB_AUTH_SOURCE', default='admin'),  # Authentication database
+            'host': config('MONGO_URI'),
+            'username': config('DB_USER', default=None), 
+            'password': config('DB_PASSWORD', default=None), 
+            'authSource': config('DB_AUTH_SOURCE', default='admin'), 
         }
     }
 }
@@ -108,6 +108,3 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # settings.py
-
-# MONGO_URI='mongodb+srv://evalzen24:MQ2NoopxOdWTYBv3@clusterzencoders.jjpdb.mongodb.net/users?retryWrites=true&w=majority&authSource=admin'
-# DB_NAME='users'

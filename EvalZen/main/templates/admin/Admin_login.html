@@ -44,7 +44,7 @@
             <h2 class="text-uppercase">Admin Login</h2>
             <p>Secure access to your dashboard.</p>
             <!-- Login Form -->
-            <form class="mt-4" method="POST" action="{% url 'adminlogin' %}">
+            <form class="mt-4" method="POST" action="{% url 'admin_login' %}">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="adminid" class="form-label">Admin ID</label>
