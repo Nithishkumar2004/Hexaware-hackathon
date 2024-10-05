@@ -1,23 +1,17 @@
 from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
-from django.core.mail import send_mail
+from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import logout
-from django.views.decorators.csrf import csrf_exempt
-
 import os
 import json
 import random
 import smtplib
 import time
-import openai
 from dotenv import load_dotenv
-
-# Importing models and forms
 from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
-from .forms import ContactForm, SignupForm
+from .forms import SignupForm
 
 
 
@@ -59,8 +53,6 @@ def forgotpassword(request):
 
 def contact_us(request):
     return render(request, 'main/Main_contact_us.html')
-
-
 
 def send_otp(request):
     if request.method == "POST":
@@ -132,6 +124,73 @@ def update_password(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
+def edit_user(request):
+    if request.method == 'POST':
+        try:
+            # Parse the request body to get JSON data
+            data = json.loads(request.body)
+            
+            # Extract the usertype and email from the parsed data
+            usertype = data.get('usertype')
+            email = data.get('email')
+
+     
+            # Check usertype and perform database lookup accordingly
+            if usertype == 'instructor':
+                # Fetch the instructor by email
+                user_data = Instructor.find_instructor_by_email(email)
+                
+            elif usertype == 'candidate':
+                # Fetch the candidate by email
+                user_data = Candidate.find_candidate_by_email(email)
+                
+            else:
+                return JsonResponse({'error': 'Invalid user type'}, status=400)
+
+            # If user_data is found, send the data as a response
+            if user_data:
+                return JsonResponse({'message': 'User found successfully', 'user_data': user_data})
+            else:
+                return JsonResponse({'error': 'User not found'}, status=404)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def change_account_status(request):
+    if request.method == 'POST':
+     
+        data = json.loads(request.body)
+        email = data.get('email')
+        new_status = data.get('status')
+        user_type = data.get('userType')  # Get user type from the request
+        print(f"Received request for {user_type} with email {email} and status {new_status}")
+
+
+        if not email or not new_status or not user_type:
+            return JsonResponse({'success': False, 'message': 'Missing data.'}, status=400)
+
+        # Check if the user is a candidate or instructor and update accordingly
+        if user_type == 'candidate':
+            candidate = Candidate.find_candidate_by_email(email)
+            if candidate is None:
+                return JsonResponse({'success': False, 'message': 'Candidate not found.'}, status=404)
+            Candidate.update_status(email, new_status)
+            return JsonResponse({'success': True, 'message': 'Candidate status updated.'})
+
+        elif user_type == 'instructor':
+            instructor = Instructor.find_instructor_by_email(email)
+            if instructor is None:
+                return JsonResponse({'success': False, 'message': 'Instructor not found.'}, status=404)
+            Instructor.update_status(email, new_status)
+            return JsonResponse({'success': True, 'message': 'Instructor status updated.'})
+
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid user type.'}, status=400)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
 
 
 # Instructor views
@@ -172,7 +231,7 @@ def instructor_registration(request):
             "name": name,
             "email": email,
             "password": make_password(password),
-            "status": 'deactive',
+            "status": 'deactivated',
         }
 
         Instructor.add_instructor(instructor_data)
@@ -184,7 +243,9 @@ def instructor_registration(request):
 def instructor_schedule(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
-    return render(request,'instructor/Instructor_schedule.html')
+        return redirect('instructor_login')
+    assessments = QuestionDB.get_all_assessment() 
+    return render(request,'instructor/Instructor_schedule.html',{'assessments':assessments})
 
 def instructor_dashboard(request):
     if 'instructor_email' not in request.session:
@@ -197,29 +258,38 @@ def instructor_logout(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('instructor_login')
 
-
 def instructor_usermanagement(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
+        return redirect('instructor_login')
     can = Candidate.get_all_candidates()
     return render(request,'instructor/Instructor_usermanagement.html',{'candidates':can})
 
 def instructor_create_assessment(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
+        return redirect('instructor_login')
     return render(request,'instructor/Instructor_create_assessment.html')
+
 def instructor_review_submission(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
+        return redirect('instructor_login')
     return render(request,'instructor/Instructor_review_submission.html')
+
 def instructor_report(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
+        return redirect('instructor_login')
     return render(request,'instructor/Instructor_report.html')
+
 def instructor_settings(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
+        return redirect('instructor_login')
     return render(request,'instructor/Instructor_settings.html')
+
+#Candidate Views
 
 def candidate_registration(request):
     if request.method == 'POST':
@@ -260,40 +330,6 @@ def candidate_registration(request):
 
     return render(request, 'candidate/Candidate_registration.html', {'form': form})
 
-
-def change_account_status(request):
-    if request.method == 'POST':
-     
-        data = json.loads(request.body)
-        email = data.get('email')
-        new_status = data.get('status')
-        user_type = data.get('userType')  # Get user type from the request
-        print(f"Received request for {user_type} with email {email} and status {new_status}")
-
-
-        if not email or not new_status or not user_type:
-            return JsonResponse({'success': False, 'message': 'Missing data.'}, status=400)
-
-        # Check if the user is a candidate or instructor and update accordingly
-        if user_type == 'candidate':
-            candidate = Candidate.find_candidate_by_email(email)
-            if candidate is None:
-                return JsonResponse({'success': False, 'message': 'Candidate not found.'}, status=404)
-            Candidate.update_status(email, new_status)
-            return JsonResponse({'success': True, 'message': 'Candidate status updated.'})
-
-        elif user_type == 'instructor':
-            instructor = Instructor.find_instructor_by_email(email)
-            if instructor is None:
-                return JsonResponse({'success': False, 'message': 'Instructor not found.'}, status=404)
-            Instructor.update_status(email, new_status)
-            return JsonResponse({'success': True, 'message': 'Instructor status updated.'})
-
-        else:
-            return JsonResponse({'success': False, 'message': 'Invalid user type.'}, status=400)
-
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
-
 def candidate_login(request):
     # Check if the candidate is already logged in
     if request.session.get('candidate_email'):
@@ -318,16 +354,19 @@ def candidate_login(request):
 
 def candidate_dashboard(request):
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
     return render(request, 'candidate/Candidate_dashboard.html')
 
 def candidate_preassesment(request):
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
     return render(request, 'candidate/Candidate_preassesment.html')
 
 def system_check(request):
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
     if request.method == 'POST':
         internet_check = request.is_ajax() and request.META.get('HTTP_REFERER') is not None
@@ -347,28 +386,29 @@ def system_check(request):
 
     return render(request, 'candidate/System_check.html')
 
-
-
 def candidate_access(request):
     # Check if the candidate is logged in
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')  # Redirect to the login page
     return render(request, 'candidate/Candidate_access.html')
 
 def candidate_assesment(request):
     # Check if the candidate is logged in
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')  # Redirect to the login page
     return render(request, 'candidate/Candidate_assesment.html')
 
-
 def canididate_assessment_choice(request):
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')  # Redirect to the login page
     return render(request, 'candidate/Candidate_assessment_choice.html')
 
 def candidate_coding_test(request):
     if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')  # Redirect to the login page
     return render(request, 'candidate/Candidate_coding_test.html')
 
@@ -377,7 +417,13 @@ def candidate_logout(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('candidate_login')
 
+#Admin Views
+
 def schedule_assessment(request):
+    if 'admin_id' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('admin_login')  # Redirect to the login page
+  
     if request.method == 'POST':
         assessment_name = request.POST.get('assessment_name')
         assessment_date = request.POST.get('assessment_date')
@@ -420,8 +466,12 @@ def assessment(request):
     assessments = QuestionDB.get_all_assessment() 
     return render(request, 'admin/Admin_assessment.html',{'assessments':assessments})
 
-
 def manualquestionupload(request):
+    if 'admin_id' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('admin_login')  # Redirect to the login page
+        
+    
     question_db = QuestionDB()  # Create an instance of QuestionDB
 
     if request.method == 'POST':
@@ -464,7 +514,6 @@ def report(request):
     
     return render(request, 'admin/Admin_report.html')
 
-
 def settings(request):
     # Check if the admin is logged in
     if 'admin_id' not in request.session:
@@ -505,7 +554,6 @@ def admin_login(request):
             return render(request, 'admin/Admin_login.html')
     else:
         return render(request, 'admin/Admin_login.html')
-
 
 def admin_logout(request):
     # Log out the user by clearing the session and logging them out

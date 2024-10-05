@@ -51,41 +51,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EvalZen.wsgi.application'
 
-# Database configuration
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': config('DB_NAME', default='users'),  
+        'NAME': config('DB_NAME'),  
         'CLIENT': {
-            'host': config('MONGO_URI'),
-            'username': config('DB_USER', default=None), 
-            'password': config('DB_PASSWORD', default=None), 
+            'host': config('MONGO_URI'),  # Use your MongoDB URI here
+            'username': config('DB_USER'), 
+            'password': config('DB_PASSWORD'), 
             'authSource': config('DB_AUTH_SOURCE', default='admin'), 
         }
     }
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'

@@ -52,94 +52,227 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Desktop Sidebar -->
-            {% include 'instructor/sidebar.html' %}
+            <!-- Sidebar -->
+
+            {% include 'admin/sidebar.html' %}
             <!-- Main Content -->
             <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
-                <!-- Top Bar with Toggle Button and Profile -->
-                <div class="d-flex align-items-center py-3 toggle-btn-wrapper">
-                    <h2 class="ms-3">Schedule Assessment</h2>
-                </div>
-
-                <!-- Schedule/Edit Form -->
-                <div class="row">
-                    <div class="col-md-8 offset-md-2">
-                        <div class="widget">
-                            <form id="scheduleForm">
-                                <div class="form-group">
-                                    <label for="assessment-title" class="form-label">Assessment Title</label>
-                                    <input type="text" class="form-control" id="assessment-title" name="assessment_title" placeholder="Enter title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="role" class="form-label">Role</label>
-                                    <input type="text" class="form-control" id="role" name="role" placeholder="Enter role" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="start-time" class="form-label">Start Date&Time</label>
-                                    <input type="datetime-local" class="form-control" id="start-time" name="start_time" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="end-time" class="form-label">End Date&Time</label>
-                                    <input type="datetime-local" class="form-control" id="end-time" name="end_time" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="description" class="form-label">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter a brief description"></textarea>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <!-- Button to open the modal -->
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assessmentModal" onclick="showAssessmentDetails()">
-                                        Schedule Assessment
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                <!-- Top Bar with Search and Bulk Actions -->
+                <div class="d-flex justify-content-between align-items-center py-3">
+                    <h2>Assessment Management</h2>
+                    <div class="d-flex align-items-center">
+                        <input type="text" class="form-control" id="search" placeholder="Search assessments..."
+                            style="width: 200px; margin-right: 10px;">
+                        
                     </div>
                 </div>
+                <div class="widget">
+                    <form method="POST" action="{% url 'schedule_assessment' %}">
+                        {% csrf_token %}
+                    
+                        <!-- Input for Assessment Name -->
+                        <div class="form-group">
+                            <label for="assessment_name">Assessment Name</label>
+                            <select name="assessment_name" id="assessment_name" class="form-control">
+                                {% for assessment in assessments %}
+                                    <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    
+                        <!-- Input for Date -->
+                        <div class="form-group">
+                            <label for="assessment_date">Assessment Date</label>
+                            <input type="date" name="assessment_date" id="assessment_date" class="form-control" required>
+                        </div>
+                    
+                        <!-- Input for Time -->
+                        <div class="form-group">
+                            <label for="assessment_time">Assessment Time</label>
+                            <input type="time" name="assessment_time" id="assessment_time" class="form-control" required>
+                        </div>
+                    
+                        <!-- AM/PM Selection -->
+                        <div class="form-group">
+                            <label for="time_period">Time Period</label>
+                            <select name="time_period" id="time_period" class="form-control" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    
+                        <!-- Input for Duration (in minutes) -->
+                        <div class="form-group">
+                            <label for="assessment_duration">Assessment Duration (Minutes)</label>
+                            <input type="number" name="assessment_duration" id="assessment_duration" class="form-control" placeholder="Enter duration in minutes" required>
+                        </div>
+                    
+                        <!-- Submit Button -->
+                        <div class="form-group">
+                            <button type="submit" id="scheduleButton" class="btn btn-primary">Schedule Assessment</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Assessment Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Title</th>
+                                <th onclick="sortTable(1)">Status</th>
+                                <th onclick="sortTable(2)">Date Created</th>
+                                <th onclick="sortTable(3)">Scheduled time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assessmentTable">
+                            {% for assessment in assessments %}
+
+                            <tr>
+                                <td>{{ assessment.assessment_name}}</td>
+                                <td>{{ assessment.status}}</td>
+                                <td>{{ assessment.created_at}}</td>
+                                <td>{{ assessment.schedule.scheduled_time}}</td>
+                                <td>
+
+                                    <button class="btn btn-warning btn-sm editassess">Edit</button>
+                                    <button class="btn btn-info btn-sm "><a href="{% url 'instructor_review_submission' %}">View Results</a></button>
+                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Assessment Table Pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
             </main>
         </div>
     </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="assessmentModal" tabindex="-1" aria-labelledby="assessmentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="assessmentModalLabel">Assessment Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Title:</strong> <span id="modalTitle"></span></p>
-                    <p><strong>Role:</strong> <span id="modalRole"></span></p>
-                    <p><strong>Start Time:</strong> <span id="modalStartTime"></span></p>
-                    <p><strong>End Time:</strong> <span id="modalEndTime"></span></p>
-                    <p><strong>Description:</strong> <span id="modalDescription"></span></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <a href="{%url 'instructor_create_assessment' %}" type="submit" class="btn btn-primary" form="scheduleForm">Confirm</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript for displaying assessment details in the modal -->
     <script>
-        function showAssessmentDetails() {
-            const title = document.getElementById('assessment-title').value;
-            const role = document.getElementById('role').value;
-            const startTime = document.getElementById('start-time').value;
-            const endTime = document.getElementById('end-time').value;
-            const description = document.getElementById('description').value;
-
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalRole').textContent = role;
-            document.getElementById('modalStartTime').textContent = new Date(startTime).toLocaleString();
-            document.getElementById('modalEndTime').textContent = new Date(endTime).toLocaleString();
-            document.getElementById('modalDescription').textContent = description;
+        // Function to sort the table by column
+        function sortTable(columnIndex) {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("assessmentTable");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 0; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
         }
-    </script>
+    
+        // Add search filter functionality
+        document.getElementById('search').addEventListener('keyup', function () {
+            var filter = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#assessmentTable tr');
+            rows.forEach(row => {
+                var title = row.getElementsByTagName("TD")[0].textContent.toLowerCase();
+                if (title.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        // Event listener for each Edit button
+        document.querySelectorAll(".editassess").forEach(button => {
+    button.addEventListener("click", function(event) {
+        event.preventDefault();
 
+        // Get the assessment data from the clicked row
+        let assessmentName = event.target.parentNode.parentNode.children.item(0).innerHTML;
+        let scheduledTime = event.target.parentNode.parentNode.children.item(3).innerHTML;
+
+        // Variables to store the parsed values
+        let scheduledDate = "";
+        let scheduledHour = "";
+        let scheduledMinute = "";
+        let period = "AM";
+
+        // Check for different time formats and handle them accordingly
+        if (scheduledTime) {
+            let datePart, timePart;
+
+            // Case 1: Format like '03-10-2024 10:33:25'
+            if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(scheduledTime)) {
+                [datePart, timePart] = scheduledTime.split(" ");
+                scheduledDate = datePart;
+                [scheduledHour, scheduledMinute] = timePart.split(":");
+
+            // Case 2: Format like 'Oct. 23, 2024, 7:15 p.m.'
+            } else if (/^\w+\.\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s\w+\.$/.test(scheduledTime)) {
+                const dateTimeParts = scheduledTime.split(", ");
+                scheduledDate = new Date(dateTimeParts[0] + ", " + dateTimeParts[1]).toISOString().split("T")[0];
+
+                // Parse the time and period (AM/PM)
+                let timeAndPeriod = dateTimeParts[2];
+                [scheduledHour, scheduledMinute] = timeAndPeriod.match(/\d{1,2}:\d{2}/)[0].split(":");
+                period = timeAndPeriod.includes("p.m.") ? "PM" : "AM";
+
+                // Convert to 24-hour format if needed
+                if (period === "PM" && parseInt(scheduledHour) < 12) {
+                    scheduledHour = parseInt(scheduledHour) + 12;
+                } else if (period === "AM" && parseInt(scheduledHour) === 12) {
+                    scheduledHour = 0;  // Midnight case
+                }
+            }
+
+            // Convert 24-hour format to 12-hour format for display in form
+            if (parseInt(scheduledHour) >= 12) {
+                period = "PM";
+                if (parseInt(scheduledHour) > 12) scheduledHour -= 12;
+            } else if (parseInt(scheduledHour) === 0) {
+                scheduledHour = 12;  // For midnight, show 12 AM
+            }
+        }
+
+        // Ensure hours and minutes are always two digits
+        scheduledHour = scheduledHour.toString().padStart(2, '0');
+        scheduledMinute = scheduledMinute.toString().padStart(2, '0');
+
+        // Populate the form fields with the assessment data
+        document.getElementById('assessment_name').value = assessmentName;
+        document.getElementById('assessment_date').value = scheduledDate;
+        document.getElementById('assessment_time').value = `${scheduledHour}:${scheduledMinute}`;
+        document.getElementById('time_period').value = period;
+
+        // Change the button text to 'Update Assessment'
+        let scheduleButton = document.getElementById('scheduleButton');
+        if (scheduleButton) {
+            scheduleButton.innerHTML = "Update Assessment";
+        } else {
+            console.error("Schedule button not found!");
+        }
+    });
+});
+
+</script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

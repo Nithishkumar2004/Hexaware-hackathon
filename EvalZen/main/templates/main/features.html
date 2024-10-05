@@ -16,15 +16,7 @@ body {
     text-align: center;
 }
 
-header {
-    background-color: #0056b3;
-    color: #fff;
-    padding: 1.5rem;
-}
 
-header h1 {
-    margin: 0;
-}
 
 .project-info {
     margin: 2rem;
@@ -115,7 +107,7 @@ button.view-details:hover {
 
 footer {
     background-color: #0056b3;
-    color: #fff;
+    color: #000000;
     padding: 1rem;
     margin-top: 2rem;
 }
@@ -136,11 +128,8 @@ footer {
     </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to the EvalZen</h1>
-        <p>Manage assessments for candidates, instructors, and admins effectively.</p>
-    </header>
-    
+    {% include 'main/header.html' %}
+   
     <main>
         <section class="project-info">
             <h2>Project Features</h2>

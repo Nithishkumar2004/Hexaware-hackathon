@@ -44,7 +44,6 @@
             height: 40px;
             border-radius: 50%;
         }
-
     </style>
 </head>
 <body>
@@ -73,41 +72,38 @@
                 <div class="row">
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
-                            <h4>Total users</h4>
-                            <p>8</p>
+                            <h4>Total Users</h4>
+                            <p>{{ candidates|length }}</p>  <!-- Display total number of candidates -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Assessments Scheduled</h4>
-                            <p>15</p>
+                            <p>{{ assessments|length }}</p>  <!-- Display total number of assessments -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
                             <h4>Upcoming Deadlines</h4>
-                            <p>3 Assignments Due</p>
+                            <p>{{ upcoming_deadlines_count }} Assignments Due</p>  <!-- Placeholder for upcoming deadlines -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Recent Activity -->
-             
-
-                <!-- Course Overview & System Status -->
                 <div class="row">
                     <div class="col-md-6 col-sm-12">
                         <div class="widget">
                             <h4>Users Overview</h4>
-                            <p>completed: 120 Students</p>
-                            <p>Average Progress: 75%</p>
+                            <p>Completed: {{ completed_students }} Students</p>  <!-- Placeholder for completed students -->
+                            <p>Average Progress: {{ average_progress }}%</p>  <!-- Placeholder for average progress -->
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-12">
                         <div class="widget">
                             <h4>System Status</h4>
-                            <p>Server Load: 40%</p>
-                            <p>Database Status: Stable</p>
+                            <p>Server Load: {{ server_load }}%</p>  <!-- Placeholder for server load -->
+                            <p>Database Status: {{ database_status }}</p>  <!-- Placeholder for database status -->
                         </div>
                     </div>
                 </div>
@@ -115,7 +111,5 @@
         </div>
     </div>
 
-
-    </body>
-    </html>
-    
+</body>
+</html>

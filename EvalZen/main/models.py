@@ -3,11 +3,6 @@ import os
 from dotenv import load_dotenv
 import pymongo
 from pymongo.server_api import ServerApi
-import json
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
-from django.contrib import messages
-from django.urls import reverse
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
 

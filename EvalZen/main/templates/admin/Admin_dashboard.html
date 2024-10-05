@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,13 +71,13 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Total Users</h4>
-                            <p>120</p>
+                            <p>{{ total_users }}</p>  <!-- Display total users -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
-                            <h4>Active Assessment</h4>
-                            <p>34</p>
+                            <h4>Active Assessments</h4>
+                            <p>{{ active_assessments }}</p>  <!-- Display active assessments -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
@@ -95,22 +94,16 @@
                         <div class="widget">
                             <h4>Recent Activity</h4>
                             <ul>
-                                <li>User Praveen added a new assessment.</li>
-                                <li>Admin Mike updated system settings.</li>
-                                <li>User Bala completed an assessment.</li>
+                                {% for activity in recent_activity %}
+                                    <li>{{ activity }}</li>  <!-- Display recent activity -->
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Assessment Completion Rate & System Status -->
+                <!-- System Status -->
                 <div class="row">
-                    <!-- <div class="col-md-6 col-sm-12">
-                        <div class="widget">
-                            <h4>Assessment Completion Rate</h4>
-                            <p>[Chart Placeholder]</p>
-                        </div>
-                    </div> -->
                     <div class="col-md-6 col-sm-12">
                         <div class="widget">
                             <h4>System Status</h4>
@@ -122,8 +115,6 @@
             </main>
         </div>
     </div>
-
-   
 
     <script>
         function toggleSidebar() {
