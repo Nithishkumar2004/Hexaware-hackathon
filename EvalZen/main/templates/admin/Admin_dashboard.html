@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,21 +13,25 @@
         body {
             background-color: #f8f9fa;
         }
+
         .sidebar {
             background-color: #343a40;
             padding-top: 20px;
             color: white;
             top: 0;
         }
+
         .sidebar a {
             color: white;
             text-decoration: none;
             padding: 10px;
             display: block;
         }
+
         .sidebar a.active {
             background-color: #0d6efd;
         }
+
         .widget {
             background-color: white;
             padding: 15px;
@@ -34,17 +39,19 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .navbar .btn {
             margin-right: 10px;
         }
+
         .profile-img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
         }
-        
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -71,21 +78,25 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Total Users</h4>
-                            <p>{{ total_users }}</p>  <!-- Display total users -->
+                            <p>Candidates : <b><span id="candidate-count"></span></b> </p>
+                            <p>Instructors : <b><span id="instructor-count"></span></b> </span></p>
+                            <!-- Display total users -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Active Assessments</h4>
-                            <p>{{ active_assessments }}</p>  <!-- Display active assessments -->
+                            <p>Active Assessments : <b><span id="Active-Assessments"></span></b> </p>
+                            <!-- Display active assessments -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
-                            <h4>System Health</h4>
-                            <p>All Systems Operational</p>
+                            <h4>Unactive Assessments</h4>
+                            <p>Assessments are not yet scheduled : <b><span id="Unactive-Assessments">0</span></b> </p>
                         </div>
                     </div>
+                    
                 </div>
 
                 <!-- Recent Activity -->
@@ -95,7 +106,7 @@
                             <h4>Recent Activity</h4>
                             <ul>
                                 {% for activity in recent_activity %}
-                                    <li>{{ activity }}</li>  <!-- Display recent activity -->
+                                <li>{{ activity }}</li> <!-- Display recent activity -->
                                 {% endfor %}
                             </ul>
                         </div>
@@ -117,6 +128,45 @@
     </div>
 
     <script>
+        // Fetch and display user counts (candidates and instructors)
+        fetch('/get-user-counts/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('candidate-count').textContent = data.candidates;
+                    document.getElementById('instructor-count').textContent = data.instructors;
+                } else {
+                    console.error('Failed to fetch user counts:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+        // Fetch and display active assessments
+        fetch('/Active-Assessments/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(data);
+                    document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
+                } else {
+                    console.error('Failed to fetch active assessments:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+        // Fetch and display unactive (not scheduled) assessments
+        fetch('/Unactive-Assessments/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(data);
+                    document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
+                } else {
+                    console.error('Failed to fetch unactive assessments:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
         function toggleSidebar() {
             const sidebar = document.getElementById('mobileSidebar');
             const toggleBtn = document.querySelector('.toggle-btn');
@@ -126,4 +176,5 @@
         }
     </script>
 </body>
+
 </html>

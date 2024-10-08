@@ -143,6 +143,22 @@ class QuestionDB:
         return assessments
     
 
+    @staticmethod
+    def get_scheduled_count():
+        query = {
+            "status": "scheduled",
+            "schedule_status": "scheduled"
+        }
+        return assessment_collection.count_documents(query)
+    
+    @staticmethod
+    def get_unscheduled_count():
+        query = {
+            "status": {"$ne": "scheduled"}  # Not equal to 'scheduled'
+        }
+        return assessment_collection.count_documents(query)
+    
+    @staticmethod
     def schedule_assessment_in_db(assessment_name, scheduled_time):
         # Fetch the relevant assessment
        
@@ -217,13 +233,22 @@ class Candidate:
             {'$set': {'status': new_status}}
         )
         return result.modified_count > 0  # Return True if the update was successful
-
-
     
+    @staticmethod
+    def delete_candidate_by_email(email):
+        result = users_collection.delete_one({'email': email})
+        return result.deleted_count > 0
+
+
     def get_all_candidates():
         """Retrieve all candidates from the collection."""
         candidates = list(users_collection.find())  # Convert cursor to list
         return candidates
+
+    @staticmethod
+    def get_count():
+        return users_collection.count_documents({})
+
 
 # Instructor Model
 class Instructor:
@@ -273,3 +298,11 @@ class Instructor:
         instructors = list(instructors_collection.find())  # Convert cursor to list
         return instructors
     
+    @staticmethod
+    def delete_instructor_by_email(email):
+        result = instructors_collection.delete_one({'email': email})
+        return result.deleted_count > 0
+    
+    @staticmethod
+    def get_count():
+        return instructors_collection.count_documents({})

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (admin_logout, candidate_access, change_account_status, edit_user, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (Active_Assessments, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -49,7 +49,10 @@ urlpatterns = [
     path('admin_login/',admin_login,name='admin_login'),
     path('Admin_logout/',admin_logout,name='adminlogout'),
     path('schedule_assessment/',schedule_assessment,name='schedule_assessment'),
+    path('delete_user/', delete_user, name='delete_user'),
 
+    path('get-user-counts/', get_user_counts, name='get_user_counts'),
+    path('Active-Assessments/', Active_Assessments, name='Active-Assessments'),
+    path('Unactive-Assessments/', Unactive_Assessments, name='Unactive-Assessments'),  # New path
 
-    
 ]

@@ -73,7 +73,7 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Total Users</h4>
-                            <p>{{ candidates|length }}</p>  <!-- Display total number of candidates -->
+                            <p>Candidates : <b><span id="candidate-count"></span></b> </p>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
@@ -110,6 +110,19 @@
             </main>
         </div>
     </div>
+<script>
 
+fetch('/get-user-counts/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('candidate-count').textContent = data.candidates;
+            } else {
+                console.error('Failed to fetch user counts:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+</script>
 </body>
 </html>

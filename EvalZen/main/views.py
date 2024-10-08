@@ -12,7 +12,7 @@ import time
 from dotenv import load_dotenv
 from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
 from .forms import SignupForm
-
+from django.views.decorators.http import require_GET
 
 
 # Store OTP and its timestamp for verification
@@ -190,6 +190,88 @@ def change_account_status(request):
             return JsonResponse({'success': False, 'message': 'Invalid user type.'}, status=400)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+def delete_user(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        user_type = data.get('usertype')
+
+        if not email or not user_type:
+            return JsonResponse({'success': False, 'message': 'Missing data.'}, status=400)
+
+        # Check if the user is a candidate or instructor and delete accordingly
+        if user_type == 'candidate':
+            result = Candidate.delete_candidate_by_email(email)
+            if result:
+                return JsonResponse({'success': True, 'message': 'Candidate deleted successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Candidate not found.'}, status=404)
+
+        elif user_type == 'instructor':
+            result = Instructor.delete_instructor_by_email(email)
+            if result:
+                return JsonResponse({'success': True, 'message': 'Instructor deleted successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Instructor not found.'}, status=404)
+
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid user type.'}, status=400)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from .models import Candidate, Instructor, QuestionDB  # Adjust as per your models
+
+@require_GET
+def get_user_counts(request):
+    try:
+        # Get the count of candidates and instructors from models
+        candidate_count = Candidate.get_count()
+        instructor_count = Instructor.get_count()
+
+        # Return the count in a JSON response
+        return JsonResponse({
+            'success': True,
+            'candidates': candidate_count,
+            'instructors': instructor_count
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_GET
+def Unactive_Assessments(request):
+    try:
+        # Get the count of unactive (not scheduled) assessments
+        unactive_assessments_count = QuestionDB.get_unscheduled_count()
+
+        # Return the count in a JSON response
+        return JsonResponse({
+            'success': True,
+            'UnactiveAssessments': unactive_assessments_count,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_GET
+def Active_Assessments(request):
+    try:
+        # Get the count of active assessments from models
+        active_assessments_count = QuestionDB.get_scheduled_count()
+
+        # Return the count in a JSON response
+        return JsonResponse({
+            'success': True,
+            'ActiveAssessments': active_assessments_count,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 
 
 

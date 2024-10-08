@@ -44,6 +44,12 @@
         .navbar .btn {
             margin-right: 10px;
         }
+        
+        .btn{
+            
+            margin: 5px;
+        }
+
 
         .profile-img {
             width: 40px;
@@ -99,7 +105,7 @@
                                         Deactivate
                                         {% endif %}
                                     </button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                    <button class="btn btn-danger btn-sm delete-candidate">Delete</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -115,6 +121,54 @@
     </div>
 
     <script>
+
+
+document.querySelectorAll(".delete-candidate").forEach(button => {
+    button.addEventListener('click', function (e) {
+        const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
+        if (window.confirm("Are you sure you want to delete candidate " + email + "?")) {
+            sendDeleteRequest('candidate', email);
+        }
+    });
+});
+
+
+
+function sendDeleteRequest(usertype, email) {
+    const url = '/delete_user/'; // Ensure this URL matches your Django route
+
+    const data = {
+        usertype: usertype,
+        email: email
+    };
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // CSRF token is required
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(usertype + ' deleted successfully!');
+            location.reload(); // Refresh the page or remove the row from DOM
+        } else {
+            alert('Failed to delete ' + usertype + '.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error occurred while deleting ' + usertype + '.');
+    });
+}
+
+
+
+
+
         // Function to sort the table by column
         function sortTable(columnIndex) {
             var table, rows, switching, i, x, y, shouldSwitch;
