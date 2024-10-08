@@ -370,6 +370,12 @@ def instructor_settings(request):
         messages.error(request, 'Please log in again to continue.')
         return redirect('instructor_login')
     return render(request,'instructor/Instructor_settings.html')
+def instructor_invitation(request):
+    if 'instructor_email' not in request.session:
+        messages.error(request, 'Please log in again to continue.')
+    return render(request,'instructor/Instructor_invitation.html')
+
+
 
 #Candidate Views
 
@@ -643,5 +649,54 @@ def admin_logout(request):
     
     # Redirect to the admin login page after logging out
     return redirect('admin_login')  # Ensure 'admin_login' is the name of the login page URL pattern
+
+#assesment
+import cv2
+import dlib
+import numpy as np
+import os
+import time
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+
+# Initialize the face detector
+detector = dlib.get_frontal_face_detector()
+
+def stream_camera(request):
+    if request.method == 'GET':
+        return render(request, 'candidate/candidate_assesment.html')
+
+@csrf_exempt  # Disable CSRF validation for this view (for simplicity)
+def proctoring_view(request):
+    if request.method == 'POST':
+        # Read the frame sent from the frontend
+        frame_file = request.FILES.get('frame')
+        if frame_file:
+            # Convert the frame to a format suitable for OpenCV
+            nparr = np.frombuffer(frame_file.read(), np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            # Convert the frame to grayscale for face detection
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            rects = detector(gray, 0)
+
+            # Print the number of faces detected
+            num_faces_detected = len(rects)
+            print(f"Number of faces detected: {num_faces_detected}")
+
+            # Check if more than one face is detected
+            if num_faces_detected > 1:
+                # Take a screenshot and save it
+                screenshot_path = os.path.join('static', 'image', f'screenshot_{int(time.time())}.jpg')
+                cv2.imwrite(screenshot_path, frame)
+                print(f"Screenshot saved at: {screenshot_path}")
+                return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
+
+            # Additional monitoring logic can be added here
+
+            return JsonResponse({"message": "Frame received", "num_faces": num_faces_detected})
+
+    return JsonResponse({"message": "Invalid request."})
 
 

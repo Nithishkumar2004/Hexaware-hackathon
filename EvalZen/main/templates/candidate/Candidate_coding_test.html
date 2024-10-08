@@ -163,103 +163,107 @@
       padding: 10px;
       border-radius: 4px;
     }
-
-    /* Right Panel */
-    .right-panel {
-      width: 45%;
-      padding: 15px;
-    }
-
-    .camera {
-      margin-bottom: 20px;
-      text-align: center;
-      height:60vh;
-      width:50vw;
-    }
-
-    #webcam {
-      width: 200px;
-      height: 200px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
-
-    /* Timer styling */
-    .timer {
-      text-align: center;
-      margin-left:60px;
-    }
-
-    .timer h4 {
-      margin-bottom: 10px;
-    }
-
-    .timer span {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #007BFF;
-    }
   </style>
+ 
+<script>
+  let currentQuestion = 0;
+  let questions = [];
+  let faceDetectionAttempts = 0;
+  let tabSwitchCount = 0; // Track tab switches
+  const maxTabSwitches = 1; // Track number of face detection attempts
+
+  let timeLeft = 1500; // 25 minutes in seconds
+  function startTimer() {
+      const timerElement = document.getElementById('timer');
+      const timerInterval = setInterval(() => {
+          let minutes = Math.floor(timeLeft / 60);
+          let seconds = timeLeft % 60;
+          if (seconds < 10) {
+              seconds = '0' + seconds;
+          }
+          timerElement.innerHTML = `${minutes}:${seconds}`; // Corrected interpolation
+          if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+              alert('Time is up!');
+              // Optional: Automatically submit the assessment when time is up
+              submitAssessment();
+          }
+          timeLeft--;
+      }, 1000);
+  }
+
+  function startWebcam() {
+      const webcamElement = document.getElementById('video');
+      const cameraStatus = document.getElementById('camera-status');
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+          webcamElement.srcObject = stream;
+          cameraStatus.innerText = "Monitoring User Activity";
+      })
+      .catch((err) => {
+          console.error("Webcam access denied: ", err);
+          cameraStatus.innerText = "Camera access denied or not supported";
+      });
+  }
+
+  window.onload = function() {
+      startTimer();    // Start the timer
+      startWebcam();   // Start the webcam
+
+      const modal = document.getElementById('instructionModal');
+      modal.style.display = "block";
+  };
+
+  function closePopup() {
+      const modal = document.getElementById('instructionModal');
+      modal.style.display = "none";
+      openFullscreen(); // Call fullscreen function when closing the modal
+  }
+
+  // Function to open fullscreen mode
+  function openFullscreen() {
+      const elem = document.documentElement; // Get the root element
+
+      if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) { // Firefox
+          elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+          elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { // IE/Edge
+          elem.msRequestFullscreen();
+      }
+  }
+
+  // Function to check if in fullscreen
+  
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+      tabSwitchCount++;
+      if (tabSwitchCount >= maxTabSwitches) {
+          alert('You have switched tabs too many times. You will be redirected.');
+          
+          // Request full-screen before redirecting
+          
+
+          // Redirect after full-screen is triggered
+          window.location.href = "{% url 'candidate_preassesment' %}";
+      } else {
+          alert(`Warning: You have switched tabs ${tabSwitchCount} time(s). You will be disqualified after ${maxTabSwitches} switches.`);
+      }
+  }
+});
+
+  // Add event listener for fullscreen change
+  document.addEventListener('fullscreenchange', checkFullScreen);
+  document.addEventListener('mozfullscreenchange', checkFullScreen); // Firefox
+  document.addEventListener('webkitfullscreenchange', checkFullScreen); // Chrome, Safari, Opera
+  document.addEventListener('msfullscreenchange', checkFullScreen); // IE/Edge
+</script>
+
 
   <script>
-    // Access user's webcam and display it on the video element
-    async function startWebcam() {
-      const video = document.getElementById('webcam');
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        monitorUserActivity(video);
-      } catch (err) {
-        console.error("Error accessing webcam:", err);
-        document.getElementById('camera-status').innerText = "Webcam access denied.";
-      }
-    }
-
-    // Function to monitor user activity using a basic face detection model
-    async function monitorUserActivity(video) {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights');
-
-      setInterval(async () => {
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-        if (detections.length === 0) {
-          document.getElementById('camera-status').innerText = "No face detected!";
-          console.log("No face detected, possible malpractice");
-        } else if (detections.length > 1) {
-          document.getElementById('camera-status').innerText = "Multiple faces detected!";
-          console.log("Multiple faces detected, possible malpractice");
-        } else {
-          document.getElementById('camera-status').innerText = "Monitoring User Activity";
-        }
-      }, 5000);
-    }
-
-    window.addEventListener('load', () => {
-      startWebcam();
-      fetchQuestion(); // Fetch the question when the page loads
-    });
-
-    // Timer functionality (30-minute countdown)
-  // Timer functionality (30-minute countdown)
-let timeLeft = 1800; // 30 minutes in seconds
-
-function startTimer() {
-    const timerElement = document.getElementById('time');
-    const timerInterval = setInterval(() => {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        if (seconds < 10) {
-            seconds = '0' + seconds; // Adds a leading zero for single digit seconds
-        }
-        timerElement.innerHTML = `${minutes}:${seconds}`; // Update the timer display
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            alert('Time is up!');
-        }
-        timeLeft--; // Decrement time by 1 second
-    }, 1000); // Interval set to 1 second
-}
-
-
     // Fetch question from MongoDB (backend integration needed)
     async function fetchQuestion() {
       try {
@@ -339,16 +343,118 @@ function startTimer() {
       window.submitCode = submitCode;
     });
     window.addEventListener('load', () => {
-      startWebcam();
+      
       fetchQuestion(); // Fetch the question when the page loads
       startTimer(); // Start the 30-minute countdown timer
   });
   
   </script>
+  <style>
+    .main {
+        font-family: Arial, sans-serif;
+    }
+    video {
+        width: 200px;
+        height: 200px;
+        border: 1px solid black;
+        margin: 20px;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .error {
+        color: red;
+        margin-top: 20px;
+    }
+    /* Modal popup styles */
+    .modal {
+        display: block;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        text-align: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        text-align: left;
+    }
+    .modal h2 {
+        color: #d9534f;
+    }
+    .modal p {
+        font-size: 16px;
+    }
+    .modal button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #5cb85c;
+        color: white;
+        border: none;
+        margin-top: 20px;
+    }
+    
+.right-panel {
+  width: 40%;
+  background-color: #ffffff;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.camera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#webcam {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  object-fit: cover;
+  background: #000;
+}
+
+#camera-status {
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
+}
+
+.timer {
+  font-size: 25px;
+  margin-top: 20px;
+}
+
+</style>
 </head>
 <body>
  
   {% include 'candidate/assessment_header.html' %}
+  <div id="instructionModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h2>Important Instructions</h2>
+        <p>1. Ensure that only one face is visible on the screen.</p>
+        <p>2. If more than one face is detected,3 chance will be given after that , you will be rejected from the assessment.</p>
+        <p>3. Do not turn your face away from the camera or leave the camera view.</p>
+        <button onclick="closePopup()" id="startProctoring">Continue</button>
+    </div>
+</div>
   <div class="container">
     <!-- Left Side Panel: Code Execution Section -->
     <div class="code-execution">
@@ -386,19 +492,73 @@ function startTimer() {
 
     <!-- Right Side Panel: Webcam and Timer -->
     <div class="right-panel">
-      <!-- Webcam Section -->
-      <div class="camera">
-        <h1>Webcam Monitoring</h1>
-        <video id="webcam" autoplay></video>
-        <p id="camera-status">Monitoring User Activity...</p>
-      </div>
-
-      <!-- Timer Section -->
+      <video id="video" style="text-align:center;" autoplay></video>
+      <div id="status"></div>
+      <div class="error" id="error" style="display:none;"></div>
+  
       <div class="timer">
-        <h4>Time Remaining:</h4>
-        <span id="time">25:00</span> <!-- Example for a 30-minute timer -->
+          <h4>Timer</h4>
+          <span id="timer">25:00</span>
       </div>
-    </div>
+</div>
   </div>
+  <script>
+    const video = document.getElementById('video');
+    const statusDiv = document.getElementById('status');
+    const errorDiv = document.getElementById('error');
+
+    document.getElementById('startProctoring').addEventListener('click', function() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        const sendFrame = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((blob) => {
+                const formData = new FormData();
+                formData.append('frame', blob, 'frame.jpg');
+
+                fetch('/proctoring/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    errorDiv.style.display = 'none';
+                    statusDiv.innerText = '';
+
+                    if (data.error) {
+                        errorDiv.innerText = data.error;
+                        errorDiv.style.display = 'block';
+
+                        // If more than one face is detected
+                        if (data.error.includes("More than one face detected")) {
+                            faceDetectionAttempts++;
+                            if (faceDetectionAttempts < 3) {
+                                const modal = document.getElementById('instructionModal');
+                                modal.style.display = "block";
+                                alert(data.error); // Show alert with error message
+                            } else {
+                                alert("Too many attempts. Redirecting to the pre-assessment page.");
+                                window.location.href = "{% url 'candidate_preassesment'%}";
+                            }
+                        }
+                    } else {
+                        statusDiv.innerText = data.message;
+                        requestAnimationFrame(sendFrame);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }, 'image/jpeg');
+        };
+
+        // Start sending frames
+        sendFrame();
+    });
+</script>
 </body>
 </html>

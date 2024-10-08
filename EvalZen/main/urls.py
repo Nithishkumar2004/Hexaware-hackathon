@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (Active_Assessments, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (Active_Assessments, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, instructor_invitation, proctoring_view, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -23,6 +23,7 @@ urlpatterns = [
     path('instructor_report/', instructor_report, name='instructor_report'),
     path('instructor_settings/', instructor_settings, name='instructor_settings'),
     path('instructor_logout/',instructor_logout, name='instructor_logout'),
+    path('instructor_invitation/', instructor_invitation, name='instructor_invitation'),
 
 
     
@@ -38,6 +39,7 @@ urlpatterns = [
     path('candidate_coding_test/', candidate_coding_test, name='candidate_coding_test'),
     path('contact_us/', contact_us, name='contact_us'),
     path('change_status/',change_account_status,name="change_status"),
+    path('proctoring/', proctoring_view, name='proctoring'),
     #admin
     path('Admin_dashboard/',admindashboard,name='admindashboard'),
     path('Admin_aiproctor/',aiproctor,name='aiproctor'),
