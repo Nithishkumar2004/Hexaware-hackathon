@@ -40,108 +40,89 @@ from pymongo import MongoClient
 from pymongo import MongoClient
 
 class QuestionDB:
-    def __init__(self):
-        # Initialize MongoDB connection
-        self.client = MongoClient('mongodb://localhost:27017/')  # Update with your MongoDB connection string
-        self.db = self.client['your_database_name']               # Replace with your database name
-        self.mcq_collection = self.db['mcqs']                     # Collection for MCQs
-        self.coding_collection = self.db['coding_questions']       # Collection for coding questions
-
-    def insert_mcq(self, assessment_no, mcq_list):
-        """
-        Insert multiple MCQ questions into the MCQ collection.
-        
-        :param assessment_no: Assessment number to associate with the MCQs.
-        :param mcq_list: List of dictionaries containing MCQ question data.
-        :return: Tuple of (status, message)
-        """
+    
+    @staticmethod
+    def insert_mcq(assessment_no, mcq_list):
         try:
-            # Prepare a list for bulk insertion
-            mcq_documents = []
-            for mcq in mcq_list:
-                # Assuming each mcq is a dictionary
-                mcq_doc = {
+            mcq_documents = [
+                {
                     'assessment_no': assessment_no,
                     'question_text': mcq['question_text'],
                     'options': mcq['options'],
                     'answer': mcq['answer'],
-                    'tags': mcq.get('tags', []),  # Use .get() to handle missing keys
+                    'tags': mcq.get('tags', [])
                 }
-                mcq_documents.append(mcq_doc)
-
-            mcq_collection.insert_many(mcq_documents)  # Use insert_many for bulk insertion
-        
+                for mcq in mcq_list
+            ]
+            mcq_collection.insert_many(mcq_documents)
+            return True, "MCQ questions inserted successfully"
         except Exception as e:
             return False, f"Error inserting MCQ: {str(e)}"
 
-    def insert_coding_question(self, assessment_no, coding_list):
-        """
-        Insert multiple coding questions into the coding collection.
-        
-        :param assessment_no: Assessment number associated with the coding questions.
-        :param coding_list: List of dictionaries containing coding question data.
-        :return: Tuple of (status, message)
-        """
+    @staticmethod
+    def insert_coding_question(assessment_no, coding_list):
         try:
-            # Prepare a list for bulk insertion
-            coding_documents = []
-            for coding_data in coding_list:
-                # Assuming each coding_data is a dictionary
-                coding_doc = {
+            coding_documents = [
+                {
                     'Assessment_name': assessment_no,
-                    'question_text': coding_data['question_text'],  # Ensure this key exists in coding_data
-                    'tags': coding_data.get('tags', []),  # Use .get() to handle missing keys
+                    'question_text': coding_data['question_text'],
+                    'tags': coding_data.get('tags', [])
                 }
-                coding_documents.append(coding_doc)
-
-            # Insert all coding documents at once
+                for coding_data in coding_list
+            ]
             coding_collection.insert_many(coding_documents)
             return True, "Coding questions inserted successfully"
         except Exception as e:
             return False, f"Error inserting coding question: {str(e)}"
 
-    def insert_assessment_name(self, assessment_no):
-        # Get the current timestamp for created_at and updated_at
+    @staticmethod
+    def insert_assessment_name(assessment_no):
         current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-        
-        # Insert the assessment name into the 'Assessment' collection
         ass_doc = {
             "assessment_name": assessment_no, 
-            "status": "not scheduled",  # Possible values: "not scheduled", "active", "completed", "started"
-            "schedule_status": "created",  # Possible values: "created", "scheduled"
+            "status": "not scheduled",
+            "schedule_status": "created",
             "schedule": {
-                "scheduled_time": None,  # Not scheduled yet, can be updated later
-                "initialized": 0  # 0 means not scheduled, 1 means scheduled
+                "scheduled_time": None,
+                "initialized": 0
             },
-            "created_at": current_time,  # Timestamp when the assessment was created
-            "updated_at": current_time  # Timestamp for the last update (can be updated when schedule/status changes)
+            "created_at": current_time,
+            "updated_at": current_time,
+            "assessment_email":None
         }
-
-        # Insert the document into the collection and return the result
         return assessment_collection.insert_one(ass_doc)
 
-    def fetch_mcqs_by_assessment(self, assessment_no):
-        """
-        Fetch all MCQ questions associated with a specific assessment number.
-        
-        :param assessment_no: Assessment number to filter MCQs.
-        :return: List of MCQ documents or error message.
-        """
-
+    @staticmethod
+    def fetch_mcqs_by_assessment(assessment_no):
         try:
-            mcqs = list(self.mcq_collection.find({'assessment_no': assessment_no}))  # Fetch MCQs
+            mcqs = list(mcq_collection.find({'assessment_no': assessment_no}))
             if mcqs:
-                return True, mcqs  # Return MCQs if found
+                return True, mcqs
             else:
                 return False, "No MCQs found for this assessment number"
         except Exception as e:
             return False, f"Error fetching MCQs: {str(e)}"
-    
+
+    @staticmethod
     def get_all_assessment():
-        """Retrieve all candidates from the collection."""
-        assessments = list(assessment_collection.find())  # Convert cursor to list
-        return assessments
-    
+        return list(assessment_collection.find())
+
+    @staticmethod
+    def get_assessment(assessment_name):
+        return assessment_collection.find_one({"assessment_name": assessment_name})
+
+    @staticmethod
+    def update_assessment_emails(assessment_name, new_emails):
+        assessment_doc = QuestionDB.get_assessment(assessment_name)
+        if assessment_doc:
+            existing_emails = assessment_doc.get('assessment_email', [])
+            updated_emails = list(set(existing_emails) | set(new_emails))
+            assessment_collection.update_one(
+                {"assessment_name": assessment_name},
+                {"$set": {"assessment_email": updated_emails}}
+            )
+            return True
+        return False
 
     @staticmethod
     def get_scheduled_count():
@@ -150,20 +131,17 @@ class QuestionDB:
             "schedule_status": "scheduled"
         }
         return assessment_collection.count_documents(query)
-    
+
     @staticmethod
     def get_unscheduled_count():
         query = {
-            "status": {"$ne": "scheduled"}  # Not equal to 'scheduled'
+            "status": {"$ne": "scheduled"}
         }
         return assessment_collection.count_documents(query)
-    
+
     @staticmethod
     def schedule_assessment_in_db(assessment_name, scheduled_time):
-        # Fetch the relevant assessment
-       
         query = {"assessment_name": assessment_name}
-        # Update the status and scheduled time
         new_values = {
             "$set": {
                 "status": "scheduled",
@@ -174,7 +152,6 @@ class QuestionDB:
             }
         }
         assessment_collection.update_one(query, new_values)
-
 class Admin:
     @staticmethod
     def get_admin_credentials(admin_id):

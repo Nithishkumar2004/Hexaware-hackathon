@@ -22,6 +22,38 @@ load_dotenv()
 host_email = os.getenv("EMAIL_HOST_USER")
 email_password = os.getenv("EMAIL_HOST_PASSWORD")
 
+from django.http import HttpResponse
+import pandas as pd
+from reportlab.pdfgen import canvas
+
+# PDF Report View
+def download_assessment_report(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="assessment_report.pdf"'
+
+    p = canvas.Canvas(response)
+    p.drawString(100, 750, "Assessment Report")
+    p.drawString(100, 730, "Total Users: 150")
+    p.drawString(100, 710, "Total Assessments: 45")
+    p.drawString(100, 690, "Active Sessions: 12")
+    p.showPage()
+    p.save()
+    return response
+
+# Excel Report View
+def download_proctoring_report(request):
+    data = {
+        'Assessment': ['Assessment 1', 'Assessment 2', 'Assessment 3'],
+        'Proctoring Issues': [2, 0, 1]
+    }
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="proctoring_report.xlsx"'
+    df.to_excel(response, index=False)
+    
+    return response
+
 
 def index(request):
     return render(request, 'main/index.html')
@@ -359,6 +391,7 @@ def instructor_review_submission(request):
         return redirect('instructor_login')
     return render(request,'instructor/Instructor_review_submission.html')
 
+
 def instructor_report(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
@@ -373,9 +406,36 @@ def instructor_settings(request):
 def instructor_invitation(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
-    return render(request,'instructor/Instructor_invitation.html')
+    assessments = QuestionDB.get_all_assessment() 
+    candidates = Candidate.get_all_candidates()  # Assuming this method returns a queryset of candidates
+    return render(request,'instructor/Instructor_invitation.html',{'assessments':assessments,'candidates': candidates,})
 
 
+def invitation(request):
+    if request.method == 'POST':
+        try:
+            print(request)
+            # Parse the JSON data from the request
+            data = json.loads(request.body)
+            selected_emails = data.get('email')
+            assessment_name = data.get('assessment_name')
+            print(selected_emails)
+            print(assessment_name)
+
+           
+            # Update the assessment document with the new emails
+            success = QuestionDB.update_assessment_emails(selected_emails)
+
+            if success:
+                return JsonResponse({'success': True, 'message': 'Invitations sent and emails added successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Assessment not found.'}, status=404)
+
+        except Exception as e:
+            print("Error:", e)
+            return JsonResponse({'success': False, 'message': 'An error occurred while processing your request.'}, status=500)
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
 #Candidate Views
 
@@ -439,6 +499,7 @@ def candidate_login(request):
             messages.error(request, 'Invalid credentials. Please try again.')
 
     return render(request, 'candidate/Candidate_login.html')
+
 
 def candidate_dashboard(request):
     if 'candidate_email' not in request.session:
@@ -662,6 +723,8 @@ from django.shortcuts import render
 
 # Initialize the face detector
 detector = dlib.get_frontal_face_detector()
+
+
 
 def stream_camera(request):
     if request.method == 'GET':

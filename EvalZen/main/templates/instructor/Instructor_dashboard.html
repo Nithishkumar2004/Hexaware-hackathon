@@ -51,7 +51,6 @@
         <div class="row">
             <!-- Desktop Sidebar -->
             {% include 'instructor/sidebar.html' %}
-
             <!-- Main Content -->
             <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
                 <!-- Top Bar with Toggle Button, Buttons, and Profile -->
@@ -60,10 +59,10 @@
                     <button class="btn toggle-btn d-md-none" type="button" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h2 class="ms-3">Instructor Dashboard</h2>
+                    <h2 class="ms-3">Admin Dashboard</h2>
                     <div class="d-flex align-items-center ms-auto">
-                        <button class="btn btn-primary me-2">Create Users</button>
-                        <a href="{% url 'instructor_schedule' %}" class="btn btn-secondary me-2">Schedule Assessment</a>
+                        <button class="btn btn-primary me-2">Add User</button>
+                        <button class="btn btn-secondary me-2">Create Assessment</button>
                         <img src="{% static 'main/aprofile.png' %}" alt="Profile Image" class="profile-img">
                     </div>
                 </div>
@@ -74,55 +73,99 @@
                         <div class="widget">
                             <h4>Total Users</h4>
                             <p>Candidates : <b><span id="candidate-count"></span></b> </p>
+                            <!-- Display total users -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
-                            <h4>Assessments Scheduled</h4>
-                            <p>{{ assessments|length }}</p>  <!-- Display total number of assessments -->
+                            <h4>Active Assessments</h4>
+                            <p>Active Assessments : <b><span id="Active-Assessments"></span></b> </p>
+                            <!-- Display active assessments -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
-                            <h4>Upcoming Deadlines</h4>
-                            <p>{{ upcoming_deadlines_count }} Assignments Due</p>  <!-- Placeholder for upcoming deadlines -->
+                            <h4>Unactive Assessments</h4>
+                            <p>Assessments are not yet scheduled : <b><span id="Unactive-Assessments">0</span></b> </p>
                         </div>
                     </div>
+                    
                 </div>
 
                 <!-- Recent Activity -->
                 <div class="row">
-                    <div class="col-md-6 col-sm-12">
+                    <div class="col-md-12">
                         <div class="widget">
-                            <h4>Users Overview</h4>
-                            <p>Completed: {{ completed_students }} Students</p>  <!-- Placeholder for completed students -->
-                            <p>Average Progress: {{ average_progress }}%</p>  <!-- Placeholder for average progress -->
+                            <h4>Recent Activity</h4>
+                            <ul>
+                                {% for activity in recent_activity %}
+                                <li>{{ activity }}</li> <!-- Display recent activity -->
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="row">
                     <div class="col-md-6 col-sm-12">
                         <div class="widget">
                             <h4>System Status</h4>
-                            <p>Server Load: {{ server_load }}%</p>  <!-- Placeholder for server load -->
-                            <p>Database Status: {{ database_status }}</p>  <!-- Placeholder for database status -->
+                            <p>Server Load: 55%</p>
+                            <p>Database Status: Stable</p>
                         </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
-<script>
+    <script>
+        // Fetch and display user counts (candidates and instructors)
+        fetch('/get-user-counts/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('candidate-count').textContent = data.candidates;
+                    document.getElementById('instructor-count').textContent = data.instructors;
+                } else {
+                    console.error('Failed to fetch user counts:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
 
-fetch('/get-user-counts/')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('candidate-count').textContent = data.candidates;
-            } else {
-                console.error('Failed to fetch user counts:', data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        // Fetch and display active assessments
+        fetch('/Active-Assessments/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(data);
+                    document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
+                } else {
+                    console.error('Failed to fetch active assessments:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
 
-</script>
+        // Fetch and display unactive (not scheduled) assessments
+        fetch('/Unactive-Assessments/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(data);
+                    document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
+                } else {
+                    console.error('Failed to fetch unactive assessments:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            sidebar.classList.toggle('show');
+            // Hide the toggle button when the sidebar is open
+            toggleBtn.classList.toggle('hidden', sidebar.classList.contains('show'));
+        }
+    </script>
 </body>
 </html>

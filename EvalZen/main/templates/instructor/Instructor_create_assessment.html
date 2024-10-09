@@ -115,28 +115,52 @@
                     </form>
                 </div>
 
-                <!-- Preview Section for MCQ -->
-                <div class="widget preview-section" id="mcq-preview">
-                    <h4>Preview MCQ Questions</h4>
-                    <table class="table table-bordered" id="mcqTable">
-                        <thead>
-                            <tr>
-                                <th>Question Text</th>
-                                <th>Options</th>
-                                <th>Answer</th>
-                                <th>Tags</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- MCQ Preview rows will be added here dynamically -->
-                        </tbody>
-                    </table>
-                </div>
+               <!-- Preview Section for MCQ -->
+<div class="widget preview-section" id="mcq-preview">
+    <div class="row">
+        <h4>Preview MCQ Questions</h4>
+        
+        <!-- File input for uploading MCQ CSV -->
+        <form class="my-2" id="upload-mcq-form" enctype="multipart/form-data" method="POST" action="">
+            {% csrf_token %} <!-- Django's CSRF protection -->
+            
+            <input type="file" id="mcq-csv-file" name="mcq_csv_file" accept=".csv">
+            <button type="submit" class="btn btn-primary">Upload MCQ Questions</button>
+        </form>
+    </div>
+
+    <!-- Table to display MCQ questions -->
+    <table class="table table-bordered" id="mcqTable">
+        <thead>
+            <tr>
+                <th>Question Text</th>
+                <th>Options</th>
+                <th>Answer</th>
+                <th>Tags</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- MCQ Preview rows will be added here dynamically -->
+        </tbody>
+    </table>
+</div>
 
                 <!-- Preview Section for Coding Test -->
                 <div class="widget preview-section" id="coding-preview">
-                    <h4>Preview Coding Test Questions</h4>
+                    <div class="row">
+                        <h4>Preview Coding Test Questions</h4>
+                        
+                        <!-- Corrected file input for uploading CSV -->
+                        <form class="my-2" id="upload-form" enctype="multipart/form-data" method="POST" action="">
+                            {% csrf_token %} <!-- Django's CSRF protection -->
+                            
+                            <input type="file" id="csv-file" name="csv_file" accept=".csv">
+                            <button type="submit" class="btn btn-primary">Upload Questions</button>
+                        </form>
+                    </div>
+                
+                    <!-- Table to display coding test questions -->
                     <table class="table table-bordered" id="codingTable">
                         <thead>
                             <tr>
@@ -150,7 +174,7 @@
                         </tbody>
                     </table>
                 </div>
-
+                
                 <form id="assessmentForm" method="POST">
                     {% csrf_token %}
                     <div class="widget">

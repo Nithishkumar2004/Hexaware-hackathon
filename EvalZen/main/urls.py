@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (Active_Assessments, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, instructor_invitation, proctoring_view, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (Active_Assessments, download_assessment_report, download_proctoring_report, invitation, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, instructor_invitation, proctoring_view, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -24,7 +24,7 @@ urlpatterns = [
     path('instructor_settings/', instructor_settings, name='instructor_settings'),
     path('instructor_logout/',instructor_logout, name='instructor_logout'),
     path('instructor_invitation/', instructor_invitation, name='instructor_invitation'),
-
+   path('invitation/',invitation,name='invitation'),
 
     
     #candidate
@@ -52,6 +52,8 @@ urlpatterns = [
     path('Admin_logout/',admin_logout,name='adminlogout'),
     path('schedule_assessment/',schedule_assessment,name='schedule_assessment'),
     path('delete_user/', delete_user, name='delete_user'),
+    path('download/assessment_report/', download_assessment_report, name='download_assessment_report'),
+    path('download/proctoring_report/', download_proctoring_report, name='download_proctoring_report'),
 
     path('get-user-counts/', get_user_counts, name='get_user_counts'),
     path('Active-Assessments/', Active_Assessments, name='Active-Assessments'),

@@ -126,6 +126,7 @@
 
         function submitAssessment() {
             alert('Assessment submitted successfully!');
+            window.location.href = "{% url 'candidate_assesment_choice' %}";
         }
 
         let timeLeft = 1500; // 25 minutes in seconds

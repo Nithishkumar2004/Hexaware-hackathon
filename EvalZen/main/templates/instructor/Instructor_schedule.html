@@ -54,7 +54,7 @@
         <div class="row">
             <!-- Sidebar -->
 
-            {% include 'admin/sidebar.html' %}
+            {% include 'instructor/sidebar.html' %}
             <!-- Main Content -->
             <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
                 <!-- Top Bar with Search and Bulk Actions -->
@@ -75,7 +75,9 @@
                             <label for="assessment_name">Assessment Name</label>
                             <select name="assessment_name" id="assessment_name" class="form-control">
                                 {% for assessment in assessments %}
-                                    <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}</option>
+                                    <option value="{{ assessment.assessment_name }}">
+                                        {{ assessment.assessment_name }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>

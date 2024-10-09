@@ -97,11 +97,13 @@
                 </div>
 
                 <!-- Export Options -->
-                <div class="widget">
-                    <h4>Export Data</h4>
-                    <a href="#" class="btn btn-primary">Export to PDF</a>
-                    <a href="#" class="btn btn-secondary">Export to Excel</a>
-                </div>
+<div class="widget">
+    <h4>Detailed Reports</h4>
+    <p><a href="{% url 'download_assessment_report' %}" class="btn btn-primary">Download Assessment Report (PDF)</a></p>
+    <p><a href="{% url 'download_proctoring_report' %}" class="btn btn-secondary">Download Proctoring Report (Excel)</a></p>
+    <p><a href="#" class="btn btn-danger">Customize the report</a></p>
+</div>
+
             </main>
         </div>
     </div>

@@ -1,0 +1,17 @@
+{% load static %}
+<nav class="col-md-2 sidebar position-fixed top-0 start-0 vh-100 ">
+    <div class="d-flex flex-column align-items-center py-3">
+        <img src="{% static 'main/adminlogo.png' %}" alt="logo" width="50" height="50">
+        <h4 class="mt-2">Candidate Zone</h4>
+        
+    </div>
+    <ul class="nav flex-column mt-4 w-100">
+        <li class="nav-item">
+            <a href="{% url 'candidate_dashboard' %}" class="nav-link {% if request.path == '/candidate_dashboard/' %}active{% endif %}">Dashboard</a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{% url 'candidate_logout' %}" class="nav-link {% if request.path == '/candidate_logout/' %}active{% endif %}">Log out</a>
+        </li>
+    </ul>
+</nav>

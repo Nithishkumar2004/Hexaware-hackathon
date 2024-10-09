@@ -75,141 +75,147 @@
 </head>
 <body>
     {% include 'instructor/sidebar.html' %}
-<div style="margin-left:18%;"> 
-    
-    <div class="container mt-5 ">
-        
-        
-        <!-- Search and Invitation Button -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search users...">
+    <div style="margin-left:18%;"> 
+        <div class="container mt-5">
+            <!-- Assessment Name Dropdown -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="assessment_name" class="form-label">Assessment Name</label>
+                    <select name="assessment_name" id="assessment_name" class="form-select">
+                        <option value="">Select an assessment</option>
+                        {% for assessment in assessments %}
+                            <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-            <div class="col-md-6 text-end">
-                <button class="action-btn" id="sendInvitation">Send Invitation</button>
+            
+            <!-- Search and Invitation Button -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search users...">
+                </div>
+                <div class="col-md-6">
+                    <button class="action-btn" id="sendInvitation">Send Invitation</button>
+                </div>
             </div>
-        </div>
-
-        <!-- Candidates Table -->
-        <h4>Candidates</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th><input type="checkbox" id="selectAll"></th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="nithishcse2021@gmail.com"></td>
-                    <td>Nithish Kumar</td>
-                    <td>nithishcse2021@gmail.com</td>
-                    <td>12345678</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="praveenkal0508@gmail.com"></td>
-                    <td>Praveen Kumar</td>
-                    <td>praveenkal0508@gmail.com</td>
-                    <td>87654321</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="john.doe@example.com"></td>
-                    <td>John Doe</td>
-                    <td>john.doe@example.com</td>
-                    <td>23456789</td>
-                    <td>deactivated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Activate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="jane.smith@example.com"></td>
-                    <td>Jane Smith</td>
-                    <td>jane.smith@example.com</td>
-                    <td>34567890</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="michael.brown@example.com"></td>
-                    <td>Michael Brown</td>
-                    <td>michael.brown@example.com</td>
-                    <td>45678901</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="alice.johnson@example.com"></td>
-                    <td>Alice Johnson</td>
-                    <td>alice.johnson@example.com</td>
-                    <td>56789012</td>
-                    <td>deactivated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Activate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="william.lee@example.com"></td>
-                    <td>William Lee</td>
-                    <td>william.lee@example.com</td>
-                    <td>67890123</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" data-email="emily.davis@example.com"></td>
-                    <td>Emily Davis</td>
-                    <td>emily.davis@example.com</td>
-                    <td>78901234</td>
-                    <td>activated</td>
-                    <td><button class="btn btn-warning btn-sm">Edit</button> <button class="btn btn-secondary btn-sm">Deactivate</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                
-            </tbody>
-        </table>
-         </div>
+        
+            <!-- Candidates Table -->
+            <h4>Candidates</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Status</th>
+                        <th>Qualification</th>
+                        <th>Institution</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    {% for candidate in candidates %}
+                    <tr>
+                        <td><input type="checkbox" class="user-checkbox" data-email="{{ candidate.email }}"></td>
+                        <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
+                        <td>{{ candidate.email }}</td>
+                        <td>{{ candidate.mobile }}</td>
+                        <td>{{ candidate.status }}</td>
+                        <td>{{ candidate.qualification }}</td>
+                        <td>{{ candidate.institution }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
     <!-- Script for filtering and selecting users -->
     <script>
+        // Function to retrieve a cookie value by name
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
         // Select all checkboxes for filtered candidates
         document.getElementById('selectAll').addEventListener('change', function() {
-            let visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"]) .user-checkbox');
+            const isChecked = this.checked; // Store the checked status
+            const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"]) .user-checkbox');
             visibleRows.forEach(checkbox => {
-                checkbox.checked = this.checked;
+                checkbox.checked = isChecked; // Set checkbox status to the same as the selectAll checkbox
             });
         });
-
+    
         // Handle invitation button click for filtered users
         document.getElementById('sendInvitation').addEventListener('click', function() {
             let selectedEmails = [];
+            const assessmentName = document.getElementById("assessment_name").value; // Get the selected assessment name
+    
+            // Gather selected emails from checked checkboxes
             document.querySelectorAll('tbody tr:not([style*="display: none"]) .user-checkbox:checked').forEach(checkbox => {
                 selectedEmails.push(checkbox.dataset.email);
             });
-
+    
+            // Check if at least one email is selected
             if (selectedEmails.length > 0) {
                 // Simulate email sending process
                 alert(`Sending invitations to: ${selectedEmails.join(', ')}`);
-                // Add your email sending API call here
+    
+                // Send POST request to the server with the selected emails and assessment name
+                fetch('/invitation/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ email: selectedEmails, assessment_name: assessmentName })
+})
+.then(response => {
+    if (!response.ok) { // Check if response status is not OK
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+})
+.then(data => {
+    if (data.success) {
+        alert('Invitations sent successfully!');
+    } else {
+        alert('Failed to send invitations: ' + data.message);
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert("Invitation sent");
+});
+
             } else {
                 alert('Please select at least one user to send an invitation.');
             }
         });
-
+    
         // Simple search/filter functionality
         document.getElementById('searchInput').addEventListener('input', function() {
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('tbody tr');
+            const filter = this.value.toLowerCase(); // Get the filter input
+            const rows = document.querySelectorAll('tbody tr'); // Select all rows in the table
+    
+            // Loop through each row and toggle visibility based on filter
             rows.forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none'; // Show or hide row based on filter match
             });
         });
     </script>
+    
 </body>
 </html>
