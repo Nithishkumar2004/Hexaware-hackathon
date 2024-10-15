@@ -92,7 +92,6 @@ class QuestionDB:
         }
         assessment_collection.update_one(query, new_values)
 
-
     @staticmethod
     def update_assessment_statuses():
         current_time = datetime.now()
@@ -103,28 +102,26 @@ class QuestionDB:
         for assessment in assessments:
             schedule_date_str = assessment['schedule']['date']
             schedule_time_str = assessment['schedule']['time']
-            duration = assessment['schedule'].get('duration', 0)  # Assuming duration is in minutes, default to 0 if not provided
+            duration = int(assessment['schedule'].get('duration', 0))  # Duration in minutes, default to 0
 
             # Combine schedule date and time into a single datetime object
             scheduled_datetime_str = f"{schedule_date_str} {schedule_time_str}"
             scheduled_datetime = datetime.strptime(scheduled_datetime_str, "%Y-%m-%d %H:%M")
 
-            # Determine the new status based on current time
+            # Calculate the end time of the assessment
+            duration_timedelta = timedelta(minutes=duration)
+            duration_end_time = scheduled_datetime + duration_timedelta
+
+            # Determine the new status based on the current time
             if current_time < scheduled_datetime:
                 # Assessment is upcoming
                 new_status = 'scheduled'
+            elif scheduled_datetime <= current_time < duration_end_time:
+                # Assessment is active
+                new_status = 'active'
             else:
-                # Assessment is active or ended
-                if duration:
-                    duration_timedelta = timedelta(minutes=int(duration))
-                    duration_end_time = scheduled_datetime + duration_timedelta
-
-                    if scheduled_datetime <= current_time < duration_end_time:
-                        new_status = 'active'
-                    else:
-                        new_status = 'ended'
-                else:
-                    new_status = 'ended'  # No duration specified, mark as ended
+                # Assessment has ended
+                new_status = 'ended'
 
             # Update the status in the database
             query = {"_id": assessment['_id']}
@@ -134,7 +131,13 @@ class QuestionDB:
                     "updated_at": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
                 }
             }
+            # Assuming assessment_collection is the MongoDB collection
             assessment_collection.update_one(query, new_values)
+
+            # Log the assessment status update for debugging
+            print(f"Assessment ID: {assessment['_id']} | New Status: {new_status}")
+
+        print("Assessment statuses updated successfully.")
 
 class Admin:
     @staticmethod
