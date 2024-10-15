@@ -97,7 +97,7 @@
                     <div class="job-post">
                         <h1>{{ assessment.assessment_name }}</h1>
         
-                        <p>Scheduled Time: {{ assessment.schedule.scheduled_time|date:"d-m-Y H:i" }}</p>
+                        <p>Scheduled Time: {{ assessment.schedule.date }}</p>
         
                         {% if assessment.status == "ended" %}
                             <p>Status: Ended</p>
@@ -115,11 +115,10 @@
                             <a class="btn btn-secondary disabled">Unknown Status</a>
                         {% endif %}
                     </div>
-        
-                    
-                {% endif %}c
+                {% endif %}
             {% endfor %}
         </div>
+        
              
         </div>
     </div>

@@ -101,25 +101,24 @@ class QuestionDB:
         assessments = QuestionDB.get_all_schedule_assessment()
 
         for assessment in assessments:
-            scheduled_time_str = assessment['schedule']['scheduled_time']
-            duration = assessment['schedule']['duration']  # Assuming duration is stored in minutes
-            
-            # Convert scheduled_time to a datetime object
-            if isinstance(scheduled_time_str, str):
-                scheduled_datetime = datetime.strptime(scheduled_time_str, "%Y-%m-%d %H:%M:%S")
-            else:
-                scheduled_datetime = scheduled_time_str
+            schedule_date_str = assessment['schedule']['date']
+            schedule_time_str = assessment['schedule']['time']
+            duration = assessment['schedule'].get('duration', 0)  # Assuming duration is in minutes, default to 0 if not provided
 
+            # Combine schedule date and time into a single datetime object
+            scheduled_datetime_str = f"{schedule_date_str} {schedule_time_str}"
+            scheduled_datetime = datetime.strptime(scheduled_datetime_str, "%Y-%m-%d %H:%M")
+
+            # Determine the new status based on current time
             if current_time < scheduled_datetime:
                 # Assessment is upcoming
                 new_status = 'scheduled'
             else:
                 # Assessment is active or ended
-                print(duration)
                 if duration:
-                    duration_timedelta = timedelta(minutes=duration)
+                    duration_timedelta = timedelta(minutes=int(duration))
                     duration_end_time = scheduled_datetime + duration_timedelta
-                    
+
                     if scheduled_datetime <= current_time < duration_end_time:
                         new_status = 'active'
                     else:

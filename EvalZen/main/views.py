@@ -478,7 +478,6 @@ def manualquestionupload(request):
             data = json.loads(request.body.decode('utf-8'))
             assessment_name = data.get('assessment_name', '')
             status = data.get('status', 'not defined')
-            schedule_status = data.get('schedule_status', 'not scheduled')
             schedule = data.get('schedule', {})
             created_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
             updated_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
@@ -491,7 +490,6 @@ def manualquestionupload(request):
             assessment_document = {
                 'assessment_name': assessment_name,
                 'status': status,
-                'schedule_status': schedule_status,
                 'schedule': {
                     'date': schedule.get('date', ''),
                     'time': schedule.get('time', ''),
