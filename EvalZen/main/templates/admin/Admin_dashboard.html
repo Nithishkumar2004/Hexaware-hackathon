@@ -129,7 +129,7 @@
 
     <script>
         // Fetch and display user counts (candidates and instructors)
-        fetch('/get-user-counts/')
+        fetch('/admin/get-user-counts/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -142,7 +142,7 @@
             .catch(error => console.error('Error:', error));
 
         // Fetch and display active assessments
-        fetch('/Active-Assessments/')
+        fetch('/admin/active-assessments/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -154,7 +154,7 @@
             .catch(error => console.error('Error:', error));
 
         // Fetch and display unactive (not scheduled) assessments
-        fetch('/Unactive-Assessments/')
+        fetch('/admin/unactive-assessments/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

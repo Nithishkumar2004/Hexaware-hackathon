@@ -188,7 +188,7 @@
         });
 
         function sendDeleteRequest(usertype, email) {
-            const url = '/delete_user/'; // Ensure this URL matches your Django route
+            const url = 'admin/delete_user/'; // Ensure this URL matches your Django route
 
             const data = {
                 usertype: usertype,
@@ -276,7 +276,7 @@
                     let newStatus = action === 'Activate' ? 'activated' : 'deactivated';
 
                     // Send the update request to the server using fetch
-                    fetch('/change_status/', {
+                    fetch('/admin/change_status/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

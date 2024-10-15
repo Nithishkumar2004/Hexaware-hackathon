@@ -100,14 +100,6 @@
                                 required>
                         </div>
 
-                        <!-- AM/PM Selection -->
-                        <div class="form-group">
-                            <label for="time_period">Time Period</label>
-                            <select name="time_period" id="time_period" class="form-control" required>
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                            </select>
-                        </div>
 
                         <!-- Input for Duration (in minutes) -->
                         <div class="form-group">
@@ -221,13 +213,14 @@
                 console.log(assessmentId);
                 
                 // Make the fetch request to delete the assessment
-                fetch("/delete_assessment/", {
+                fetch("/admin/delete_assessment/", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included for security
                     },
                     body: JSON.stringify({ 'assessment_id': assessmentId })
+                   
                 })
                     .then(response => {
                         if (response.ok) {
@@ -246,7 +239,9 @@
                         }
                     })
                     .catch(error => console.error('Error:', error));
-            });
+           
+                    location.reload();  
+                 });
         });
 
         // Event listener for each Edit button

@@ -48,6 +48,7 @@ class QuestionDB:
     @staticmethod
     def get_all_schedule_assessment():
         return list(assessment_collection.find({'status': 'scheduled'}))
+    
 
     @staticmethod
     def get_all_assessment():
@@ -78,18 +79,19 @@ class QuestionDB:
         return assessment_collection.count_documents(query)
 
     @staticmethod
-    def schedule_assessment_in_db(assessment_name, scheduled_time):
+    def schedule_assessment_in_db(assessment_name, assessment_date,assessment_time,time_period):
         query = {"assessment_name": assessment_name}
         new_values = {
             "$set": {
                 "status": "scheduled",
-                "schedule.scheduled_time": scheduled_time,
-                "schedule_status": "scheduled",
-                "schedule.initialized": 1,
+                "schedule.date": assessment_date,
+                "schedule.duration": time_period,
+                "schedule.time": assessment_time,
                 "updated_at": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
             }
         }
         assessment_collection.update_one(query, new_values)
+
 
     @staticmethod
     def update_assessment_statuses():
@@ -99,7 +101,6 @@ class QuestionDB:
         assessments = QuestionDB.get_all_schedule_assessment()
 
         for assessment in assessments:
-            
             scheduled_time_str = assessment['schedule']['scheduled_time']
             duration = assessment['schedule']['duration']  # Assuming duration is stored in minutes
             
@@ -114,11 +115,12 @@ class QuestionDB:
                 new_status = 'scheduled'
             else:
                 # Assessment is active or ended
+                print(duration)
                 if duration:
                     duration_timedelta = timedelta(minutes=duration)
                     duration_end_time = scheduled_datetime + duration_timedelta
                     
-                    if scheduled_datetime <= current_time <= duration_end_time:
+                    if scheduled_datetime <= current_time < duration_end_time:
                         new_status = 'active'
                     else:
                         new_status = 'ended'
@@ -134,6 +136,7 @@ class QuestionDB:
                 }
             }
             assessment_collection.update_one(query, new_values)
+
 class Admin:
     @staticmethod
     def get_admin_credentials(admin_id):

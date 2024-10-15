@@ -173,7 +173,7 @@
                 alert(`Sending invitations to: ${selectedEmails.join(', ')}`);
     
                 // Send POST request to the server with the selected emails and assessment name
-                fetch('/invitation/', {
+                fetch('/admin/invitationtouser/', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',

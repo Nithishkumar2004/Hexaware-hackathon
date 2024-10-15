@@ -87,6 +87,7 @@
                                 <th onclick="sortTable(0)">Name</th>
                                 <th onclick="sortTable(1)">Email</th>
                                 <th onclick="sortTable(2)">Mobile</th>
+                                <th onclick="sortTable(3)">Image</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -95,7 +96,18 @@
                             <tr>
                                 <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
                                 <td>{{ candidate.email }}</td>
-                                <td>{{ candidate.status }}</td>
+                                <td>{{ candidate.mobile }}</td>
+                                
+                                    <td>
+                                        {% if candidate.profile_image %}
+                                        <img src="{{ candidate.profile_image }}" alt="Profile Image"
+                                             style="width: 50px; height: 50px;">
+                                        {% else %}
+                                        No Image
+                                        {% endif %}
+                                    </td>
+                                    
+                                
                                 <td>
                                     <button class="status btn btn-secondary btn-sm">
                                         {% if candidate.status == "deactivated" %}
@@ -108,12 +120,9 @@
                                 </td>
                             </tr>
                             {% endfor %}
-
                         </tbody>
-
                     </table>
                 </div>
-
 
             </main>
         </div>
@@ -134,7 +143,7 @@ document.querySelectorAll(".delete-candidate").forEach(button => {
 
 
 function sendDeleteRequest(usertype, email) {
-    const url = '/delete_user/'; // Ensure this URL matches your Django route
+    const url = '/instructor/delete_user/'; // Ensure this URL matches your Django route
 
     const data = {
         usertype: usertype,

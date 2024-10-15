@@ -59,7 +59,7 @@
                     <button class="btn toggle-btn d-md-none" type="button" onclick="toggleSidebar()">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h2 class="ms-3">Admin Dashboard</h2>
+                    <h2 class="ms-3">Instructor Dashboard</h2>
                     <div class="d-flex align-items-center ms-auto">
                         <button class="btn btn-primary me-2">Add User</button>
                         <button class="btn btn-secondary me-2">Create Assessment</button>
@@ -121,7 +121,7 @@
     </div>
     <script>
         // Fetch and display user counts (candidates and instructors)
-        fetch('/get-user-counts/')
+        fetch('/instructor/get-user-counts/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -134,7 +134,7 @@
             .catch(error => console.error('Error:', error));
 
         // Fetch and display active assessments
-        fetch('/Active-Assessments/')
+        fetch('/instructor/active-assessments/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -147,7 +147,7 @@
             .catch(error => console.error('Error:', error));
 
         // Fetch and display unactive (not scheduled) assessments
-        fetch('/Unactive-Assessments/')
+        fetch('/instructor/unactive-assessments/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

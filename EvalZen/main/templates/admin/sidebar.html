@@ -9,28 +9,31 @@
     </div>
     <ul class="nav flex-column mt-4 w-100">
         <li class="nav-item">
-            <a href="{% url 'admindashboard' %}" class="nav-link {% if request.path == '/Admin_dashboard/' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'admindashboard' %}" class="nav-link {% if request.path == '/admin/dashboard/' %}active{% endif %}">Dashboard</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'usermanagement' %}" class="nav-link {% if request.path == '/Admin_usermanagement/' %}active{% endif %}">Users</a>
+            <a href="{% url 'usermanagement' %}" class="nav-link {% if request.path == '/admin/usermanagement/' %}active{% endif %}">Users</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'adminassessment' %}" class="nav-link {% if request.path == '/Admin_assessment/' %}active{% endif %}">Assessments</a>
+            <a href="{% url 'adminassessment' %}" class="nav-link {% if request.path == '/admin/assessment/' %}active{% endif %}">Assessments</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'Admin_invite' %}" class="nav-link {% if request.path == '/Admin_invite/' %}active{% endif %}">Invite Students</a>
+            <a href="{% url 'Admin_invite' %}" class="nav-link {% if request.path == '/admin/invite/' %}active{% endif %}">Invite Students</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'manualquestionupload' %}" class="nav-link {% if request.path == '/Admin_manualquestionupload/' %}active{% endif %}">Question Upload</a>
+            <a href="{% url 'manualquestionupload' %}" class="nav-link {% if request.path == '/admin/manualquestionupload/' %}active{% endif %}">Question Upload</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'aiproctor' %}" class="nav-link {% if request.path == '/Admin_aiproctor/' %}active{% endif %}">AI Proctoring</a>
+            <a href="{% url 'aiproctor' %}" class="nav-link {% if request.path == '/admin/aiproctor/' %}active{% endif %}">AI Proctoring</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'report' %}" class="nav-link {% if request.path == '/Admin_report/' %}active{% endif %}">Reports</a>
+            <a href="{% url 'report' %}" class="nav-link {% if request.path == '/admin/report/' %}active{% endif %}">Reports</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'admin_logout' %}" class="nav-link {% if request.path == '/Admin_setting/' %}active{% endif %}">Logout</a>
+            <a href="{% url 'settings' %}" class="nav-link {% if request.path == '/admin/settings/' %}active{% endif %}">Settings</a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin_logout' %}" class="nav-link {% if request.path == '/admin/logout/' %}active{% endif %}">Logout</a>
         </li>
     </ul>
 </nav>

@@ -7,28 +7,28 @@
     </div>
     <ul class="nav flex-column mt-4 w-100">
         <li class="nav-item">
-            <a href="{% url 'instructor_dashboard' %}" class="nav-link {% if request.path == '/instructor_dashboard/' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'instructor_dashboard' %}" class="nav-link {% if request.path == '/instructor/dashboard/' %}active{% endif %}">Dashboard</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_usermanagement' %}" class="nav-link {% if request.path == '/instructor_usermanagement/' %}active{% endif %}">Users</a>
+            <a href="{% url 'instructor_usermanagement' %}" class="nav-link {% if request.path == '/instructor/usermanagement/' %}active{% endif %}">Users</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_create_assessment' %}" class="nav-link {% if request.path == '/instructor_create_assessment/' %}active{% endif %}">Create Assessment</a>
+            <a href="{% url 'instructor_create_assessment' %}" class="nav-link {% if request.path == '/instructor/create_assessment/' %}active{% endif %}">Create Assessment</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_review_submission' %}" class="nav-link {% if request.path == '/instructor_review_submission/' %}active{% endif %}">Review Submissions</a>
+            <a href="{% url 'instructor_review_submission' %}" class="nav-link {% if request.path == '/instructor/review_submission/' %}active{% endif %}">Review Submissions</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_schedule' %}" class="nav-link {% if request.path == '/instructor_schedule/' %}active{% endif %}">Assessment schedule</a>
+            <a href="{% url 'instructor_schedule' %}" class="nav-link {% if request.path == '/instructor/schedule/' %}active{% endif %}">Assessment schedule</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_invitation' %}" class="nav-link {% if request.path ==  '/instructor_invitation/' %}active{% endif %}">Bulk Invitation</a>
+            <a href="{% url 'instructor_invitation' %}" class="nav-link {% if request.path ==  '/instructor/invitation/' %}active{% endif %}">Bulk Invitation</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_report' %}" class="nav-link {% if request.path == '/instructor_report/' %}active{% endif %}">Report</a>
+            <a href="{% url 'instructor_report' %}" class="nav-link {% if request.path == '/instructor/report/' %}active{% endif %}">Report</a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'instructor_logout' %}" class="nav-link {% if request.path == '/instructor_logout/' %}active{% endif %}">Log out</a>
+            <a href="{% url 'instructor_logout' %}" class="nav-link {% if request.path == '/instructor/logout/' %}active{% endif %}">Log out</a>
         </li>
     </ul>
 </nav>
