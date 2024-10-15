@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Adjusting the table and button styling */
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .action-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background-color: #218838;
+        }
+        .user-checkbox {
+            margin-right: 10px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #343a40;
+            height: 100vh;
+            padding-top: 20px;
+            padding-left:12px;
+            color: white;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+        }
+        .sidebar a.active {
+            background-color: #0d6efd;
+        }
+        .widget {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .btn {
+            margin-right: 10px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    {% include 'admin/sidebar.html' %}
+    <div style="margin-left:18%;"> 
+        <div class="container mt-5">
+            <!-- Assessment Name Dropdown -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="assessment_name" class="form-label">Assessment Name</label>
+                    <select name="assessment_name" id="assessment_name" class="form-select">
+                        <option value="">Select an assessment</option>
+                        {% for assessment in assessments %}
+                            <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Search and Invitation Button -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search users...">
+                </div>
+                <div class="col-md-6">
+                    <button class="action-btn" id="sendInvitation">Send Invitation</button>
+                </div>
+            </div>
+        
+            <!-- Candidates Table -->
+            <h4>Candidates</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Status</th>
+                        <th>Qualification</th>
+                        <th>Institution</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    {% for candidate in candidates %}
+                    <tr>
+                        <td><input type="checkbox" class="user-checkbox" data-email="{{ candidate.email }}"></td>
+                        <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
+                        <td>{{ candidate.email }}</td>
+                        <td>{{ candidate.mobile }}</td>
+                        <td>{{ candidate.status }}</td>
+                        <td>{{ candidate.qualification }}</td>
+                        <td>{{ candidate.institution }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Script for filtering and selecting users -->
+    <script>
+        // Function to retrieve a cookie value by name
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        // Select all checkboxes for filtered candidates
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const isChecked = this.checked; // Store the checked status
+            const visibleRows = document.querySelectorAll('tbody tr:not([style*="display: none"]) .user-checkbox');
+            visibleRows.forEach(checkbox => {
+                checkbox.checked = isChecked; // Set checkbox status to the same as the selectAll checkbox
+            });
+        });
+    
+        // Handle invitation button click for filtered users
+        document.getElementById('sendInvitation').addEventListener('click', function() {
+            let selectedEmails = [];
+            const assessmentName = document.getElementById("assessment_name").value; // Get the selected assessment name
+    
+            // Gather selected emails from checked checkboxes
+            document.querySelectorAll('tbody tr:not([style*="display: none"]) .user-checkbox:checked').forEach(checkbox => {
+                selectedEmails.push(checkbox.dataset.email);
+            });
+    
+            // Check if at least one email is selected
+            if (selectedEmails.length > 0) {
+                // Simulate email sending process
+                alert(`Sending invitations to: ${selectedEmails.join(', ')}`);
+    
+                // Send POST request to the server with the selected emails and assessment name
+                fetch('/invitation/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ email: selectedEmails, assessment_name: assessmentName })
+})
+.then(response => {
+    if (!response.ok) { // Check if response status is not OK
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+})
+.then(data => {
+    if (data.success) {
+        alert('Invitations sent successfully!');
+    } else {
+        alert('Failed to send invitations: ' + data.message);
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert("Server Side Error Occured");
+});
+
+            } else {
+                alert('Please select at least one user to send an invitation.');
+            }
+        });
+    
+        // Simple search/filter functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const filter = this.value.toLowerCase(); // Get the filter input
+            const rows = document.querySelectorAll('tbody tr'); // Select all rows in the table
+    
+            // Loop through each row and toggle visibility based on filter
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none'; // Show or hide row based on filter match
+            });
+        });
+    </script>
+    
+</body>
+</html>

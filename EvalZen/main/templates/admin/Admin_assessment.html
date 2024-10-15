@@ -68,35 +68,38 @@
                     <div class="d-flex align-items-center">
                         <input type="text" class="form-control" id="search" placeholder="Search assessments..."
                             style="width: 200px; margin-right: 10px;">
-                        
+
                     </div>
                 </div>
                 <div class="widget">
                     <form method="POST" action="{% url 'schedule_assessment' %}">
                         {% csrf_token %}
-                    
+
                         <!-- Input for Assessment Name -->
                         <div class="form-group">
                             <label for="assessment_name">Assessment Name</label>
                             <select name="assessment_name" id="assessment_name" class="form-control">
                                 {% for assessment in assessments %}
-                                    <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}</option>
+                                <option value="{{ assessment.assessment_name }}">{{ assessment.assessment_name }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
-                    
+
                         <!-- Input for Date -->
                         <div class="form-group">
                             <label for="assessment_date">Assessment Date</label>
-                            <input type="date" name="assessment_date" id="assessment_date" class="form-control" required>
+                            <input type="date" name="assessment_date" id="assessment_date" class="form-control"
+                                required>
                         </div>
-                    
+
                         <!-- Input for Time -->
                         <div class="form-group">
                             <label for="assessment_time">Assessment Time</label>
-                            <input type="time" name="assessment_time" id="assessment_time" class="form-control" required>
+                            <input type="time" name="assessment_time" id="assessment_time" class="form-control"
+                                required>
                         </div>
-                    
+
                         <!-- AM/PM Selection -->
                         <div class="form-group">
                             <label for="time_period">Time Period</label>
@@ -105,20 +108,22 @@
                                 <option value="PM">PM</option>
                             </select>
                         </div>
-                    
+
                         <!-- Input for Duration (in minutes) -->
                         <div class="form-group">
                             <label for="assessment_duration">Assessment Duration (Minutes)</label>
-                            <input type="number" name="assessment_duration" id="assessment_duration" class="form-control" placeholder="Enter duration in minutes" required>
+                            <input type="number" name="assessment_duration" id="assessment_duration"
+                                class="form-control" placeholder="Enter duration in minutes" required>
                         </div>
-                    
+
                         <!-- Submit Button -->
                         <div class="form-group">
-                            <button type="submit" id="scheduleButton" class="btn btn-primary">Schedule Assessment</button>
+                            <button type="submit" id="scheduleButton" class="btn btn-primary">Schedule
+                                Assessment</button>
                         </div>
                     </form>
                 </div>
-                
+
                 <!-- Assessment Table -->
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -133,20 +138,23 @@
                         </thead>
                         <tbody id="assessmentTable">
                             {% for assessment in assessments %}
-
                             <tr>
-                                <td>{{ assessment.assessment_name}}</td>
-                                <td>{{ assessment.status}}</td>
-                                <td>{{ assessment.created_at}}</td>
-                                <td>{{ assessment.schedule.scheduled_time}}</td>
+                                <td>{{ assessment.assessment_name }}</td>
+                                <td>{{ assessment.status }}</td>
+                                <td>{{ assessment.created_at }}</td>
+                                <td>{{ assessment.schedule.scheduled_time }}</td>
                                 <td>
-
-                                    <button class="btn btn-warning btn-sm editassess">Edit</button>
-                                    <button class="btn btn-info btn-sm">View Results</button>
-                                    <button class="btn btn-danger btn-sm">Delete</button>
+                                    {% if assessment.status == "not defined" %}
+                                        <button class="btn btn-warning btn-sm edit">Schedule</button>
+                                        <button class="btn btn-danger btn-sm delete">Delete</button>
+                                    {% else %}
+                                        <button class="btn btn-warning btn-sm edit">Edit</button>
+                                        <button class="btn btn-info btn-sm">View Results</button>
+                                        <button class="btn btn-danger btn-sm delete">Delete</button>
+                                    {% endif %}
                                 </td>
                             </tr>
-                            {% endfor %}
+                        {% endfor %}
                         
                     </table>
                 </div>
@@ -189,7 +197,7 @@
                 }
             }
         }
-    
+
         // Add search filter functionality
         document.getElementById('search').addEventListener('keyup', function () {
             var filter = this.value.toLowerCase();
@@ -204,79 +212,117 @@
             });
         });
         // Event listener for each Edit button
-        document.querySelectorAll(".editassess").forEach(button => {
-    button.addEventListener("click", function(event) {
-        event.preventDefault();
+        document.querySelectorAll(".delete").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
 
-        // Get the assessment data from the clicked row
-        let assessmentName = event.target.parentNode.parentNode.children.item(0).innerHTML;
-        let scheduledTime = event.target.parentNode.parentNode.children.item(3).innerHTML;
+                // Extract the assessment ID from the relevant element (adjust as necessary)
+                const assessmentId = event.target.parentNode.parentNode.children[0].innerHTML.trim();
+                console.log(assessmentId);
+                
+                // Make the fetch request to delete the assessment
+                fetch("/delete_assessment/", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included for security
+                    },
+                    body: JSON.stringify({ 'assessment_id': assessmentId })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();  // Parse the JSON response
+                        } else {
+                            throw new Error('Network response was not ok.');
+                        }
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Assessment deleted successfully!');
+                            // Optionally, remove the assessment from the UI
+                            // e.g., event.target.closest('.assessment-row').remove();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
 
-        // Variables to store the parsed values
-        let scheduledDate = "";
-        let scheduledHour = "";
-        let scheduledMinute = "";
-        let period = "AM";
+        // Event listener for each Edit button
+        document.querySelectorAll(".edit").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
 
-        // Check for different time formats and handle them accordingly
-        if (scheduledTime) {
-            let datePart, timePart;
+                // Get the assessment data from the clicked row
+                let assessmentName = event.target.parentNode.parentNode.children.item(0).innerHTML;
+                let scheduledTime = event.target.parentNode.parentNode.children.item(3).innerHTML;
 
-            // Case 1: Format like '03-10-2024 10:33:25'
-            if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(scheduledTime)) {
-                [datePart, timePart] = scheduledTime.split(" ");
-                scheduledDate = datePart;
-                [scheduledHour, scheduledMinute] = timePart.split(":");
+                // Variables to store the parsed values
+                let scheduledDate = "";
+                let scheduledHour = "";
+                let scheduledMinute = "";
+                let period = "AM";
 
-            // Case 2: Format like 'Oct. 23, 2024, 7:15 p.m.'
-            } else if (/^\w+\.\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s\w+\.$/.test(scheduledTime)) {
-                const dateTimeParts = scheduledTime.split(", ");
-                scheduledDate = new Date(dateTimeParts[0] + ", " + dateTimeParts[1]).toISOString().split("T")[0];
+                // Check for different time formats and handle them accordingly
+                if (scheduledTime) {
+                    let datePart, timePart;
 
-                // Parse the time and period (AM/PM)
-                let timeAndPeriod = dateTimeParts[2];
-                [scheduledHour, scheduledMinute] = timeAndPeriod.match(/\d{1,2}:\d{2}/)[0].split(":");
-                period = timeAndPeriod.includes("p.m.") ? "PM" : "AM";
+                    // Case 1: Format like '03-10-2024 10:33:25'
+                    if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(scheduledTime)) {
+                        [datePart, timePart] = scheduledTime.split(" ");
+                        scheduledDate = datePart;
+                        [scheduledHour, scheduledMinute] = timePart.split(":");
 
-                // Convert to 24-hour format if needed
-                if (period === "PM" && parseInt(scheduledHour) < 12) {
-                    scheduledHour = parseInt(scheduledHour) + 12;
-                } else if (period === "AM" && parseInt(scheduledHour) === 12) {
-                    scheduledHour = 0;  // Midnight case
+                        // Case 2: Format like 'Oct. 23, 2024, 7:15 p.m.'
+                    } else if (/^\w+\.\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s\w+\.$/.test(scheduledTime)) {
+                        const dateTimeParts = scheduledTime.split(", ");
+                        scheduledDate = new Date(dateTimeParts[0] + ", " + dateTimeParts[1]).toISOString().split("T")[0];
+
+                        // Parse the time and period (AM/PM)
+                        let timeAndPeriod = dateTimeParts[2];
+                        [scheduledHour, scheduledMinute] = timeAndPeriod.match(/\d{1,2}:\d{2}/)[0].split(":");
+                        period = timeAndPeriod.includes("p.m.") ? "PM" : "AM";
+
+                        // Convert to 24-hour format if needed
+                        if (period === "PM" && parseInt(scheduledHour) < 12) {
+                            scheduledHour = parseInt(scheduledHour) + 12;
+                        } else if (period === "AM" && parseInt(scheduledHour) === 12) {
+                            scheduledHour = 0;  // Midnight case
+                        }
+                    }
+
+                    // Convert 24-hour format to 12-hour format for display in form
+                    if (parseInt(scheduledHour) >= 12) {
+                        period = "PM";
+                        if (parseInt(scheduledHour) > 12) scheduledHour -= 12;
+                    } else if (parseInt(scheduledHour) === 0) {
+                        scheduledHour = 12;  // For midnight, show 12 AM
+                    }
                 }
-            }
 
-            // Convert 24-hour format to 12-hour format for display in form
-            if (parseInt(scheduledHour) >= 12) {
-                period = "PM";
-                if (parseInt(scheduledHour) > 12) scheduledHour -= 12;
-            } else if (parseInt(scheduledHour) === 0) {
-                scheduledHour = 12;  // For midnight, show 12 AM
-            }
-        }
+                // Ensure hours and minutes are always two digits
+                scheduledHour = scheduledHour.toString().padStart(2, '0');
+                scheduledMinute = scheduledMinute.toString().padStart(2, '0');
 
-        // Ensure hours and minutes are always two digits
-        scheduledHour = scheduledHour.toString().padStart(2, '0');
-        scheduledMinute = scheduledMinute.toString().padStart(2, '0');
+                // Populate the form fields with the assessment data
+                document.getElementById('assessment_name').value = assessmentName;
+                document.getElementById('assessment_date').value = scheduledDate;
+                document.getElementById('assessment_time').value = `${scheduledHour}:${scheduledMinute}`;
+                document.getElementById('time_period').value = period;
 
-        // Populate the form fields with the assessment data
-        document.getElementById('assessment_name').value = assessmentName;
-        document.getElementById('assessment_date').value = scheduledDate;
-        document.getElementById('assessment_time').value = `${scheduledHour}:${scheduledMinute}`;
-        document.getElementById('time_period').value = period;
+                // Change the button text to 'Update Assessment'
+                let scheduleButton = document.getElementById('scheduleButton');
+                if (scheduleButton) {
+                    scheduleButton.innerHTML = "Update Assessment";
+                } else {
+                    console.error("Schedule button not found!");
+                }
+            });
+        });
 
-        // Change the button text to 'Update Assessment'
-        let scheduleButton = document.getElementById('scheduleButton');
-        if (scheduleButton) {
-            scheduleButton.innerHTML = "Update Assessment";
-        } else {
-            console.error("Schedule button not found!");
-        }
-    });
-});
+    </script>
 
-</script>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

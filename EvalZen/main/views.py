@@ -24,7 +24,6 @@ email_password = os.getenv("EMAIL_HOST_PASSWORD")
 from django.http import HttpResponse
 import pandas as pd
 from reportlab.pdfgen import canvas
-QuestionDB.update_assessment_status()
 # PDF Report View
 def download_assessment_report(request):
     response = HttpResponse(content_type='application/pdf')
@@ -403,7 +402,7 @@ def instructor_settings(request):
 def instructor_invitation(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
-    assessments = QuestionDB.get_all_assessment() 
+    assessments = QuestionDB.get_all_schedule_assessment() 
     candidates = Candidate.get_all_candidates()  # Assuming this method returns a queryset of candidates
     return render(request,'instructor/Instructor_invitation.html',{'assessments':assessments,'candidates': candidates,})
 
@@ -415,10 +414,8 @@ def invitation(request):
             data = json.loads(request.body)
             selected_emails = data.get('email')
             assessment_name = data.get('assessment_name')
-    
-            # Update the assessment document with the new emails
-            success = QuestionDB.update_assessment_emails(selected_emails)
-
+            success = QuestionDB.update_assessment_emails(assessment_name,selected_emails)
+           
             if success:
                 return JsonResponse({'success': True, 'message': 'Invitations sent and emails added successfully.'})
             else:
@@ -502,8 +499,9 @@ def candidate_dashboard(request):
     if 'candidate_email' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
-    a = QuestionDB.get_all_assessment()
-    return render(request, 'candidate/Candidate_dashboard.html',{'assessments': a})
+    QuestionDB.update_assessment_statuses()
+    assessments = QuestionDB.get_all_assessment()
+    return render(request, 'candidate/Candidate_dashboard.html',{'assessments': assessments})
 
 def candidate_preassesment(request):
     if 'candidate_email' not in request.session:
@@ -608,6 +606,16 @@ def admindashboard(request):
         return redirect('admin_login')  # Redirect to the login page
     return render(request, 'admin/Admin_dashboard.html')
 
+def Admin_invite(request):
+    # Check if the admin is logged in
+    if 'admin_id' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('admin_login')  # Redirect to the login page
+    assessments = QuestionDB.get_all_schedule_assessment() 
+    candidates = Candidate.get_all_candidates()  # Assuming this method returns a queryset of candidates
+    return render(request, 'admin/Admin_invite.html', {'assessments':assessments,'candidates': candidates})
+
+
 def aiproctor(request):
     # Check if the admin is logged in
     if 'admin_id' not in request.session:
@@ -642,8 +650,8 @@ def manualquestionupload(request):
             status = data.get('status', 'not defined')
             schedule_status = data.get('schedule_status', 'not scheduled')
             schedule = data.get('schedule', {})
-            created_at = datetime.now().isoformat()  # Automatically set the created time
-            updated_at = datetime.now().isoformat()  # Automatically set the updated time
+            created_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')  # Automatically set the created time
+            updated_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')  # Automatically set the updated time
             mcq_questions = data.get('mcq', [])
             coding_questions = data.get('coding', [])
             candidates = data.get('candidates', [])
@@ -681,12 +689,41 @@ def manualquestionupload(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
         except Exception as e:
-            # Log the exception for debugging purposes
-            print(f"An error occurred: {str(e)}")
             return JsonResponse({'error': 'An unexpected error occurred.'}, status=500)
 
     # For GET requests, return the form page
     return render(request, 'admin/Admin_manualquestionupload.html')
+
+
+def delete_assessment(request):
+    # Check if the request method is POST
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+            
+        assessment_id = data.get('assessment_id')  # Extract the assessment ID from the request
+        
+        if not assessment_id:
+            return JsonResponse({'success': False, 'message': 'Assessment ID is required.'})
+
+        try:
+            # Attempt to delete the assessment
+            deleted = QuestionDB.delete_assessment(assessment_id)
+            if deleted:
+                return JsonResponse({'success': True, 'message': 'Assessment deleted successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Assessment not found.'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+def report(request):
+    # Check if the admin is logged in
+    if 'admin_id' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('admin_login')  # Redirect to the login page
+    
+    return render(request, 'admin/Admin_report.html')
 
 def report(request):
     # Check if the admin is logged in
@@ -776,16 +813,13 @@ def proctoring_view(request):
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             rects = detector(gray, 0)
 
-            # Print the number of faces detected
+            #  the number of faces detected
             num_faces_detected = len(rects)
-            print(f"Number of faces detected: {num_faces_detected}")
-
             # Check if more than one face is detected
             if num_faces_detected > 1:
                 # Take a screenshot and save it
                 screenshot_path = os.path.join('static', 'image', f'screenshot_{int(time.time())}.jpg')
                 cv2.imwrite(screenshot_path, frame)
-                print(f"Screenshot saved at: {screenshot_path}")
                 return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
 
             # Additional monitoring logic can be added here

@@ -146,7 +146,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log(data);
                     document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
                 } else {
                     console.error('Failed to fetch active assessments:', data.error);
@@ -159,7 +158,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log(data);
+                
                     document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
                 } else {
                     console.error('Failed to fetch unactive assessments:', data.error);
