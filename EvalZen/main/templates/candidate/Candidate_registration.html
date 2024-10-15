@@ -1,154 +1,274 @@
-    {% load static %}
+{% load static %}
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EvalZen</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <style>
-            .step-card {
-                display: none;
-            }
-            .step-card.active {
-                display: block;
-            }
-        </style>
-    </head>
-    <body>
-    
-        <div class="container mt-5">
-            <div class="text-center">
-                <img src="{% static 'main/logo.png' %}" style="text-align: center; height: 110px; width: 110px;" alt="logo">
-                <h2 class="text-center">Create Account</h2>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
 
-            <form method="POST" action="{% url 'candidate_registration' %}">
-                {% csrf_token %}
-            
-                <!-- Personal Details Card -->
-                <div class="card step-card active" id="step-1">
-                    <div class="card-body">
-                        <h5 class="card-title">Personal Details</h5>
-                        <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" name="first_name" class="form-control" id="firstName" placeholder="Enter First Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" name="last_name" class="form-control" id="lastName" placeholder="Enter Last Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dob">Date of Birth</label>
-                            <input type="date" name="dob" class="form-control" id="dob" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gender">Gender</label>
-                            <select name="gender" class="form-control" id="gender" required>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div style="text-align: center;">
-                            <button class="btn btn-primary" style="text-align: center;" onclick="nextStep(event, 2)">Next</button>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Contact Details Card -->
-                <div class="card step-card" id="step-2">
-                    <div class="card-body">
-                        <h5 class="card-title">Contact Details</h5>
-                        <div class="form-group">
-                            <label for="mobile">Mobile Number</label>
-                            <input type="tel" name="mobile" class="form-control" id="mobile" placeholder="Enter Mobile Number" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email ID</label>
-                            <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email ID" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Address</label>
-                            <input type="text" name="address" class="form-control" id="address" placeholder="Enter Address" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="state">State</label>
-                            <input type="text" name="state" class="form-control" id="state" placeholder="Enter State" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" name="country" class="form-control" id="country" placeholder="Enter Country" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="pincode">Pincode</label>
-                            <input type="text" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode" required>
-                        </div>
-                        <div style="text-align: center;">
-                            <button class="btn btn-secondary" onclick="prevStep(event, 1)">Previous</button>
-                            <button class="btn btn-primary" onclick="nextStep(event, 3)">Next</button>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Qualification Details Card -->
-                <div class="card step-card" id="step-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Qualification Details</h5>
-                        <div class="form-group">
-                            <label for="qualification">Qualification Title</label>
-                            <input type="text" name="qualification" class="form-control" id="qualification" placeholder="Enter Qualification Title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="institution">Institution Name</label>
-                            <input type="text" name="institution" class="form-control" id="institution" placeholder="Enter Institution Name" required>
-                        </div>
-                        <div style="text-align: center;">
-                            <button class="btn btn-secondary" onclick="prevStep(event, 2)">Previous</button>
-                            <button class="btn btn-primary" onclick="nextStep(event, 4)">Next</button>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Credentials Card -->
-                <div class="card step-card" id="step-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Create Credentials</h5>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" name="password" class="form-control" id="password" placeholder="Enter Password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
-                            <input type="password" name="confirm_password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
-                        </div>
-                        <div style="text-align: center;">
-                            <button class="btn btn-secondary" onclick="prevStep(event, 3)">Previous</button>
-                            <input type="submit" class="btn btn-success" name="Signup">
-                        </div>
-                    </div>
-                </div>
-            </form>
-            
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvalZen</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .step-card {
+            display: none;
+        }
+
+        .step-card.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="text-center">
+            <img src="{% static 'main/logo.png' %}" style="text-align: center; height: 110px; width: 110px;" alt="logo">
+            <h2 class="text-center">Create Account</h2>
         </div>
 
-        <script>
-            function nextStep(event, step) {
-                event.preventDefault();  // Prevent form submission
-                document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
-                document.getElementById('step-' + step).classList.add('active');
-            }
+        <!-- Full form tag -->
+        <form method="POST" action="{% url 'candidate_registration' %}" enctype="multipart/form-data">
+            {% csrf_token %}
 
-            function prevStep(event, step) {
-                event.preventDefault();  // Prevent form submission
-                document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
-                document.getElementById('step-' + step).classList.add('active');
-            }
-        </script>
+            <!-- Personal Details Card -->
+            <div class="card step-card active" id="step-1">
+                <div class="card-body">
+                    <h5 class="card-title">Personal Details</h5>
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" name="first_name" class="form-control" id="firstName"
+                            placeholder="Enter First Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" name="last_name" class="form-control" id="lastName"
+                            placeholder="Enter Last Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" name="dob" class="form-control" id="dob" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select name="gender" class="form-control" id="gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-primary" style="text-align: center;"
+                            onclick="nextStep(event, 2)">Next</button>
+                    </div>
+                </div>
+            </div>
 
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    </body>
-    </html>
+            <!-- Contact Details Card -->
+            <div class="card step-card" id="step-2">
+                <div class="card-body">
+                    <h5 class="card-title">Contact Details</h5>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" name="mobile" class="form-control" id="mobile"
+                            placeholder="Enter Mobile Number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email ID</label>
+                        <input type="email" name="email" class="form-control" id="email" placeholder="Enter Email ID"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" name="address" class="form-control" id="address" placeholder="Enter Address"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" name="state" class="form-control" id="state" placeholder="Enter State"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" name="country" class="form-control" id="country" placeholder="Enter Country"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" id="pincode" placeholder="Enter Pincode"
+                            required>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-secondary" onclick="prevStep(event, 1)">Previous</button>
+                        <button class="btn btn-primary" onclick="nextStep(event, 3)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualification Details Card -->
+            <div class="card step-card" id="step-3">
+                <div class="card-body">
+                    <h5 class="card-title">Qualification Details</h5>
+                    <div class="form-group">
+                        <label for="qualification">Qualification Title</label>
+                        <input type="text" name="qualification" class="form-control" id="qualification"
+                            placeholder="Enter Qualification Title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="institution">Institution Name</label>
+                        <input type="text" name="institution" class="form-control" id="institution"
+                            placeholder="Enter Institution Name" required>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-secondary" onclick="prevStep(event, 2)">Previous</button>
+                        <button class="btn btn-primary" onclick="nextStep(event, 4)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Upload Card -->
+            <div class="card step-card" id="step-4">
+                <div class="card-body">
+                    <h5 class="card-title">Upload or Capture Screenshot</h5>
+                    <div class="proof">
+                        <div class="imgArea" data-title="">
+                            <input type="file" name="profile_image" id="profile_image" hidden accept="image/jpeg" />
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <h4>Upload Screenshot</h4>
+                            <p>Image size must be less than <span>2MB</span></p>
+                        </div>
+                        <button class="selectImage" type="button">Select Image</button>
+                        <button class="captureImage" type="button">Capture Image</button>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="prevStep(event, 3)">Previous</button>
+                        <button class="btn btn-primary" onclick="nextStep(event, 5)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credentials Card -->
+            <div class="card step-card" id="step-5">
+                <div class="card-body">
+                    <h5 class="card-title">Create Credentials</h5>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" class="form-control" id="password"
+                            placeholder="Enter Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" name="confirm_password" class="form-control" id="confirmPassword"
+                            placeholder="Confirm Password" required>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-secondary" onclick="prevStep(event, 4)">Previous</button>
+                        <input type="submit" class="btn btn-success" name="Signup">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+
+    <script>
+        function nextStep(event, step) {
+            event.preventDefault();  // Prevent form submission
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+        }
+
+        function prevStep(event, step) {
+            event.preventDefault();  // Prevent form submission
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+        }
+
+
+let inputHidden = document.querySelector("#profile_image");
+let triggerInput = document.querySelector(".selectImage");
+let captureButton = document.querySelector(".captureImage");
+let imgArea = document.querySelector(".imgArea");
+let cameraPreview = document.querySelector("#cameraPreview");
+let takePhotoBtn = document.querySelector("#takePhotoBtn");
+let stream;
+
+// File upload functionality
+triggerInput.addEventListener("click", function() {
+    inputHidden.click();
+});
+
+inputHidden.addEventListener("change", function(e) {
+    let image = e.target.files[0];
+  
+    if (image.size > 2097152) {
+        alert("Image size must be less than 2MB");
+        return;
+    } else {
+        const reader = new FileReader();
+        reader.addEventListener("load", function() {
+            displayImage(reader.result, image.name);
+        });
+        reader.readAsDataURL(image);
+    }
+});
+
+// Camera capture functionality
+captureButton.addEventListener("click", function() {
+    startCamera();
+});
+
+takePhotoBtn.addEventListener("click", function() {
+    takePhoto();
+});
+
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(mediaStream) {
+            stream = mediaStream;
+            cameraPreview.srcObject = stream;
+            cameraPreview.style.display = "block";
+            takePhotoBtn.style.display = "block";
+        })
+        .catch(function(error) {
+            alert("Unable to access the camera.");
+        });
+}
+
+function takePhoto() {
+    const canvas = document.createElement("canvas");
+    canvas.width = cameraPreview.videoWidth;
+    canvas.height = cameraPreview.videoHeight;
+    canvas.getContext("2d").drawImage(cameraPreview, 0, 0);
+
+    const imageUrl = canvas.toDataURL("image/png");
+    displayImage(imageUrl, "captured_image.png");
+
+    // Stop the camera stream
+    stream.getTracks().forEach(track => track.stop());
+    cameraPreview.style.display = "none";
+    takePhotoBtn.style.display = "none";
+}
+
+function displayImage(imageUrl, imageName) {
+    const allImgs = document.querySelectorAll(".imgArea img");
+    allImgs.forEach((img) => {
+        img.remove();
+    });
+    const img = document.createElement("img");
+    img.src = imageUrl;
+    imgArea.appendChild(img);
+    imgArea.classList.add("active");
+    imgArea.dataset.title = imageName;
+    alert("Image uploaded successfully");
+}
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

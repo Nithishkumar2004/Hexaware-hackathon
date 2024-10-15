@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  (Active_Assessments, download_assessment_report, download_proctoring_report, invitation, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, instructor_invitation, proctoring_view, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
+from .views import  (Active_Assessments,candidate_access, candidate_profile, download_assessment_report, download_proctoring_report, invitation, Unactive_Assessments, admin_logout,get_user_counts,delete_user, candidate_access, change_account_status, edit_user, instructor_invitation, proctoring_view, schedule_assessment,send_otp, update_password,verify_otp, candidate_coding_test, features, forgotpassword, index,instructor_logout,instructor_create_assessment, instructor_dashboard,candidate_logout,instructor_login,instructor_registration, candidate_login,candidate_registration,candidate_dashboard,candidate_preassesment,candidate_assesment,contact_us,admindashboard,aiproctor,assessment, instructor_report, instructor_review_submission, instructor_schedule, instructor_settings, instructor_usermanagement,manualquestionupload,report,settings, submit_feedback, system_check,usermanagement,admin_login,canididate_assessment_choice)
 
 urlpatterns = [
     path('', index, name='index'),  # This should match the root URL
@@ -30,8 +30,11 @@ urlpatterns = [
     #candidate
     path('candidate_logout/', candidate_logout, name='candidate_logout'),
     path('candidate_login/', candidate_login, name='candidate_login'),
+        path('candidate_profile/', candidate_profile, name='candidate_profile'),
     path('candidate_registration/', candidate_registration, name='candidate_registration'),
     path('candidate_dashboard/', candidate_dashboard, name='candidate_dashboard'),
+    path('candidate_access/<int:assessment_id>/', candidate_access, name='candidate_access'),
+
     path('candidate_access/', system_check, name='candidate_access'),
     path('candidate_preassesment/', candidate_preassesment, name='candidate_preassesment'),
     path('candidate_assesment/', candidate_assesment, name='candidate_assesment'),

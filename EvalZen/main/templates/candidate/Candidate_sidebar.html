@@ -9,6 +9,9 @@
         <li class="nav-item">
             <a href="{% url 'candidate_dashboard' %}" class="nav-link {% if request.path == '/candidate_dashboard/' %}active{% endif %}">Dashboard</a>
         </li>
+         <li class="nav-item">
+            <a href="{% url 'candidate_profile' %}" class="nav-link {% if request.path == '/candidate_profile/' %}active{% endif %}">Profile</a>
+        </li>
         
         <li class="nav-item">
             <a href="{% url 'candidate_logout' %}" class="nav-link {% if request.path == '/candidate_logout/' %}active{% endif %}">Log out</a>

@@ -47,8 +47,8 @@
             margin-right: 8px;
         }
 
-        .btn{
-            
+        .btn {
+
             margin: 5px;
         }
 
@@ -77,78 +77,88 @@
                         <button class="btn btn-primary">Export Users</button>
                     </div>
                 </div>
-                
-                
+
+
 
                 <!-- Candidates Table -->
                 <h4>Candidates</h4>
-                <div class=" table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th onclick="sortTable(0)">Name</th>
-                                        <th onclick="sortTable(1)">Email</th>
-                                        <th onclick="sortTable(2)">Mobile</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="userTable">
-                                    {% for candidate in candidates %}
-                                    <tr>
-                                        <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
-                                        <td>{{ candidate.email }}</td>
-                                        <td>{{ candidate.status }}</td>
-                                        <td>
-                                            <button class="status btn btn-secondary btn-sm">
-                                                {% if candidate.status == "deactivated" %}
-                                                Activate
-                                                {% else %}
-                                                Deactivate
-                                                {% endif %}
-                                            </button>
-                                            <button class="btn btn-danger btn-sm delete-candidate">Delete</button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Name</th>
+                                <th onclick="sortTable(1)">Email</th>
+                                <th onclick="sortTable(2)">Mobile</th>
+                                <th onclick="sortTable(3)">Image</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTable">
+                            {% for candidate in candidates %}
+                            <tr>
+                                <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
+                                <td>{{ candidate.email }}</td>
+                                <td>{{ candidate.mobile }}</td>
+                                
+                                    <td>
+                                        {% if candidate.profile_image %}
+                                        <img src="{{ candidate.profile_image }}" alt="Profile Image"
+                                             style="width: 50px; height: 50px;">
+                                        {% else %}
+                                        No Image
+                                        {% endif %}
+                                    </td>
+                                    
+                                
+                                <td>
+                                    <button class="status btn btn-secondary btn-sm">
+                                        {% if candidate.status == "deactivated" %}
+                                        Activate
+                                        {% else %}
+                                        Deactivate
+                                        {% endif %}
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-candidate">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-                                </tbody>
+                <!-- Instructors Table -->
+                <h4>Instructors</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Name</th>
+                                <th onclick="sortTable(1)">Email</th>
+                                <th onclick="sortTable(2)">Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="instructorTable">
+                            {% for instructor in instructors %}
+                            <tr>
+                                <td>{{ instructor.employee_id }}</td>
+                                <td>{{ instructor.email }}</td>
+                                <td>{{ instructor.status }}</td>
+                                <td>
 
-                            </table>
-                        </div>
+                                    <button class="status btn btn-secondary btn-sm">
+                                        {% if instructor.status == "deactivated" %}
+                                        Activate
+                                        {% else %}
+                                        Deactivate
+                                        {% endif %}
+                                        <button class="btn btn-danger btn-sm delete-instructor">Delete</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
 
-                        <!-- Instructors Table -->
-                        <h4>Instructors</h4>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th onclick="sortTable(0)">Name</th>
-                                        <th onclick="sortTable(1)">Email</th>
-                                        <th onclick="sortTable(2)">Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="instructorTable">
-                                    {% for instructor in instructors %}
-                                    <tr>
-                                        <td>{{ instructor.employee_id }}</td>
-                                        <td>{{ instructor.email }}</td>
-                                        <td>{{ instructor.status }}</td>
-                                        <td>
-                                          
-                                            <button class="status btn btn-secondary btn-sm">
-                                                {% if instructor.status == "deactivated" %}
-                                                Activate
-                                                {% else %}
-                                                Deactivate
-                                                {% endif %}
-                                                <button class="btn btn-danger btn-sm delete-instructor">Delete</button>
-                                            </td>
-                                    </tr>
-                                    {% endfor %}
-
-                            </table>
-                        </div>
+                    </table>
+                </div>
 
             </main>
 
@@ -156,57 +166,57 @@
     </div>
 
     <script>
-document.querySelectorAll(".delete-candidate").forEach(button => {
-    button.addEventListener('click', function (e) {
-        const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
-        if (window.confirm("Are you sure you want to delete candidate " + email + "?")) {
-            sendDeleteRequest('candidate', email);
+        document.querySelectorAll(".delete-candidate").forEach(button => {
+            button.addEventListener('click', function (e) {
+                const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
+                if (window.confirm("Are you sure you want to delete candidate " + email + "?")) {
+                    sendDeleteRequest('candidate', email);
+                }
+            });
+        });
+
+
+
+
+        document.querySelectorAll(".delete-instructor").forEach(button => {
+            button.addEventListener('click', function (e) {
+                const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
+                if (window.confirm("Are you sure you want to delete instructor " + email + "?")) {
+                    sendDeleteRequest('instructor', email);
+                }
+            });
+        });
+
+        function sendDeleteRequest(usertype, email) {
+            const url = '/delete_user/'; // Ensure this URL matches your Django route
+
+            const data = {
+                usertype: usertype,
+                email: email
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // CSRF token is required
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(usertype + ' deleted successfully!');
+                        location.reload(); // Refresh the page or remove the row from DOM
+                    } else {
+                        alert('Failed to delete ' + usertype + '.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error occurred while deleting ' + usertype + '.');
+                });
         }
-    });
-});
-
-
-
-
-document.querySelectorAll(".delete-instructor").forEach(button => {
-    button.addEventListener('click', function (e) {
-        const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
-        if (window.confirm("Are you sure you want to delete instructor " + email + "?")) {
-            sendDeleteRequest('instructor', email);
-        }
-    });
-});
-
-function sendDeleteRequest(usertype, email) {
-    const url = '/delete_user/'; // Ensure this URL matches your Django route
-
-    const data = {
-        usertype: usertype,
-        email: email
-    };
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')  // CSRF token is required
-        },
-        body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(usertype + ' deleted successfully!');
-            location.reload(); // Refresh the page or remove the row from DOM
-        } else {
-            alert('Failed to delete ' + usertype + '.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error occurred while deleting ' + usertype + '.');
-    });
-}
 
 
 
@@ -292,26 +302,26 @@ function sendDeleteRequest(usertype, email) {
             });
         });
 
-      
-      
-      
-      
-      
+
+
+
+
+
         // Function to get CSRF token
         function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
             }
+            return cookieValue;
         }
-    }
-    return cookieValue;
-}
 
     </script>
 

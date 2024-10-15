@@ -14,7 +14,6 @@ from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
 from .forms import SignupForm
 from django.views.decorators.http import require_GET
 
-
 # Store OTP and its timestamp for verification
 otp_storage = {}
 
@@ -25,7 +24,7 @@ email_password = os.getenv("EMAIL_HOST_PASSWORD")
 from django.http import HttpResponse
 import pandas as pd
 from reportlab.pdfgen import canvas
-
+QuestionDB.update_assessment_status()
 # PDF Report View
 def download_assessment_report(request):
     response = HttpResponse(content_type='application/pdf')
@@ -197,9 +196,7 @@ def change_account_status(request):
         email = data.get('email')
         new_status = data.get('status')
         user_type = data.get('userType')  # Get user type from the request
-        print(f"Received request for {user_type} with email {email} and status {new_status}")
-
-
+ 
         if not email or not new_status or not user_type:
             return JsonResponse({'success': False, 'message': 'Missing data.'}, status=400)
 
@@ -414,15 +411,11 @@ def instructor_invitation(request):
 def invitation(request):
     if request.method == 'POST':
         try:
-            print(request)
             # Parse the JSON data from the request
             data = json.loads(request.body)
             selected_emails = data.get('email')
             assessment_name = data.get('assessment_name')
-            print(selected_emails)
-            print(assessment_name)
-
-           
+    
             # Update the assessment document with the new emails
             success = QuestionDB.update_assessment_emails(selected_emails)
 
@@ -432,8 +425,7 @@ def invitation(request):
                 return JsonResponse({'success': False, 'message': 'Assessment not found.'}, status=404)
 
         except Exception as e:
-            print("Error:", e)
-            return JsonResponse({'success': False, 'message': 'An error occurred while processing your request.'}, status=500)
+           return JsonResponse({'success': False, 'message': 'An error occurred while processing your request.'}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
@@ -441,21 +433,25 @@ def invitation(request):
 
 def candidate_registration(request):
     if request.method == 'POST':
-        form = SignupForm(request.POST)
+        form = SignupForm(request.POST, request.FILES)
 
         if form.is_valid():
             email = form.cleaned_data['email']
-            
+
             # Check if the candidate already exists
             if Candidate.find_candidate_by_email(email):
                 messages.error(request, 'Email already registered.')
                 return redirect('candidate_login')
 
-            # Prepare candidate data using request.POST directly
+            # Handle image upload using the Candidate model's store_image method
+            profile_image = request.FILES.get('profile_image')
+            image_id = Candidate.store_image(profile_image)
+
+            # Prepare candidate data
             candidate_data = {
                 "first_name": form.cleaned_data['first_name'],
                 "last_name": form.cleaned_data['last_name'],
-                "dob": request.POST.get('dob'),  # Get dob directly from request.POST
+                "dob": request.POST.get('dob'),
                 "gender": form.cleaned_data['gender'],
                 "mobile": form.cleaned_data['mobile'],
                 "email": email,
@@ -466,7 +462,8 @@ def candidate_registration(request):
                 "qualification": form.cleaned_data['qualification'],
                 "institution": form.cleaned_data['institution'],
                 "password": make_password(form.cleaned_data['password']),
-                "status": "deactivated"  # Set initial status as 'deactive'
+                "status": "deactivated",
+                "profile_image_id": image_id  # Store the GridFS file ID as a reference
             }
 
             # Add candidate to the database
@@ -505,7 +502,8 @@ def candidate_dashboard(request):
     if 'candidate_email' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_dashboard.html')
+    a = QuestionDB.get_all_assessment()
+    return render(request, 'candidate/Candidate_dashboard.html',{'assessments': a})
 
 def candidate_preassesment(request):
     if 'candidate_email' not in request.session:
@@ -561,6 +559,17 @@ def candidate_coding_test(request):
         return redirect('candidate_login')  # Redirect to the login page
     return render(request, 'candidate/Candidate_coding_test.html')
 
+def candidate_profile(request):
+    if 'candidate_email' not in request.session:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('candidate_login')  # Redirect to the login page
+    candidate_email = request.session['candidate_email']
+    candidate = Candidate.find_candidate_by_email(candidate_email)
+    image = Candidate.get_image(candidate.get('profile_image_id'))
+            # Attach the image object directly to the candidate dictionary
+    candidate['profile_image'] = image
+    return render(request, 'candidate/Candidate_profile.html',{"profile":candidate})
+
 def candidate_logout(request):
     request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
@@ -615,44 +624,68 @@ def assessment(request):
     assessments = QuestionDB.get_all_assessment() 
     return render(request, 'admin/Admin_assessment.html',{'assessments':assessments})
 
+
 def manualquestionupload(request):
     if 'admin_id' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('admin_login')  # Redirect to the login page
-        
     
     question_db = QuestionDB()  # Create an instance of QuestionDB
 
     if request.method == 'POST':
         try:
-            # Parse JSON data from the request body
-            body_unicode = request.body.decode('utf-8')
-            body_data = json.loads(body_unicode)
+            # Parse the incoming JSON data
+            data = json.loads(request.body.decode('utf-8'))
+            
+            # Extract assessment details from the data
+            assessment_name = data.get('assessment_name', '')
+            status = data.get('status', 'not defined')
+            schedule_status = data.get('schedule_status', 'not scheduled')
+            schedule = data.get('schedule', {})
+            created_at = datetime.now().isoformat()  # Automatically set the created time
+            updated_at = datetime.now().isoformat()  # Automatically set the updated time
+            mcq_questions = data.get('mcq', [])
+            coding_questions = data.get('coding', [])
+            candidates = data.get('candidates', [])
+            tags = data.get('tags', [])
 
-            # Extract assessment number, MCQ list, and coding list from the data
-            assessment_no = body_data.get('assessment_no')
-            mcq_list = body_data.get('mcq', [])
-            coding_list = body_data.get('coding', [])
+            # Perform additional validation or processing as needed
+            if not assessment_name:
+                return JsonResponse({'error': 'Assessment name is required.'}, status=400)
 
-            # Insert MCQs if available
-            if mcq_list:
-                question_db.insert_mcq(assessment_no, mcq_list)
+            # Prepare the document for insertion
+            assessment_document = {
+                'assessment_name': assessment_name,
+                'status': status,
+                'schedule_status': schedule_status,
+                'schedule': {
+                    'date': schedule.get('date', ''),
+                    'time': schedule.get('time', ''),
+                    'duration': schedule.get('duration', ''),
+                    'status': schedule.get('status', ''),
+                },
+                'created_at': created_at,
+                'updated_at': updated_at,
+                'mcq': mcq_questions,
+                'coding': coding_questions,
+                'candidates': candidates,
+                'tags': tags
+            }
 
-            # Insert coding questions if available
-            if coding_list:
-                question_db.insert_coding_question(assessment_no, coding_list)
+            # Insert the assessment document into the database
+            question_db.insert_assessment(assessment_document)
 
-            question_db.insert_assessment_name(assessment_no)
-
-            # Return a JSON success response
-            return JsonResponse({'success': 'Questions uploaded successfully!'})
+            # Respond with success
+            return JsonResponse({'message': 'Assessment submitted successfully!'}, status=200)
 
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON data. Please ensure your request contains valid JSON.'}, status=400)
+            return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            # Log the exception for debugging purposes
+            print(f"An error occurred: {str(e)}")
+            return JsonResponse({'error': 'An unexpected error occurred.'}, status=500)
 
-    # For GET requests or other methods, return the form page (if needed)
+    # For GET requests, return the form page
     return render(request, 'admin/Admin_manualquestionupload.html')
 
 def report(request):
@@ -680,7 +713,6 @@ def usermanagement(request):
     # Fetch candidates and instructors if logged in
     candidates = Candidate.get_all_candidates()  # Assuming this method returns a queryset of candidates
     instructors = Instructor.get_all_instructors()  # Ensure to call the method with parentheses
-  
     return render(request, 'admin/Admin_usermanagement.html', {'candidates': candidates, 'instructors': instructors})
 
 def admin_login(request):

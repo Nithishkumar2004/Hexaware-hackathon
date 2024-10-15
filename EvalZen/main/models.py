@@ -1,10 +1,13 @@
 from datetime import datetime
 import os
+from bson import ObjectId
 from dotenv import load_dotenv
+import gridfs
 import pymongo
 from pymongo.server_api import ServerApi
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.hashers import make_password
+import base64
 
 
 # Load environment variables from .env file
@@ -18,6 +21,8 @@ client = pymongo.MongoClient(MONGO_URI, server_api=ServerApi('1'))
 db = client['users']
 users_collection = db['candidate']
 instructors_collection = db['instructors']
+
+fs = gridfs.GridFS(db)
 
 
 
@@ -76,21 +81,8 @@ class QuestionDB:
             return False, f"Error inserting coding question: {str(e)}"
 
     @staticmethod
-    def insert_assessment_name(assessment_no):
-        current_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-        ass_doc = {
-            "assessment_name": assessment_no, 
-            "status": "not scheduled",
-            "schedule_status": "created",
-            "schedule": {
-                "scheduled_time": None,
-                "initialized": 0
-            },
-            "created_at": current_time,
-            "updated_at": current_time,
-            "assessment_email":None
-        }
-        return assessment_collection.insert_one(ass_doc)
+    def insert_assessment(data):
+        return assessment_collection.insert_one(data)
 
     @staticmethod
     def fetch_mcqs_by_assessment(assessment_no):
@@ -102,6 +94,11 @@ class QuestionDB:
                 return False, "No MCQs found for this assessment number"
         except Exception as e:
             return False, f"Error fetching MCQs: {str(e)}"
+
+    @staticmethod
+    def candidate_get_all_assessment():
+    # Find all assessments where 'status' is 'scheduled'
+         return list(assessment_collection.find({'status': 'scheduled'}))
 
     @staticmethod
     def get_all_assessment():
@@ -126,19 +123,19 @@ class QuestionDB:
 
     @staticmethod
     def get_scheduled_count():
+        # Query to find documents with status 'scheduled'
         query = {
-            "status": "scheduled",
-            "schedule_status": "scheduled"
+            "status": "scheduled"
         }
         return assessment_collection.count_documents(query)
 
     @staticmethod
     def get_unscheduled_count():
+        # Query to find documents where status is not 'scheduled'
         query = {
             "status": {"$ne": "scheduled"}
         }
         return assessment_collection.count_documents(query)
-
     @staticmethod
     def schedule_assessment_in_db(assessment_name, scheduled_time):
         query = {"assessment_name": assessment_name}
@@ -152,6 +149,47 @@ class QuestionDB:
             }
         }
         assessment_collection.update_one(query, new_values)
+    @staticmethod
+    def update_assessment_status():
+        """
+        Function to check and update the status of assessments whose scheduled time has passed.
+        It updates the status to 'ended' if the assessment's scheduled time is less than the current time.
+        """
+        try:
+            # Connect to your MongoDB
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['assessment_db']
+            assessment_collection = db['assessments']
+
+            # Get current time
+            current_time = datetime.now()
+
+            # Query to find assessments where 'status' is 'scheduled' and scheduled time is less than current time
+            query = {
+                "status": "scheduled",
+                "schedule.scheduled_time": {"$lt": current_time}  # Check if scheduled_time is less than current time
+            }
+
+            # Values to update
+            new_values = {
+                "$set": {
+                    "status": "ended",
+                    "updated_at": current_time.strftime('%d-%m-%Y %H:%M:%S')
+                }
+            }
+
+            # Update the assessments
+            result = assessment_collection.update_many(query, new_values)
+
+            # Check if any documents were modified
+            if result.matched_count > 0:
+                print(f"{result.modified_count} assessments updated to 'ended'")
+            else:
+                print("No assessments to update")
+
+        except Exception as e:
+            print(f"Error in updating assessments: {str(e)}")
+
 class Admin:
     @staticmethod
     def get_admin_credentials(admin_id):
@@ -174,6 +212,19 @@ class Candidate:
     def find_candidate_by_email(email):
         return users_collection.find_one({"email": email})
 
+    @staticmethod
+    def store_image(profile_image):
+        """Store the profile image in GridFS and return the file ID."""
+        print("image iruuku")
+        if profile_image:
+            print("image ila")
+            image_id = fs.put(profile_image.read(), 
+                              filename=profile_image.name, 
+                              content_type=profile_image.content_type)
+            return str(image_id)  # Return as a string for easy storage in MongoDB
+        return None
+
+  
     @staticmethod
     def verify_candidate_login(email, password):
     # Fetch the candidate from the database
@@ -216,10 +267,29 @@ class Candidate:
         result = users_collection.delete_one({'email': email})
         return result.deleted_count > 0
 
+    
+    @staticmethod
+    def get_image(image_id):
+        """Retrieve the image from GridFS using the image_id and return a base64 string."""
+        if image_id:
+            object_id = ObjectId(image_id)  # Convert string image_id to ObjectId
+            grid_out = fs.find_one({"_id": object_id})  # Retrieve the image object
+            if grid_out:
+                image_data = grid_out.read()  # Read the binary data of the image
+                # Convert the binary data to a base64 string
+                return f"data:{grid_out.content_type};base64,{base64.b64encode(image_data).decode()}"
+        return None
 
+    @staticmethod
     def get_all_candidates():
-        """Retrieve all candidates from the collection."""
-        candidates = list(users_collection.find())  # Convert cursor to list
+        """Retrieve all candidates from the collection with their images."""
+        candidates = list(users_collection.find())
+        for candidate in candidates:
+            # Retrieve the image object from GridFS
+            image = Candidate.get_image(candidate.get('profile_image_id'))
+            # Attach the image object directly to the candidate dictionary
+            candidate['profile_image'] = image
+            print(image)
         return candidates
 
     @staticmethod
