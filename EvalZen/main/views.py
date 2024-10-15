@@ -357,7 +357,8 @@ def candidate_dashboard(request):
         messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
     QuestionDB.update_assessment_statuses()
-    assessments = QuestionDB.get_all_assessment()
+    candidate_email = request.session['candidate_email']
+    assessments = QuestionDB.get_invited_assessments(candidate_email)
     return render(request, 'candidate/Candidate_dashboard.html', {'assessments': assessments})
 
 def candidate_preassesment(request):
