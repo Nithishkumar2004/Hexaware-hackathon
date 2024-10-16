@@ -107,10 +107,12 @@
                             <button class="btn btn-secondary disabled" data-bs-toggle="modal">
                                   Not Started
                             </button>
+
+                            
                         {% elif assessment.status == "active" %}
                             <p>Status: Active</p>
-                            <a class="btn btn-success" href="{% url 'candidate_access' %}">Start</a>
-                        {% else %}
+                            <a class="btn btn-success" href="{% url 'candidate_access' assessment.assessment_name assessment.schedule|urlencode %}">Start</a>
+                            {% else %}
                             <p>Status: Unknown</p>
                             <a class="btn btn-secondary disabled">Unknown Status</a>
                         {% endif %}

@@ -387,11 +387,13 @@ def system_check(request):
         })
     return render(request, 'candidate/System_check.html')
 
-def candidate_access(request):
+def candidate_access(request,assessment_name):
     if 'candidate_email' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_access.html')
+    print(assessment_name)
+    messages.success(request,assessment_name)
+    return render(request, 'candidate/System_check.html')
 
 def candidate_assessment(request):
     if 'candidate_email' not in request.session:

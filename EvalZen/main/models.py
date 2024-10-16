@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 from bson import ObjectId
 from dotenv import load_dotenv
@@ -105,22 +105,36 @@ class QuestionDB:
 
     @staticmethod
     def update_assessment_statuses():
-        current_time = datetime.now()
+        # Get current UTC time and convert to IST
+        current_utc_time = datetime.now(timezone.utc)
+        ist_time = current_utc_time + timedelta(hours=5, minutes=30)
+
+        # Format current IST time for comparison
+        current_datetime = ist_time.strftime("%Y-%m-%d %H:%M")
+        current_datetime = datetime.strptime(current_datetime, '%Y-%m-%d %H:%M')
+
         assessments = QuestionDB.get_all_schedule_assessment()
         for assessment in assessments:
             schedule_date_str = assessment['schedule']['date']
             schedule_time_str = assessment['schedule']['time']
             duration = int(assessment['schedule'].get('duration', 0))
+
+            # Combine date and time
             scheduled_datetime_str = f"{schedule_date_str} {schedule_time_str}"
-            scheduled_datetime = datetime.strptime(scheduled_datetime_str, "%Y-%m-%d %H:%M")
-            duration_timedelta = timedelta(minutes=duration)
-            duration_end_time = scheduled_datetime + duration_timedelta
-            if current_time < scheduled_datetime:
+            scheduled_datetime = datetime.strptime(scheduled_datetime_str, '%Y-%m-%d %H:%M')
+
+            # Calculate end time
+            end_time = scheduled_datetime + timedelta(minutes=duration)
+
+            # Check assessment status
+            if scheduled_datetime > current_datetime:
                 new_status = 'scheduled'
-            elif scheduled_datetime <= current_time < duration_end_time:
+            elif scheduled_datetime <= current_datetime < end_time:
                 new_status = 'active'
             else:
                 new_status = 'ended'
+            
+            # Update the assessment status in the database
             query = {"_id": assessment['_id']}
             new_values = {
                 "$set": {
