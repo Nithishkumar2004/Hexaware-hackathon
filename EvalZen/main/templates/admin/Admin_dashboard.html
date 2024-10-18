@@ -138,33 +138,46 @@
                     <div class="col-md-6 col-sm-12">
                         <div class="widget">
                             <h4>System Status</h4>
-                            <p>Server Load: 55%</p>
-                            <p>Database Status: Stable</p>
+                            <p>Server Load: <span id="server-load">Loading...</span></p>
+                            <p>Database Status: <span id="database-status">Loading...</span></p>
                         </div>
                     </div>
                 </div>
+                
             </main>
         </div>
     </div>
     <script>// Fetch and display dashboard data
-        fetch('/admin/dashboard-data/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update user counts
-                    console.log(data);
-                    
-                    document.getElementById('candidate-count').textContent = data.candidates;
-                    document.getElementById('instructors-count').textContent = data.instructors;
-                    document.getElementById('scheduled-Assessments').textContent =data.ScheduledAssessments;
-                    document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
-                    document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
-                    document.getElementById('ended-Assessments').textContent =data.endedAssessments;
-                } else {
-                    console.error('Failed to fetch dashboard data:', data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+function fetchDashboardData() {
+    fetch('/admin/dashboard-data/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update user counts
+                console.log(data);
+                
+                document.getElementById('candidate-count').textContent = data.candidates;
+                document.getElementById('instructors-count').textContent = data.instructors;
+                document.getElementById('scheduled-Assessments').textContent = data.ScheduledAssessments;
+                document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
+                document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
+                document.getElementById('ended-Assessments').textContent = data.endedAssessments;
+
+                // Update system status
+                document.getElementById('server-load').textContent = data.system_status.server_load;
+                document.getElementById('database-status').textContent = data.system_status.database_status;
+            } else {
+                console.error('Failed to fetch dashboard data:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Fetch dashboard data every 10 seconds
+setInterval(fetchDashboardData, 10000);
+
+// Fetch the data immediately when the page loads
+fetchDashboardData();
 
         function toggleSidebar() {
             const sidebar = document.getElementById('mobileSidebar');

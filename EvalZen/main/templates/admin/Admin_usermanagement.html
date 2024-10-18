@@ -174,9 +174,6 @@
             });
         });
 
-
-
-
         document.querySelectorAll(".delete-instructor").forEach(button => {
             button.addEventListener('click', function (e) {
                 const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
@@ -187,7 +184,7 @@
         });
 
         function sendDeleteRequest(usertype, email) {
-            const url = 'admin/delete_user/'; // Ensure this URL matches your Django route
+            const url = '/admin/delete_user/'; // Ensure this URL matches your Django route
 
             const data = {
                 usertype: usertype,
@@ -216,10 +213,6 @@
                     alert('Error occurred while deleting ' + usertype + '.');
                 });
         }
-
-
-
-
 
         // Function to sort the table by column
         function sortTable(columnIndex) {
@@ -300,11 +293,6 @@
                 }
             });
         });
-
-
-
-
-
 
         // Function to get CSRF token
         function getCookie(name) {

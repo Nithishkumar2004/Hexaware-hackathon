@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from email import errors
 import os
 from bson import ObjectId
 from dotenv import load_dotenv
@@ -35,6 +36,21 @@ admin_collection = admin_db['Admin Details']
 feedback_db = client['Feedback']
 collection = feedback_db['Details']
 
+class MongoDBConnection:
+    @staticmethod
+    def check_connection():
+        try:
+            # Establish MongoDB connection
+            client = pymongo.MongoClient(MONGO_URI)
+            # Ping the MongoDB server
+            client.admin.command('ping')
+            return "Stable"
+        except errors.ConnectionFailure:
+            return "Unstable - Connection Failure"
+        except Exception as e:
+            return f"Unstable - Error: {str(e)}"
+        finally:
+            client.close()  # Ensure client is closed after check
 class QuestionDB:
     
     @staticmethod
@@ -157,7 +173,7 @@ class QuestionDB:
         if assessment:
             print("Assessment found:", assessment)
         else:
-            return false
+            return False
 
         return assessment
 

@@ -4,14 +4,12 @@ import random
 import smtplib
 import time
 import json
-
 import cv2
 import dlib
 import numpy as np
 from dotenv import load_dotenv
-
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
@@ -19,7 +17,7 @@ from django.views.decorators.http import require_GET
 from urllib.parse import unquote
 
 
-from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
+from .models import Admin, Candidate, Instructor, MongoDBConnection, QuestionDB, FeedbackModel
 from .forms import SignupForm
 
 otp_storage = {}
@@ -167,10 +165,22 @@ def delete_user(request):
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
 
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
+import psutil
+from django.db import connection
+
+
 @require_GET
 def get_dashboard_data(request):
     try:
-        # Fetch counts for candidates, instructors, and assessments
+        # Compute the server load
+        server_load = psutil.cpu_percent(interval=1)
+        
+        # Check MongoDB status
+        database_status = MongoDBConnection.check_connection()  # Call the model function
+        
+        # Prepare the data dictionary with precomputed values
         data = {
             'success': True,
             'candidates': Candidate.get_count(),
@@ -178,12 +188,18 @@ def get_dashboard_data(request):
             'ScheduledAssessments': QuestionDB.get_assessment_count("scheduled"),
             'ActiveAssessments': QuestionDB.get_assessment_count("active"),
             'endedAssessments': QuestionDB.get_assessment_count("ended"),
-            'UnactiveAssessments': QuestionDB.get_assessment_count("not scheduled")
+            'UnactiveAssessments': QuestionDB.get_assessment_count("not scheduled"),
+            'system_status': {
+                'server_load': f"{server_load}%",
+                'database_status': database_status
+            }
         }
+
+        # Return the data as a JSON response
         return JsonResponse(data)
+    
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
 # Instructor views
 def instructor_login(request):
     if request.session.get('instructor_email'):
@@ -636,3 +652,93 @@ def proctoring_view(request):
                 return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
             return JsonResponse({"message": "Frame received", "num_faces": num_faces_detected})
     return JsonResponse({"message": "Invalid request."})
+import os
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.pdfgen import canvas
+from django.conf import settings
+from reportlab.lib.units import inch
+
+
+
+def create_pdf(email):
+    print("Creating PDF document...")
+
+    # Fetch candidate data based on the email
+    data = Candidate.find_candidate_by_email(email)
+    if not data:
+        print(f"No candidate found for email: {email}")
+        return
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(email, pagesize=letter)
+
+    # Prepare the candidate details in a table format
+    print("Preparing candidate details...")
+    details = [
+        ['Field', 'Value'],  # Header row
+        ['First Name', data.get('first_name', '')],
+        ['Last Name', data.get('last_name', '')],
+        ['Dob', data.get('dob', '')],
+        ['Gender', data.get('gender', '')],
+        ['Mobile', data.get('mobile', '')],
+        ['Email', data.get('email', '')],
+        ['Address', data.get('address', '')],
+        ['State', data.get('state', '')],
+        ['Country', data.get('country', '')],
+        ['Pincode', data.get('pincode', '')],
+        ['Qualification', data.get('qualification', '')],
+        ['Institution', data.get('institution', '')],
+        ['Status', data.get('status', '')],
+        ['Profile Image Id', str(data.get('profile_image_id', ''))],
+    ]
+    print("Candidate details prepared:", details)
+
+    # Create a table with the candidate details
+    print("Creating table...")
+    table = Table(details)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align text
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
+        ('BACKGROUND', (0, 1), (-1, -1), colors.aqua),  # Body background
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
+    ]))
+    print("Table created.")
+
+    # Create a canvas to draw the logo and other elements
+    c = canvas.Canvas(email+".pdf", pagesize=letter)
+
+    # Add the Evalzen logo at the center top
+    logo_path = os.path.join(getattr(settings, 'STATICFILES_DIRS', [''])[0], 'main', 'adminlogo.png')
+    if os.path.exists(logo_path):
+        print("Drawing logo from:", logo_path)
+        c.drawImage(logo_path, (letter[0] - 3 * inch) / 2, letter[1] - 100, width=3 * inch, height=1 * inch)
+    else:
+        print("Logo path does not exist:", logo_path)
+
+    # Draw the profile image at the top right if it exists
+    profile_image_path = Candidate.get_image(data.get('profile_image_id'))  # Assuming this returns the image path
+    if profile_image_path:
+        print("Drawing profile image from:", profile_image_path)
+        c.drawImage(profile_image_path, letter[0] - 2 * inch, letter[1] - 2 * inch, width=1 * inch, height=1 * inch)
+    else:
+        print("Profile image not found for ID:", data.get('profile_image_id'))
+
+    # Draw the table below the logo and profile image
+    y_position = letter[1] - 600  # Adjust starting position based on logo and image height
+    print(letter)
+    print("Y Position for table:", y_position)
+    table.wrapOn(c, letter[0], letter[1])
+    table.drawOn(c, 50, y_position)  # Set the position for the table
+
+    # Save the PDF
+    print("Saving the PDF...")
+    c.save()
+    print("PDF saved successfully:", email)
+
+# Call the function with the email and filename
+create_pdf("praveenkal0508@gmail.com")
