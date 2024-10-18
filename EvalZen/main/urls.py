@@ -1,15 +1,16 @@
 from django.urls import include, path
 from .views import (
-    Admin_invite, delete_assessment, active_assessments, candidate_access, candidate_profile, invitation, unactive_assessments,
-    admin_logout, get_user_counts, delete_user, change_account_status, edit_user,
+    Admin_invite, delete_assessment, candidate_access, candidate_profile, invitation, 
+    admin_logout, get_dashboard_data, delete_user, change_account_status, edit_user,
     instructor_invitation, proctoring_view, schedule_assessment, send_otp, update_password,
     verify_otp, candidate_coding_test, features, forgotpassword, index, instructor_logout,
     instructor_create_assessment, instructor_dashboard, candidate_logout, instructor_login,
     instructor_registration, candidate_login, candidate_registration, candidate_dashboard,
-    candidate_preassesment, candidate_assessment, contact_us, admindashboard, aiproctor,
+    candidate_preassessment, candidate_assessment, contact_us, admindashboard, 
     assessment, instructor_report, instructor_review_submission, instructor_schedule,
     instructor_settings, instructor_usermanagement, manualquestionupload, report, settings,
-    submit_feedback, system_check, usermanagement, admin_login, canididate_assessment_choice
+    submit_feedback, system_check, usermanagement, admin_login, candidate_assessment_choice,
+    submit_coding_test
 )
 
 # Grouping URL patterns by functionality for better organization
@@ -32,6 +33,7 @@ urlpatterns = [
         path('schedule/', instructor_schedule, name='instructor_schedule'),
         path('usermanagement/', instructor_usermanagement, name='instructor_usermanagement'),
         path('create_assessment/', instructor_create_assessment, name='instructor_create_assessment'),
+        path('manualquestionupload/', manualquestionupload, name='manualquestionupload'),
         path('review_submission/', instructor_review_submission, name='instructor_review_submission'),
         path('report/', instructor_report, name='instructor_report'),
         path('settings/', instructor_settings, name='instructor_settings'),
@@ -40,9 +42,8 @@ urlpatterns = [
 
         path('delete_user/', delete_user, name='delete_user'),
         path('invitationtouser/', invitation, name='invitationtouser'),
-        path('get-user-counts/', get_user_counts, name='get_user_counts'),
-        path('active-assessments/', active_assessments, name='Active-Assessments'),
-        path('unactive-assessments/', unactive_assessments, name='Unactive-Assessments'),
+        path('dashboard-data/', get_dashboard_data, name='dashboard_data'),
+
     ])),
 
     # Candidate URLs
@@ -53,11 +54,13 @@ urlpatterns = [
         path('profile/', candidate_profile, name='candidate_profile'),
         path('dashboard/', candidate_dashboard, name='candidate_dashboard'),
         path('access/<str:assessment_name>/', candidate_access, name='candidate_access'),
-        path('access/', system_check, name='candidate_access'), 
-        path('preassesment/', candidate_preassesment, name='candidate_preassesment'),
-        path('assessment/', candidate_assessment, name='candidate_assesment'),
-        path('assessment_choice/', canididate_assessment_choice, name='candidate_assesment_choice'),
-        path('coding_test/', candidate_coding_test, name='candidate_coding_test'),
+        path('access/<str:assessment_name>/', system_check, name='candidate_access'), 
+        path('preassessment/<str:assessment_name>/', candidate_preassessment, name='candidate_preassessment'),
+        path('assessment/<str:assessment_name>/', candidate_assessment, name='candidate_assessment'),
+        path('assessment_choice/<str:assessment_name>/', candidate_assessment_choice, name='candidate_assessment_choice'),
+        path('coding_test/<str:assessment_name>/', candidate_coding_test, name='candidate_coding_test'),
+    path('submit_coding_test/', submit_coding_test, name='submit_coding_test'),
+
         path('contact/', contact_us, name='contact_us'),
         path('proctoring/', proctoring_view, name='proctoring'),
         
@@ -66,7 +69,6 @@ urlpatterns = [
     # Admin URLs
     path('admin/', include([
         path('dashboard/', admindashboard, name='admindashboard'),
-        path('aiproctor/', aiproctor, name='aiproctor'),
         path('assessment/', assessment, name='adminassessment'),
         path('change_status/', change_account_status, name="change_status"),
         path('manualquestionupload/', manualquestionupload, name='manualquestionupload'),
@@ -79,9 +81,8 @@ urlpatterns = [
         path('invitationtouser/', invitation, name='invitationtouser'),
         path('schedule_assessment/', schedule_assessment, name='schedule_assessment'),
         path('delete_user/', delete_user, name='delete_user'),
-        path('delete_assessment/', delete_assessment, name='delete_assessment'),
-        path('get-user-counts/', get_user_counts, name='get_user_counts'),
-        path('active-assessments/', active_assessments, name='Active-Assessments'),
-        path('unactive-assessments/', unactive_assessments, name='Unactive-Assessments'),
+        path('delete_assessment/', delete_assessment, name='delete_assessment'),        
+        path('dashboard-data/', get_dashboard_data, name='dashboard_data'),
+
     ])),
 ]

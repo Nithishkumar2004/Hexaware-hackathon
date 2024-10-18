@@ -236,6 +236,8 @@ function uploadCodingCSV(event) {
                 // Append the newCodingQuestion object to the coding array in Globaldata
                 Globaldata.coding.push(newCodingQuestion);
                 addQuestionToTable('codingTable', [questionText], 'coding');
+                fileInput.value='';
+
             });
 
             console.log("Parsed Coding Questions:", Globaldata.coding);
@@ -288,6 +290,8 @@ function uploadCodingCSV(event) {
                         // Append the newQuestion object to the mcq array in Globaldata
                         Globaldata.mcq.push(newQuestion);
                         addQuestionToTable('mcqTable', [questionText, options, answer], 'mcq');
+                        fileInput.value='';
+
                     });
 
                     console.log("Parsed Questions:", Globaldata.mcq);

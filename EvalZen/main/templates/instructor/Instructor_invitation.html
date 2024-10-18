@@ -173,7 +173,7 @@
                 alert(`Sending invitations to: ${selectedEmails.join(', ')}`);
     
                 // Send POST request to the server with the selected emails and assessment name
-                fetch('/invitation/', {
+                fetch('/instructor/invitationtouser/', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@
 })
 .catch(error => {
     console.error('Error:', error);
-    alert("Invitation sent");
+    alert("Server Side Error Occured");
 });
 
             } else {

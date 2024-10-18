@@ -16,6 +16,8 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.http import require_GET
+from urllib.parse import unquote
+
 
 from .models import Admin, Candidate, Instructor, QuestionDB, FeedbackModel
 from .forms import SignupForm
@@ -164,32 +166,23 @@ def delete_user(request):
         return JsonResponse({'success': False, 'message': 'Invalid user type.'}, status=400)
     return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
 
-@require_GET
-def get_user_counts(request):
-    try:
-        candidate_count = Candidate.get_count()
-        instructor_count = Instructor.get_count()
-        return JsonResponse({'success': True, 'candidates': candidate_count, 'instructors': instructor_count})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @require_GET
-def unactive_assessments(request):
+def get_dashboard_data(request):
     try:
-        unactive_assessments_count = QuestionDB.get_unscheduled_count()
-        return JsonResponse({'success': True, 'UnactiveAssessments': unactive_assessments_count})
+        # Fetch counts for candidates, instructors, and assessments
+        data = {
+            'success': True,
+            'candidates': Candidate.get_count(),
+            'instructors': Instructor.get_count(),
+            'ScheduledAssessments': QuestionDB.get_assessment_count("scheduled"),
+            'ActiveAssessments': QuestionDB.get_assessment_count("active"),
+            'endedAssessments': QuestionDB.get_assessment_count("ended"),
+            'UnactiveAssessments': QuestionDB.get_assessment_count("not scheduled")
+        }
+        return JsonResponse(data)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-@require_GET
-def active_assessments(request):
-    try:
-        active_assessments_count = QuestionDB.get_scheduled_count()
-        return JsonResponse({'success': True, 'ActiveAssessments': active_assessments_count})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-
 
 # Instructor views
 def instructor_login(request):
@@ -240,6 +233,7 @@ def instructor_dashboard(request):
     if 'instructor_email' not in request.session:
         messages.error(request, 'Please log in again to continue.')
         return redirect('instructor_login')
+    QuestionDB.update_assessment_statuses()
     return render(request, 'instructor/Instructor_dashboard.html')
 
 def instructor_logout(request):
@@ -360,58 +354,105 @@ def candidate_dashboard(request):
     candidate_email = request.session['candidate_email']
     assessments = QuestionDB.get_invited_assessments(candidate_email)
     return render(request, 'candidate/Candidate_dashboard.html', {'assessments': assessments})
+from urllib.parse import unquote
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse
 
-def candidate_preassesment(request):
+def get_decoded_assessment_name(request, assessment_name):
     if 'candidate_email' not in request.session:
         messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_preassesment.html')
+        return None, redirect('candidate_login')
+    return unquote(assessment_name), None
 
-def system_check(request):
-    if 'candidate_email' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
+def candidate_preassessment(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+    return render(request, 'candidate/Candidate_preassesment.html', {"assessment_name": assessment_name})
+
+def system_check(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+
     if request.method == 'POST':
+        # System checks simulation
         internet_check = request.is_ajax() and request.META.get('HTTP_REFERER') is not None
         camera_check = True
         microphone_check = True
+
         feedback = {
             'internet': 'Internet connection is available.' if internet_check else 'No internet connection detected.',
             'camera': 'Camera access is granted.',
             'microphone': 'Microphone access is granted.',
         }
+
         all_checks_passed = internet_check and camera_check and microphone_check
         return JsonResponse({
             'success': all_checks_passed,
             'feedback': feedback,
         })
-    return render(request, 'candidate/System_check.html')
 
-def candidate_access(request,assessment_name):
-    if 'candidate_email' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
-    print(assessment_name)
-    messages.success(request,assessment_name)
-    return render(request, 'candidate/System_check.html')
+    return render(request, 'candidate/System_check.html', {"assessment_name": assessment_name})
 
-def candidate_assessment(request):
-    if 'candidate_email' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_assessment.html')
+def candidate_access(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+    print(assessment_name)  # Debugging
+    return render(request, 'candidate/System_check.html', {"assessment_name": assessment_name})
 
-def canididate_assessment_choice(request):
-    if 'candidate_email' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_assessment_choice.html')
+def candidate_assessment(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+    candidate_email = request.session['candidate_email']
+    assessment =QuestionDB.fetch_Assessment(assessment_name,candidate_email)
+    mcqs = assessment.get("mcq", [])
+    assessment_id= assessment["assessment_id"]
+    return render(request, 'candidate/Candidate_assessment.html', {"mcqs": mcqs,"assessment":assessment,"assessment_name": assessment_id})
 
-def candidate_coding_test(request):
-    if 'candidate_email' not in request.session:
-        messages.warning(request, 'Please log in to continue.')
-        return redirect('candidate_login')
-    return render(request, 'candidate/Candidate_coding_test.html')
+def candidate_assessment_choice(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+    return render(request, 'candidate/Candidate_assessment_choice.html', {"assessment_name": assessment_name})
+
+def candidate_coding_test(request, assessment_name):
+    assessment_name, redirect_response = get_decoded_assessment_name(request, assessment_name)
+    if redirect_response:
+        return redirect_response
+    candidate_email = request.session['candidate_email']
+    assessment =QuestionDB.fetch_Assessment(assessment_name,candidate_email)
+    coding_questions = assessment.get("coding", [])
+    assessment_id= assessment["assessment_id"]
+    return render(request, 'candidate/Candidate_coding_test.html', {"assessment_name": assessment_id,"coding_questions":coding_questions,"assessment":assessment})
+
+def submit_coding_test(request):
+    if request.method == 'POST':
+        # Retrieve the submitted answers
+        submitted_answers = {}
+        print(request.POST)
+        for key in request.POST:
+            # Ensure we're only capturing answers and not other form fields (like CSRF token)
+            if key.startswith('answer_'):
+                submitted_answers[key] = request.POST[key]
+        
+        # Process the submitted answers as needed
+        # For example, you can save them to the database, evaluate them, etc.
+        
+        # Debug: Print the submitted answers (or handle them as needed)
+        print(submitted_answers)
+           # Add a success message
+        messages.success(request, "Assessment submitted successfully.")
+
+        # Redirect to the dashboard or any desired page
+        return redirect('candidate_dashboard')
+
+    # If the request method is not POST, you may want to render the form again or show an error
+    return HttpResponse("Invalid request method.")
+
 
 def candidate_profile(request):
     if 'candidate_email' not in request.session:
@@ -448,6 +489,7 @@ def admindashboard(request):
     if 'admin_id' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('admin_login')
+    QuestionDB.update_assessment_statuses()
     return render(request, 'admin/Admin_dashboard.html')
 
 def Admin_invite(request):
@@ -470,9 +512,9 @@ def assessment(request):
         return redirect('admin_login')
     assessments = QuestionDB.get_all_assessment()
     return render(request, 'admin/Admin_assessment.html', {'assessments': assessments})
-
+QuestionDB.generate_assessment_id()
 def manualquestionupload(request):
-    if 'admin_id' not in request.session:
+    if 'admin_id' not in request.session or request.session.get('instructor_email'):
         messages.warning(request, 'Please log in to continue.')
         return redirect('admin_login')
     question_db = QuestionDB()
@@ -480,7 +522,7 @@ def manualquestionupload(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
             assessment_name = data.get('assessment_name', '')
-            status = data.get('status', 'not defined')
+            status = data.get('status', 'not scheduled')
             schedule = data.get('schedule', {})
             created_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
             updated_at = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
@@ -490,8 +532,12 @@ def manualquestionupload(request):
             tags = data.get('tags', [])
             if not assessment_name:
                 return JsonResponse({'error': 'Assessment name is required.'}, status=400)
+            
+            assessment_id=QuestionDB.generate_assessment_id()
+            
             assessment_document = {
                 'assessment_name': assessment_name,
+                'assessment_id':assessment_id,
                 'status': status,
                 'schedule': {
                     'date': schedule.get('date', ''),

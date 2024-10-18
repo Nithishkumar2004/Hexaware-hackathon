@@ -15,7 +15,6 @@
 
         .sidebar {
             background-color: #343a40;
-            
             padding-top: 20px;
             color: white;
         }
@@ -89,83 +88,78 @@
                         <div class="mb-3">
                             <label for="test-type" class="form-label">Select Question Type</label>
                             <select class="form-control" id="test-type" required>
-                                <option value="">Choose test type...</option>
                                 <option value="mcq">MCQ</option>
                                 <option value="coding">Coding Test</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="questionText" class="form-label">Question Text</label>
-                            <input type="text" class="form-control" id="questionText"
-                                placeholder="Enter the question text" required>
+                            <input type="text" class="form-control" id="questionText" placeholder="Enter the question text" required>
                         </div>
                         <div id="mcq-options" class="mb-3">
                             <label for="options" class="form-label">Options (comma-separated)</label>
-                            <input type="text" class="form-control" id="options" placeholder="Enter options">
+                            <input type="text" class="form-control" id="options" placeholder="Enter options" required>
                         </div>
                         <div id="mcq-answer" class="mb-3">
                             <label for="answer" class="form-label">Correct Answer</label>
-                            <input type="text" class="form-control" id="answer" placeholder="Enter the correct answer">
+                            <input type="text" class="form-control" id="answer" placeholder="Enter the correct answer" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="tags" class="form-label">Tags (comma-separated)</label>
-                            <input type="text" class="form-control" id="tags" placeholder="Enter tags" required>
-                        </div>
+
                         <button type="submit" class="btn btn-primary">Add Question</button>
                     </form>
                 </div>
 
-               <!-- Preview Section for MCQ -->
-<div class="widget preview-section" id="mcq-preview">
-    <div class="row">
-        <h4>Preview MCQ Questions</h4>
-        
-        <!-- File input for uploading MCQ CSV -->
-        <form class="my-2" id="upload-mcq-form" enctype="multipart/form-data" method="POST" action="">
-            {% csrf_token %} <!-- Django's CSRF protection -->
-            
-            <input type="file" id="mcq-csv-file" name="mcq_csv_file" accept=".csv">
-            <button type="submit" class="btn btn-primary">Upload MCQ Questions</button>
-        </form>
-    </div>
+                <div class="widget">
+                    <h4>Upload MCQ CSV File Here</h4>
+                    <!-- Download link for the CSV template -->
+                    <a class="btn btn-primary mb-3" href="{% static 'file/Mcq_Template.csv' %}" download="Mcq_Template.csv">Download MCQ Template</a>
 
-    <!-- Table to display MCQ questions -->
-    <table class="table table-bordered" id="mcqTable">
-        <thead>
-            <tr>
-                <th>Question Text</th>
-                <th>Options</th>
-                <th>Answer</th>
-                <th>Tags</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- MCQ Preview rows will be added here dynamically -->
-        </tbody>
-    </table>
-</div>
+                    <!-- File upload form -->
+                    <form onsubmit="uploadMcqCSV(event)" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" id="csvFileInput" name="csv_file" accept=".csv" required>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </form>
+                </div>
+
+                <!-- Preview Section for MCQ -->
+                <div class="widget preview-section" id="mcq-preview">
+                    <h4>Preview MCQ Questions</h4>
+                    <table class="table table-bordered" id="mcqTable">
+                        <thead>
+                            <tr>
+                                <th>Question Text</th>
+                                <th>Options</th>
+                                <th>Answer</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- MCQ Preview rows will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="widget">
+                    <h4>Upload Coding CSV File Here</h4>
+                    <!-- Download link for the CSV template -->
+                    <a class="btn btn-primary mb-3" href="{% static 'file/Coding_Template.csv' %}" download="Coding_Template.csv">Download Coding Template</a>
+
+                    <!-- File upload form -->
+                    <form onsubmit="uploadCodingCSV(event)" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" id="codingCsvFileInput" name="coding_csv_file" accept=".csv" required>
+                        <button type="submit" class="btn btn-success">Upload</button>
+                    </form>
+                </div>
 
                 <!-- Preview Section for Coding Test -->
                 <div class="widget preview-section" id="coding-preview">
-                    <div class="row">
-                        <h4>Preview Coding Test Questions</h4>
-                        
-                        <!-- Corrected file input for uploading CSV -->
-                        <form class="my-2" id="upload-form" enctype="multipart/form-data" method="POST" action="">
-                            {% csrf_token %} <!-- Django's CSRF protection -->
-                            
-                            <input type="file" id="csv-file" name="csv_file" accept=".csv">
-                            <button type="submit" class="btn btn-primary">Upload Questions</button>
-                        </form>
-                    </div>
-                
-                    <!-- Table to display coding test questions -->
+                    <h4>Preview Coding Test Questions</h4>
                     <table class="table table-bordered" id="codingTable">
                         <thead>
                             <tr>
                                 <th>Question Text</th>
-                                <th>Tags</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -174,14 +168,14 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <form id="assessmentForm" method="POST">
                     {% csrf_token %}
                     <div class="widget">
-                        <label for="assessmentNo" class="form-label">Assessment No. or Name</label>
-                        <input type="text" class="form-control" id="assessmentNo"
-                            placeholder="Enter the assessment number or name" required>
-                        <input type="hidden" class="mb-3">
+                        <label for="assessmentName" class="form-label">Assessment Name</label>
+                        <input type="text" class="form-control" id="assessmentName" placeholder="Enter the Assessment name" required>
+                        <label for="tags" class="form-label">Tags (comma-separated)</label>
+                        <input type="text" class="form-control" id="tags" placeholder="Enter tags" required>
                         <br>
                         <button type="submit" class="btn btn-success">Submit Assessment</button>
                     </div>
@@ -192,13 +186,122 @@
 
     <script>
         // Global object to store all question data
-        let globalQuestionData = {
-            assessment_no: "",
+        let Globaldata = {
+            assessment_name: "",
+            status: "not defined",
+            schedule_status: "not scheduled",
+            schedule: { date: "", time: "", duration: "", status: "" }, // Resetting all schedule fields
+            created_at: "",
+            updated_at: "",
             mcq: [],
-            coding: []
+            coding: [],
+            candidates: [],
+            tags: []
         };
 
-        // Handle form submission and question preview
+        
+function uploadCodingCSV(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const fileInput = document.getElementById("codingCsvFileInput");
+    
+    const file = fileInput.files[0];
+
+    if (file) {
+        console.log("File selected:", file.name);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const fileContent = e.target.result;
+            console.log("CSV File Content:", fileContent);
+
+            // Split the content into rows and filter out empty rows
+            const rows = fileContent.split('\n').filter(row => row.trim() !== '');
+
+            // Iterate over each row and create coding question objects
+            rows.forEach((row, index) => {
+                // Skip the header row
+                if (index === 0) return; // Assuming the first row is headers
+
+                // Split the row by commas while handling quoted strings
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim());
+
+                // Destructure the columns for coding questions
+                const [questionText] = cols;
+
+                // Create the newCodingQuestion object
+                let newCodingQuestion = {
+                    question_text: questionText
+                };
+
+                // Append the newCodingQuestion object to the coding array in Globaldata
+                Globaldata.coding.push(newCodingQuestion);
+                addQuestionToTable('codingTable', [questionText], 'coding');
+                fileInput.value='';
+            });
+
+            console.log("Parsed Coding Questions:", Globaldata.coding);
+        };
+
+        reader.onerror = function () {
+            console.error("Error reading file:", reader.error);
+        };
+
+        reader.readAsText(file);
+    } else {
+        console.log("No file selected.");
+    }
+}
+        function uploadMcqCSV(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const fileInput = document.getElementById("csvFileInput");
+            const file = fileInput.files[0];
+
+            if (file) {
+                console.log("File selected:", file.name);
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const fileContent = e.target.result;
+                    console.log("CSV File Content:", fileContent);
+
+                    // Split the content into rows and filter out empty rows
+                    const rows = fileContent.split('\n').filter(row => row.trim() !== '');
+
+                    // Iterate over each row and create question objects
+                    rows.forEach((row, index) => {
+                        // Skip the header row
+                        if (index === 0) return; // Assuming the first row is headers
+
+                        // Split the row by commas while handling quoted strings
+                        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim());
+
+                        // Destructure the columns
+                        const [questionText, options, answer] = cols;
+
+                        // Create the newQuestion object
+                        let newQuestion = {
+                            question_text: questionText,
+                            options: options ? options.split(',').map(option => option.trim().replace(/^"|"$/g, '')) : [], // Remove any stray quotes
+                            answer: answer.replace(/^"|"$/g, '') // Also trim quotes from the answer if necessary
+                        };
+
+                        // Append the newQuestion object to the mcq array in Globaldata
+                        Globaldata.mcq.push(newQuestion);
+                        addQuestionToTable('mcqTable', [questionText, options, answer], 'mcq');
+                        fileInput.value='';
+
+                    });
+
+                    console.log("Parsed Questions:", Globaldata.mcq);
+                };
+                reader.readAsText(file);
+            } else {
+                console.log("No file selected.");
+            }
+        }
+
         document.getElementById('uploadForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -207,225 +310,186 @@
             const questionText = document.getElementById('questionText').value;
             const options = document.getElementById('options').value;
             const answer = document.getElementById('answer').value;
-            const tags = document.getElementById('tags').value;
 
             // Validate input
-            if (!questionText || !tags || (questionType === 'mcq' && (!options || !answer))) {
+            if (!questionText || (questionType === 'mcq' && (!options || !answer))) {
                 alert('Please fill in all required fields.');
                 return;
             }
 
-            // Prepare new question object
-        
+            // Create a new question object
+            let newQuestion = { question_text: questionText };
 
-            // Append to the appropriate section and global object
             if (questionType === 'mcq') {
-                // Add to global data
-
-                const newQuestion = {
-                question_text: questionText,
-                options: options ? options.split(',') : [],
-                answer: answer || null,
-                tags: tags.split(',')
-            };
-
-                globalQuestionData.mcq.push(newQuestion);
-
-             
-                // Add to MCQ preview
-                const table = document.getElementById('mcqTable').getElementsByTagName('tbody')[0];
-                const newRow = table.insertRow();
-                newRow.insertCell(0).textContent = questionText;
-                newRow.insertCell(1).textContent = options;
-                newRow.insertCell(2).textContent = answer;
-                newRow.insertCell(3).textContent = tags;
-
-                // Add edit and delete buttons
-                const actionsCell = newRow.insertCell(4);
-                actionsCell.innerHTML = `
-                    <div class="edit-buttons">
-                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                        <button class="btn btn-success btn-sm update-btn">Update</button>
-                    </div>
-                `;
-
-                // Attach event listeners for edit and delete
-                attachActionListeners(newRow, 'mcq');
+                newQuestion.options = options.split(',').map(option => option.trim());
+                newQuestion.answer = answer;
+                Globaldata.mcq.push(newQuestion);
+                addQuestionToTable('mcqTable', [questionText, options, answer], 'mcq');
+                document.getElementById('test-type').value = "mcq";
             } else if (questionType === 'coding') {
-                // Add to global data
-
-                const newQuestion = {
-                question_text: questionText,
-                tags: tags.split(',')
-            };
-                globalQuestionData.coding.push(newQuestion);
-
-                // Add to Coding preview
-                const table = document.getElementById('codingTable').getElementsByTagName('tbody')[0];
-                const newRow = table.insertRow();
-                newRow.insertCell(0).textContent = questionText;
-                newRow.insertCell(1).textContent = tags;
-
-                // Add edit and delete buttons
-                const actionsCell = newRow.insertCell(2);
-                actionsCell.innerHTML = `
-                    <div class="edit-buttons">
-                        <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                        <button class="btn btn-success btn-sm update-btn">Update</button>
-                    </div>
-                `;
-
-                // Attach event listeners for edit and delete
-                attachActionListeners(newRow, 'coding');
+                Globaldata.coding.push(newQuestion);
+                addQuestionToTable('codingTable', [questionText], 'coding');
+                document.getElementById('test-type').value = "coding";
             }
 
             // Clear the form after submission
             document.getElementById('uploadForm').reset();
         });
 
-        // Handle assessment submission
-            document.getElementById('assessmentForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        // Function to add a new row to the table for question preview
+        function addQuestionToTable(tableId, cellValues, type) {
+            const table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
 
-            const assessmentNo = document.getElementById('assessmentNo');
-            globalQuestionData.assessment_no = assessmentNo.value;
-            assessmentNo.value = '';  // Clear the input field
+            cellValues.forEach((value, index) => {
+                newRow.insertCell(index).textContent = value;
+            });
 
-            let preview1 = document.getElementById("coding-preview")
-            let preview2 = document.getElementById("mcq-preview")
+            // Add edit and delete buttons
+            const actionsCell = newRow.insertCell(cellValues.length);
+            actionsCell.innerHTML = `
+                <div class="edit-buttons">
+                    <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                    <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                    <button class="btn btn-success btn-sm update-btn" style="display: none;">Update</button>
+                </div>
+            `;
 
+            // Attach event listeners for edit, delete, and update actions
+            attachActionListeners(newRow, type);
+        }
 
-            preview2.innerHTML = `<h4>Preview MCQ Questions</h4>
-                    <table class="table table-bordered" id="mcqTable">
-                        <thead>
-                            <tr>
-                                <th>Question Text</th>
-                                <th>Options</th>
-                                <th>Answer</th>
-                                <th>Tags</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- MCQ Preview rows will be added here dynamically -->
-                        </tbody>
-                    </table>`
-            
-            preview1.innerHTML = `<h4>Preview Coding Test Questions</h4>
-                    <table class="table table-bordered" id="codingTable">
-                        <thead>
-                            <tr>
-                                <th>Question Text</th>
-                                <th>Tags</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Coding Test Preview rows will be added here dynamically -->
-                        </tbody>
-                    </table>`
-            // Send global question data to the backend
-            fetch('/Admin_manualquestionupload/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify(globalQuestionData)
-            })
-                .then(response => response.json())
-                .catch(error => console.error('Error:', error));
-            
-            alert("Assessment submitted successfullly")
-
-            // Clear the global data after submission
-            globalQuestionData = {
-                assessment_no: "",
-                mcq: [],
-                coding: []
-            };
-        });
-
-        // Attach event listeners for edit, delete, and update
-        function attachActionListeners(row, questionType) {
+        // Attach event listeners to edit, delete, and update buttons
+        function attachActionListeners(row, type) {
             const editBtn = row.querySelector('.edit-btn');
             const deleteBtn = row.querySelector('.delete-btn');
             const updateBtn = row.querySelector('.update-btn');
 
-            // Edit button handler
-            editBtn.addEventListener('click', function () {
-                const cells = row.cells;
-                for (let i = 0; i < cells.length - 1; i++) {
-                    const cell = cells[i];
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = cell.textContent;
-                    cell.textContent = '';
-                    cell.appendChild(input);
-                }
-                updateBtn.style.display = 'inline-block';
-            });
-
-            // Delete button handler
-            deleteBtn.addEventListener('click', function () {
-                row.remove();
-                // Remove from global data
+            editBtn.addEventListener('click', () => {
                 const questionText = row.cells[0].textContent;
-                globalQuestionData[questionType] = globalQuestionData[questionType].filter(
-                    (q) => q.question_text !== questionText
-                );
-            });
+                document.getElementById('test-type').value = type;
+                document.getElementById('questionText').value = questionText;
 
-            // Update button handler
-            updateBtn.addEventListener('click', function () {
-                const cells = row.cells;
-                const updatedQuestionText = cells[0].querySelector('input').value;
-                const updatedTags = cells[1].querySelector('input').value;
-
-                if (questionType === 'mcq') {
-                    const updatedOptions = cells[1].querySelector('input').value;
-                    const updatedAnswer = cells[2].querySelector('input').value;
-
-                    // Update row content
-                    cells[0].textContent = updatedQuestionText;
-                    cells[1].textContent = updatedOptions;
-                    cells[2].textContent = updatedAnswer;
-                    cells[3].textContent = updatedTags;
-
-                    // Update global data
-                    const mcqIndex = globalQuestionData.mcq.findIndex((q) => q.question_text === updatedQuestionText);
-                    globalQuestionData.mcq[mcqIndex] = {
-                        question_text: updatedQuestionText,
-                        options: updatedOptions.split(','),
-                        answer: updatedAnswer,
-                        tags: updatedTags.split(',')
-                    };
-                } else if (questionType === 'coding') {
-                    // Update row content
-                    cells[0].textContent = updatedQuestionText;
-                    cells[1].textContent = updatedTags;
-
-                    // Update global data
-                    const codingIndex = globalQuestionData.coding.findIndex((q) => q.question_text === updatedQuestionText);
-                    globalQuestionData.coding[codingIndex] = {
-                        question_text: updatedQuestionText,
-                        tags: updatedTags.split(',')
-                    };
+                if (type === 'mcq') {
+                    document.getElementById('options').value = row.cells[1].textContent;
+                    document.getElementById('answer').value = row.cells[2].textContent;
                 }
 
+                // Show update button and hide edit button
+                updateBtn.style.display = 'inline-block';
+                editBtn.style.display = 'none';
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                row.remove();
+                removeFromGlobalData(row, type);
+            });
+
+            updateBtn.addEventListener('click', () => {
+                updateQuestion(row, type);
                 updateBtn.style.display = 'none';
+                editBtn.style.display = 'inline-block';
             });
         }
 
-        // Toggle MCQ options and answer based on question type
+        // Function to update a question in the table and global data
+        function updateQuestion(row, type) {
+            const updatedQuestionText = document.getElementById('questionText').value;
+
+            if (type === 'mcq') {
+                const updatedOptions = document.getElementById('options').value;
+                const updatedAnswer = document.getElementById('answer').value;
+
+                row.cells[0].textContent = updatedQuestionText;
+                row.cells[1].textContent = updatedOptions;
+                row.cells[2].textContent = updatedAnswer;
+
+                // Update global data
+                const mcqIndex = Globaldata.mcq.findIndex(q => q.question_text === row.cells[0].textContent);
+                if (mcqIndex !== -1) {
+                    Globaldata.mcq[mcqIndex] = {
+                        question_text: updatedQuestionText,
+                        options: updatedOptions.split(',').map(option => option.trim()),
+                        answer: updatedAnswer
+                    };
+                }
+            } else {
+                row.cells[0].textContent = updatedQuestionText;
+                const codingIndex = Globaldata.coding.findIndex(q => q.question_text === row.cells[0].textContent);
+                if (codingIndex !== -1) {
+                    Globaldata.coding[codingIndex].question_text = updatedQuestionText;
+                }
+            }
+        }
+
+        // Function to remove a question from global data
+        function removeFromGlobalData(row, type) {
+            const questionText = row.cells[0].textContent;
+            if (type === 'mcq') {
+                Globaldata.mcq = Globaldata.mcq.filter(q => q.question_text !== questionText);
+            } else {
+                Globaldata.coding = Globaldata.coding.filter(q => q.question_text !== questionText);
+            }
+        }
+
+        // Toggle visibility for MCQ-specific fields
         document.getElementById('test-type').addEventListener('change', function () {
             const selectedType = this.value;
             document.getElementById('mcq-options').style.display = selectedType === 'mcq' ? 'block' : 'none';
             document.getElementById('mcq-answer').style.display = selectedType === 'mcq' ? 'block' : 'none';
         });
+
+        // Handle assessment form submission
+        document.getElementById('assessmentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            Globaldata.assessment_name = document.getElementById('assessmentName').value;
+            Globaldata.tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
+
+            console.log(Globaldata);
+
+            // Send data to the backend
+            fetch('/instructor/manualquestionupload/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(Globaldata)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Assessment submitted successfully!');
+                        resetGlobalData();
+                    } else {
+                        alert('Failed to submit assessment. Please try again.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // Reset the global data object and clear the form
+        function resetGlobalData() {
+            Globaldata = {
+                assessment_name: "",
+                status: "not defined",
+                schedule_status: "not scheduled",
+                schedule: { date: "", time: "", duration: "", status: "" }, // Resetting all schedule fields
+                created_at: "",
+                updated_at: "",
+                mcq: [],
+                coding: [],
+                candidates: [],
+                tags: []
+            };
+            document.getElementById('assessmentForm').reset();
+            document.getElementById('uploadForm').reset();
+            // Clear the tables
+            document.getElementById('mcqTable').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('codingTable').getElementsByTagName('tbody')[0].innerHTML = '';
+        }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

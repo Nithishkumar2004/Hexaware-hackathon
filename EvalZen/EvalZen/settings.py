@@ -50,7 +50,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'EvalZen.wsgi.application'
-
+APPEND_SLASH=False 
 
 DATABASES = {
     'default': {

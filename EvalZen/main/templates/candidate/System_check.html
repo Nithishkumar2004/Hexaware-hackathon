@@ -103,7 +103,7 @@
                 <div id="progressBar"></div>
             </div>
             <div id="result" class="alert" style="display: none;"></div>
-            <a href="{% url 'candidate_preassesment' %}" id="continueButton" class="btn btn-success" style="display: none;">Continue</a>
+            <a href="{% url 'candidate_preassessment' assessment_name|urlencode  %}" id="continueButton" class="btn btn-success" style="display: none;">Continue</a>
         </div>
     </div>
 

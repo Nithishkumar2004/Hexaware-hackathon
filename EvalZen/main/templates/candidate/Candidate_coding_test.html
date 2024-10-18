@@ -1,5 +1,7 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html lang="en">{% load static %}
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,401 +14,187 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/theme-monokai.js"></script>
 
   <style>
-    /* Body styling */
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      background-color: #e4f0ff;
-      border-bottom: 2px solid #ddd;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .nav-left, .nav-center, .nav-right {
-      flex: 1;
-  }
-  
-  .nav-logo img {
-      width: 50px;
-      height: 50px;
-  }
-  
-  .nav-title {
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      color: #333;
-  }
-  
-  .icon {
-      width: 30px;
-      height: 30px;
-  }
-  
-  .nav-right {
-      display: flex;
-      justify-content: flex-end; /* Align menu icon to the right */
-      align-items: center;
-  }
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-    /* Container styling */
-    .container {
-      display: flex;
-      justify-content: space-between;
-      
-      padding: 20px;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #e4f0ff;
+  border-bottom: 2px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-    /* Question Section */
-    .question-section {
-      width:50vw;
-      margin-bottom: 20px;
-      padding: 15px;
-      background-color: #eef2f7;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+.nav-logo img {
+  width: 50px;
+  height: 50px;
+}
 
-    .question-section h2 {
-      margin: 0;
-      font-size: 1.5em;
-      color: #333;
-    }
+.nav-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+}
 
-    .question-section p {
-      font-size: 1.2em;
-      color: #555;
-    }
+.nav-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 
-    /* Code Execution Section */
-    .code-execution {
-      width: 60%;
-      padding: 15px;
-    }
+/* Question Section */
+.question-section {
+  width: 50vw;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #eef2f7;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
-    .code-execution h1 {
-      color: #007BFF;
-      font-size: 1.8em;
-      margin-bottom: 20px;
-    }
+.question-section h2 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
 
-    .language-selection {
-      margin-bottom: 20px;
-    }
+.question-section p {
+  font-size: 1.2em;
+  color: #555;
+}
 
-    .language-selection label {
-      font-weight: bold;
-      margin-right: 10px;
-    }
+/* Code Execution Section */
+.code-execution {
+  width: 60%;
+  padding: 15px;
+}
 
-    .code-editor {
-      width: 100%;
-      height: 200px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 1em;
-      resize: vertical;
-    }
+.code-execution h1 {
+  color: #007BFF;
+  font-size: 1.8em;
+  margin-bottom: 20px;
+}
 
-    .actions {
-      text-align: center;
-      margin-top: 20px;
-    }
+.language-selection {
+  margin-bottom: 20px;
+}
 
-    .btn {
-      background-color: #007BFF;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      font-size: 1em;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 0 10px;
-    }
+.language-selection label {
+  font-weight: bold;
+  margin-right: 10px;
+}
 
-    .btn:hover {
-      background-color: #0056b3;
-    }
+.code-editor {
+  width: 100%;
+  height: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1em;
+  resize: vertical;
+}
 
-    .output-card {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background: #f9f9f9;
-    }
+/* Button Styles */
+.btn {
+  background-color: #007BFF;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 10px;
+}
 
-    .output-card h3 {
-      margin-bottom: 10px;
-      color: #007BFF;
-    }
+.btn:hover {
+  background-color: #0056b3;
+}
 
-    #output {
-      white-space: pre-wrap;
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 4px;
-    }
-  </style>
- 
-<script>
-  let currentQuestion = 0;
-  let questions = [];
-  let faceDetectionAttempts = 0;
-  let tabSwitchCount = 0; // Track tab switches
-  const maxTabSwitches = 1; // Track number of face detection attempts
+/* Output Card */
+.output-card {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
 
-  let timeLeft = 1500; // 25 minutes in seconds
-  function startTimer() {
-      const timerElement = document.getElementById('timer');
-      const timerInterval = setInterval(() => {
-          let minutes = Math.floor(timeLeft / 60);
-          let seconds = timeLeft % 60;
-          if (seconds < 10) {
-              seconds = '0' + seconds;
-          }
-          timerElement.innerHTML = `${minutes}:${seconds}`; // Corrected interpolation
-          if (timeLeft <= 0) {
-              clearInterval(timerInterval);
-              alert('Time is up!');
-              // Optional: Automatically submit the assessment when time is up
-              submitAssessment();
-          }
-          timeLeft--;
-      }, 1000);
-  }
+.output-card h3 {
+  margin-bottom: 10px;
+  color: #007BFF;
+}
 
-  function startWebcam() {
-      const webcamElement = document.getElementById('video');
-      const cameraStatus = document.getElementById('camera-status');
+#output {
+  white-space: pre-wrap;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+}
 
-      navigator.mediaDevices.getUserMedia({ video: true })
-      .then((stream) => {
-          webcamElement.srcObject = stream;
-          cameraStatus.innerText = "Monitoring User Activity";
-      })
-      .catch((err) => {
-          console.error("Webcam access denied: ", err);
-          cameraStatus.innerText = "Camera access denied or not supported";
-      });
-  }
+/* Modal Popup Styles */
+.modal {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
 
-  window.onload = function() {
-      startTimer();    // Start the timer
-      startWebcam();   // Start the webcam
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  text-align: left;
+}
 
-      const modal = document.getElementById('instructionModal');
-      modal.style.display = "block";
-  };
+.modal h2 {
+  color: #d9534f;
+}
 
-  function closePopup() {
-      const modal = document.getElementById('instructionModal');
-      modal.style.display = "none";
-      openFullscreen(); // Call fullscreen function when closing the modal
-  }
+.modal p {
+  font-size: 16px;
+}
 
-  // Function to open fullscreen mode
-  function openFullscreen() {
-      const elem = document.documentElement; // Get the root element
+.modal button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  margin-top: 20px;
+}
 
-      if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) { // Firefox
-          elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, and Opera
-          elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { // IE/Edge
-          elem.msRequestFullscreen();
-      }
-  }
-
-  // Function to check if in fullscreen
-  
-document.addEventListener('visibilitychange', function() {
-  if (document.hidden) {
-      tabSwitchCount++;
-      if (tabSwitchCount >= maxTabSwitches) {
-          alert('You have switched tabs too many times. You will be redirected.');
-          
-          // Request full-screen before redirecting
-          
-
-          // Redirect after full-screen is triggered
-          window.location.href = "{% url 'candidate_preassesment' %}";
-      } else {
-          alert(`Warning: You have switched tabs ${tabSwitchCount} time(s). You will be disqualified after ${maxTabSwitches} switches.`);
-      }
-  }
-});
-
-  // Add event listener for fullscreen change
-  document.addEventListener('fullscreenchange', checkFullScreen);
-  document.addEventListener('mozfullscreenchange', checkFullScreen); // Firefox
-  document.addEventListener('webkitfullscreenchange', checkFullScreen); // Chrome, Safari, Opera
-  document.addEventListener('msfullscreenchange', checkFullScreen); // IE/Edge
-</script>
-
-
-  <script>
-    // Fetch question from MongoDB (backend integration needed)
-    async function fetchQuestion() {
-      try {
-        const response = await fetch('/api/get-question'); // Adjust the API endpoint as per your backend
-        const data = await response.json();
-        document.getElementById('question-text').textContent = data.question;
-      } catch (error) {
-        console.error('Error fetching question:', error);
-        document.getElementById('question-text').textContent = 'Error loading question.';
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const editor = ace.edit('editor');
-      editor.setTheme('ace/theme/monokai');
-      editor.session.setMode('ace/mode/javascript');
-
-      const languageSelect = document.getElementById('language');
-      const outputElement = document.getElementById('output');
-
-      languageSelect.addEventListener('change', function () {
-        const selectedLanguage = languageSelect.value;
-        editor.session.setMode(`ace/mode/${selectedLanguage}`);
-      });
-
-      async function runCode() {
-        const code = editor.getValue();
-        const selectedLanguage = languageSelect.value;
-        const payload = {
-          code: code,
-          language: selectedLanguage === 'javascript' ? 'js' : 'py',
-        };
-
-        try {
-          const response = await fetch('http://localhost:3001/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(payload).toString(),
-          });
-
-          const result = await response.json();
-          if (result.status === 200) {
-            outputElement.textContent = result.output || 'No output generated';
-          } else {
-            outputElement.textContent = result.error || 'Error executing code';
-          }
-        } catch (error) {
-          console.error('Error running code:', error);
-          outputElement.textContent = 'Error executing code';
-        }
-      }
-
-      async function submitCode() {
-        const code = editor.getValue();
-        const selectedLanguage = languageSelect.value;
-
-        try {
-          const response = await fetch('/api/submit-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code: code, language: selectedLanguage })
-          });
-
-          const result = await response.json();
-          if (result.success) {
-            alert('Code submitted successfully!');
-          } else {
-            alert('Error submitting code');
-            window.location.href = "{% url 'candidate_preassesment'%}";
-          }
-        } catch (error) {
-          console.error('Error submitting code:', error);
-          alert('Code submitted successfully!');
-          window.location.href = "{% url 'candidate_preassesment'%}";
-        }
-      }
-
-      window.runCode = runCode;
-      window.submitCode = submitCode;
-    });
-    window.addEventListener('load', () => {
-      
-      fetchQuestion(); // Fetch the question when the page loads
-      startTimer(); // Start the 30-minute countdown timer
-  });
-  
-  </script>
-  <style>
-    .main {
-        font-family: Arial, sans-serif;
-    }
-    video {
-        width: 200px;
-        height: 200px;
-        border: 1px solid black;
-        margin: 20px;
-    }
-    button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    .error {
-        color: red;
-        margin-top: 20px;
-    }
-    /* Modal popup styles */
-    .modal {
-        display: block;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        text-align: center;
-    }
-    .modal-content {
-        background-color: #fff;
-        margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 500px;
-        text-align: left;
-    }
-    .modal h2 {
-        color: #d9534f;
-    }
-    .modal p {
-        font-size: 16px;
-    }
-    .modal button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #5cb85c;
-        color: white;
-        border: none;
-        margin-top: 20px;
-    }
-    
+/* Camera and Video Styles */
 .right-panel {
   width: 40%;
   background-color: #ffffff;
@@ -443,53 +231,211 @@ document.addEventListener('visibilitychange', function() {
   margin-top: 20px;
 }
 
-</style>
+/* Error Message */
+.error {
+  color: red;
+  margin-top: 20px;
+}
+
+/* Video Styling */
+video {
+  width: 200px;
+  height: 200px;
+  border: 1px solid black;
+  margin: 20px;
+}
+
+  </style>
+ <script>
+  // Global variables
+  let currentQuestion = 0;
+  let questions = [];
+  let tabSwitchCount = 0; // Track tab switches
+  const maxTabSwitches = 1; // Max tab switches allowed
+  let timerInterval; // To clear the timer later
+
+  // DOM elements
+  const timerElement = document.getElementById('timer');
+  const webcamElement = document.getElementById('video');
+  const cameraStatus = document.getElementById('camera-status');
+  const outputElement = document.getElementById('output');
+  const languageSelect = document.getElementById('language');
+
+  // Timer functionality
+  function startTimer(duration = 1500) { // 25 minutes in seconds
+      let timeLeft = duration;
+      timerInterval = setInterval(() => {
+          let minutes = Math.floor(timeLeft / 60);
+          let seconds = timeLeft % 60;
+          seconds = seconds < 10 ? '0' + seconds : seconds;
+          timerElement.innerHTML = `${minutes}:${seconds}`;
+
+          if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+              alert('Time is up!');
+              submitAssessment();
+          }
+          timeLeft--;
+      }, 1000);
+  }
+
+  // Webcam functionality
+  function startWebcam() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+          .then((stream) => {
+              webcamElement.srcObject = stream;
+              cameraStatus.innerText = "Monitoring User Activity";
+          })
+          .catch((err) => {
+              console.error("Webcam access denied: ", err);
+              cameraStatus.innerText = "Camera access denied or not supported";
+          });
+  }
+
+  // Event listeners for page load and tab visibility
+  window.addEventListener('load', () => {
+      startTimer(); // Start the timer
+      startWebcam(); // Start the webcam
+      fetchQuestion(); // Fetch the question when the page loads
+      document.getElementById('instructionModal').style.display = "block"; // Show modal
+  });
+
+  document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+          tabSwitchCount++;
+          if (tabSwitchCount >= maxTabSwitches) {
+              alert('You have switched tabs too many times. You will be redirected.');
+              window.location.href = "{% url 'candidate_preassessment' assessment_name|urlencode %}"; // Redirect after max switches
+          } else {
+              alert(`Warning: You have switched tabs ${tabSwitchCount} time(s). You will be disqualified after ${maxTabSwitches} switches.`);
+          }
+      }
+  });
+
+  // Docker setup for running code
+  async function runCodeInDocker(code, language) {
+      const payload = {
+          code: code,
+          language: language
+      };
+
+      try {
+          const response = await fetch('http://localhost:3001/run', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+          if (result.status === 200) {
+              outputElement.textContent = result.output || 'No output generated';
+          } else {
+              outputElement.textContent = result.error || 'Error executing code';
+          }
+      } catch (error) {
+          console.error('Error running code:', error);
+          outputElement.textContent = 'Error executing code';
+      }
+  }
+
+  // Function to submit code
+  async function submitCode() {
+      const code = document.getElementById('codeInput').value; // Assuming there's an input field for code
+      const selectedLanguage = languageSelect.value;
+
+      try {
+          const response = await fetch('/api/submit-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: code, language: selectedLanguage })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+              alert('Code submitted successfully!');
+          } else {
+              alert('Error submitting code');
+              window.location.href = "{% url 'candidate_preassessment' assessment_name|urlencode %}";
+          }
+      } catch (error) {
+          console.error('Error submitting code:', error);
+          alert('Code submitted successfully!');
+          window.location.href = "{% url 'candidate_preassessment' assessment_name|urlencode %}";
+      }
+  }
+
+  // Attach runCode function to the window object for access
+  window.runCodeInDocker = runCodeInDocker;
+  window.submitCode = submitCode;
+</script>
+
+  
 </head>
+
 <body>
- 
+
   {% include 'candidate/assessment_header.html' %}
   <div id="instructionModal" class="modal" style="display:none;">
     <div class="modal-content">
-        <h2>Important Instructions</h2>
-        <p>1. Ensure that only one face is visible on the screen.</p>
-        <p>2. If more than one face is detected,3 chance will be given after that , you will be rejected from the assessment.</p>
-        <p>3. Do not turn your face away from the camera or leave the camera view.</p>
-        <button onclick="closePopup()" id="startProctoring">Continue</button>
+      <h2>Important Instructions</h2>
+      <p>1. Ensure that only one face is visible on the screen.</p>
+      <p>2. If more than one face is detected,3 chance will be given after that , you will be rejected from the
+        assessment.</p>
+      <p>3. Do not turn your face away from the camera or leave the camera view.</p>
+      <button onclick="closePopup()" id="startProctoring">Continue</button>
     </div>
-</div>
+  </div>
+  <div class="container">
+
   <div class="container">
     <!-- Left Side Panel: Code Execution Section -->
     <div class="code-execution">
-      <div class="question-section">
-        <h2>Question:</h2>
-        <p> Write a Python Program to verify the palindrome</p>
-      </div>
+      <h2>{{ assessment.assessment_name }}</h2>
+      <form method="post" action="{% url 'submit_coding_test' %}">
+        {% csrf_token %}
+        <div class="coding-questions">
+          {% for question in coding_questions %}
+          <div class="card">
+            <div class="card-header">
+              <h3>Coding Question {{ forloop.counter }}</h3>
+            </div>
+            <div class="card-body">
+              <p>{{ question.question_text }}</p>
+              <h1>Code Execution</h1>
+        
+              <!-- Programming Language Selection -->
+              <div class="language-selection">
+                <label for="language">Select Language:</label>
+                <select id="language">
+                  <option value="javascript">JavaScript</option>
+                  <option value="python">Python</option>
+                </select>
+              </div>
+        
+              <!-- Code Editor -->
+              <div id="editor" class="code-editor" contenteditable="true"
+                style="border: 1px solid #ccc; padding: 10px; min-height: 150px;">// Write your code here...</div>
+        
+              <!-- Run and Submit Buttons -->
+              <div class="actions">
+                <button class="btn" onclick="runCode()">Run Code</button>
+                <button class="btn" onclick="submitCode()">Submit Code</button>
+              </div>
+        
+              <!-- Output Section -->
+              <div class="output-card">
+                <h3>Output:</h3>
+                <div id="output">Your output will be displayed here...</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn">Submit Code</button>
+        </div>
+      </form>
 
-      <h1>Code Execution</h1>
-      
-      <!-- Programming Language Selection -->
-      <div class="language-selection">
-        <label for="language">Select Language:</label>
-        <select id="language">
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-        </select>
-      </div>
-
-      <!-- Code Editor -->
-      <div id="editor" class="code-editor">// Write your code here...</div>
-
-      <!-- Run and Submit Buttons -->
-      <div class="actions">
-        <button class="btn" onclick="runCode()">Run Code</button>
-        <button class="btn" onclick="submitCode()">Submit Code</button>
-      </div>
-
-      <!-- Output Section -->
-      <div class="output-card">
-        <h3>Output:</h3>
-        <div id="output">Your output will be displayed here...</div>
-      </div>
     </div>
 
     <!-- Right Side Panel: Webcam and Timer -->
@@ -497,70 +443,72 @@ document.addEventListener('visibilitychange', function() {
       <video id="video" style="text-align:center;" autoplay></video>
       <div id="status"></div>
       <div class="error" id="error" style="display:none;"></div>
-  
+
       <div class="timer">
-          <h4>Timer</h4>
-          <span id="timer">25:00</span>
+        <h4>Timer</h4>
+        <span id="timer">{{assessment.schedule.duration}}</span>
       </div>
-</div>
+    </div>
   </div>
+
   <script>
     const video = document.getElementById('video');
     const statusDiv = document.getElementById('status');
     const errorDiv = document.getElementById('error');
 
-    document.getElementById('startProctoring').addEventListener('click', function() {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
+    document.getElementById('startProctoring').addEventListener('click', function () {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
 
-        const sendFrame = () => {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const sendFrame = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            canvas.toBlob((blob) => {
-                const formData = new FormData();
-                formData.append('frame', blob, 'frame.jpg');
+        canvas.toBlob((blob) => {
+          const formData = new FormData();
+          formData.append('frame', blob, 'frame.jpg');
 
-                fetch('/proctoring/', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    errorDiv.style.display = 'none';
-                    statusDiv.innerText = '';
+          fetch('/proctoring/', {
+            method: 'POST',
+            body: formData
+          })
+            .then(response => response.json())
+            .then(data => {
+              errorDiv.style.display = 'none';
+              statusDiv.innerText = '';
 
-                    if (data.error) {
-                        errorDiv.innerText = data.error;
-                        errorDiv.style.display = 'block';
+              if (data.error) {
+                errorDiv.innerText = data.error;
+                errorDiv.style.display = 'block';
 
-                        // If more than one face is detected
-                        if (data.error.includes("More than one face detected")) {
-                            faceDetectionAttempts++;
-                            if (faceDetectionAttempts < 3) {
-                                const modal = document.getElementById('instructionModal');
-                                modal.style.display = "block";
-                                alert(data.error); // Show alert with error message
-                            } else {
-                                alert("Too many attempts. Redirecting to the pre-assessment page.");
-                                window.location.href = "{% url 'candidate_preassesment'%}";
-                            }
-                        }
-                    } else {
-                        statusDiv.innerText = data.message;
-                        requestAnimationFrame(sendFrame);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }, 'image/jpeg');
-        };
+                // If more than one face is detected
+                if (data.error.includes("More than one face detected")) {
+                  faceDetectionAttempts++;
+                  if (faceDetectionAttempts < 3) {
+                    const modal = document.getElementById('instructionModal');
+                    modal.style.display = "block";
+                    alert(data.error); // Show alert with error message
+                  } else {
+                    alert("Too many attempts. Redirecting to the pre-assessment page.");
+                    window.location.href = "{% url 'candidate_preassessment' assessment_name|urlencode%}";
+                  }
+                }
+              } else {
+                statusDiv.innerText = data.message;
+                requestAnimationFrame(sendFrame);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        }, 'image/jpeg');
+      };
 
-        // Start sending frames
-        sendFrame();
+      // Start sending frames
+      sendFrame();
     });
-</script>
+  </script>
 </body>
+
 </html>

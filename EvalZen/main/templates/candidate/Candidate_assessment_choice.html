@@ -46,21 +46,9 @@
     </style>
 </head>
 <body>
-    <header class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-        <div class="logo d-flex align-items-center">
-            <img src="{%static 'main/logo.png' %}" style="height: 60px;width: 60px;" alt="EvalZen Logo" class="me-2">
-            <div>
-                <h1 class="m-0">EvalZen</h1>
-                <p class="m-0">Assess with Confidence</p>
-            </div>
-        </div>
-        <nav>
-            <ul class="nav">
-                <li class="nav-item"><a href="{% url 'candidate_login' %}" class="nav-link">Dashboard</a></li>
-       
-            </ul>
-        </nav>
-    </header>   <div class="container">
+    {% include 'candidate/assessment_header.html' %}
+
+      <div class="container">
         <h2 class="text-center mb-4">Choose Your Assessment</h2>
         <div class="card-container">
             <!-- Quiz Card -->
@@ -71,7 +59,7 @@
                     </div>
                     <h5 class="card-title">MCQ</h5>
                     <p class="card-text">Test your knowledge with multiple-choice questions.</p>
-                    <a href="{%url 'candidate_assesment'%}" class="btn btn-primary btn-assess">Start MCQ</a>
+                    <a href="{%url 'candidate_assessment' assessment_name|urlencode %}" class="btn btn-primary btn-assess">Start MCQ</a>
                 </div>
             </div>
 
@@ -83,7 +71,7 @@
                     </div>
                     <h5 class="card-title">Coding Test</h5>
                     <p class="card-text">Show off your coding skills by solving coding problems.</p>
-                    <a href="{%url 'candidate_coding_test'%}" class="btn btn-primary btn-assess">Start Coding Test</a>
+                    <a href="{%url 'candidate_coding_test' assessment_name|urlencode %}" class="btn btn-primary btn-assess">Start Coding Test</a>
                 </div>
             </div>
         </div>

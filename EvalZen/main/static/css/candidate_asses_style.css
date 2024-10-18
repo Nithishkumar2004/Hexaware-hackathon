@@ -1,41 +1,53 @@
-.con {
-    font-family: Arial, sans-serif;
+/* Global Styles */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Light background for contrast */
+}
+
+/* Main Container */
+.con {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color:#ffffff;
+    min-height: 100vh; /* Change to min-height for better responsiveness */
+    background-color: #f4f4f4; /* Consistent background */
 }
 
+/* Container */
 .container {
     display: flex;
     width: 80%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    margin-top: -10%;
 }
 
+/* Left Panel */
 .left-panel {
     width: 60%;
-    background-color: #ffffff;
-    padding: 60px;
+    padding: 40px; /* Reduced padding for a more compact design */
     border-right: 1px solid #ccc;
 }
 
+/* Right Panel */
 .right-panel {
     width: 40%;
-    background-color: #ffffff;
     padding: 40px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    background-color: #f9f9f9; /* Slightly different background for contrast */
 }
 
+/* Webcam Styles */
 .camera {
     display: flex;
     flex-direction: column;
@@ -48,34 +60,35 @@
     border-radius: 50%;
     border: 2px solid #ccc;
     object-fit: cover;
-    background: #000;
+    background: #000; /* Placeholder color */
 }
 
-#camera-status {
-    font-size: 16px;
-    color: #333;
-    margin-top: 10px;
-}
-
+/* Timer */
 .timer {
     font-size: 25px;
     margin-top: 20px;
 }
 
+/* Question Card Styles */
 .question-card {
-    padding: 60px;
+    padding: 40px; /* Reduced padding for compactness */
     background-color: #ffffff;
     border: 1px solid #ccc;
     border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 .question-card h2 {
-    margin-top: 0;
+    margin-bottom: 20px; /* Space below the title */
+    font-size: 24px; /* Increased font size for prominence */
+    color: #333;
 }
 
+/* Questions and Options */
 .question {
     font-size: 18px;
     margin-bottom: 15px;
+    color: #555; /* Darker text for better readability */
 }
 
 ul {
@@ -87,30 +100,22 @@ ul li {
     margin-bottom: 10px;
 }
 
+/* Button Styles */
 button {
-    padding: 10px 15px;
-    background-color: #28a745;
+    padding: 10px 20px; /* Slightly larger padding */
+    background-color: #007bff; /* Primary button color */
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    transition: background-color 0.3s; /* Smooth transition */
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #0056b3; /* Darker shade on hover */
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-}
-
+/* Navbar Styles */
 .navbar {
     display: flex;
     justify-content: space-between;

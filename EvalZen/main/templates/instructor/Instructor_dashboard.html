@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
         body {
             background-color: #f8f9fa;
         }
+
         .sidebar {
             background-color: #343a40;
             height: 100vh;
@@ -20,15 +22,18 @@
             position: sticky;
             top: 0;
         }
+
         .sidebar a {
             color: white;
             text-decoration: none;
             padding: 10px;
             display: block;
         }
+
         .sidebar a.active {
             background-color: #0d6efd;
         }
+
         .widget {
             background-color: white;
             padding: 15px;
@@ -36,9 +41,11 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .navbar .btn {
             margin-right: 10px;
         }
+
         .profile-img {
             width: 40px;
             height: 40px;
@@ -46,6 +53,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row">
@@ -76,6 +84,12 @@
                             <!-- Display total users -->
                         </div>
                     </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="widget">
+                            <h4>scheduled Assessments</h4>
+                            <p>Assessments Completed : <b><span id="scheduled-Assessments">0</span></b> </p>
+                        </div>
+                    </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Active Assessments</h4>
@@ -89,7 +103,13 @@
                             <p>Assessments are not yet scheduled : <b><span id="Unactive-Assessments">0</span></b> </p>
                         </div>
                     </div>
-                    
+                    <div class="col-md-4 col-sm-12">
+                        <div class="widget">
+                            <h4>Ended Assessments</h4>
+                            <p>Assessments Completed : <b><span id="ended-Assessments">0</span></b> </p>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Recent Activity -->
@@ -119,42 +139,22 @@
             </main>
         </div>
     </div>
-    <script>
-        // Fetch and display user counts (candidates and instructors)
-        fetch('/instructor/get-user-counts/')
+    <script>// Fetch and display dashboard data
+        fetch('/instructor/dashboard-data/')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Update user counts
+                    console.log(data);
+                    
                     document.getElementById('candidate-count').textContent = data.candidates;
-                    document.getElementById('instructor-count').textContent = data.instructors;
-                } else {
-                    console.error('Failed to fetch user counts:', data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-
-        // Fetch and display active assessments
-        fetch('/instructor/active-assessments/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(data);
+                    
+                    document.getElementById('scheduled-Assessments').textContent =data.ScheduledAssessments;
                     document.getElementById('Active-Assessments').textContent = data.ActiveAssessments;
-                } else {
-                    console.error('Failed to fetch active assessments:', data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-
-        // Fetch and display unactive (not scheduled) assessments
-        fetch('/instructor/unactive-assessments/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(data);
                     document.getElementById('Unactive-Assessments').textContent = data.UnactiveAssessments;
+                    document.getElementById('ended-Assessments').textContent =data.endedAssessments;
                 } else {
-                    console.error('Failed to fetch unactive assessments:', data.error);
+                    console.error('Failed to fetch dashboard data:', data.error);
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -168,4 +168,5 @@
         }
     </script>
 </body>
+
 </html>

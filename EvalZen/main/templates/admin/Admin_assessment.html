@@ -42,15 +42,6 @@
             cursor: pointer;
         }
 
-        .navbar .btn {
-            margin-right: 10px;
-        }
-
-        .profile-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
     </style>
 </head>
 
@@ -163,17 +154,7 @@
                     </table>
                 </div>
                 
-                <!-- Pagination -->
-                <nav aria-label="Assessment Table Pagination">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </nav>
+           
             </main>
         </div>
     </div>
@@ -263,60 +244,11 @@
 
                 // Get the assessment data from the clicked row
                 let assessmentName = event.target.parentNode.parentNode.children.item(0).innerHTML;
-                let scheduledTime = event.target.parentNode.parentNode.children.item(3).innerHTML;
+        
 
-                // Variables to store the parsed values
-                let scheduledDate = "";
-                let scheduledHour = "";
-                let scheduledMinute = "";
-                let period = "AM";
-
-                // Check for different time formats and handle them accordingly
-                if (scheduledTime) {
-                    let datePart, timePart;
-
-                    // Case 1: Format like '03-10-2024 10:33:25'
-                    if (/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/.test(scheduledTime)) {
-                        [datePart, timePart] = scheduledTime.split(" ");
-                        scheduledDate = datePart;
-                        [scheduledHour, scheduledMinute] = timePart.split(":");
-
-                        // Case 2: Format like 'Oct. 23, 2024, 7:15 p.m.'
-                    } else if (/^\w+\.\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s\w+\.$/.test(scheduledTime)) {
-                        const dateTimeParts = scheduledTime.split(", ");
-                        scheduledDate = new Date(dateTimeParts[0] + ", " + dateTimeParts[1]).toISOString().split("T")[0];
-
-                        // Parse the time and period (AM/PM)
-                        let timeAndPeriod = dateTimeParts[2];
-                        [scheduledHour, scheduledMinute] = timeAndPeriod.match(/\d{1,2}:\d{2}/)[0].split(":");
-                        period = timeAndPeriod.includes("p.m.") ? "PM" : "AM";
-
-                        // Convert to 24-hour format if needed
-                        if (period === "PM" && parseInt(scheduledHour) < 12) {
-                            scheduledHour = parseInt(scheduledHour) + 12;
-                        } else if (period === "AM" && parseInt(scheduledHour) === 12) {
-                            scheduledHour = 0;  // Midnight case
-                        }
-                    }
-
-                    // Convert 24-hour format to 12-hour format for display in form
-                    if (parseInt(scheduledHour) >= 12) {
-                        period = "PM";
-                        if (parseInt(scheduledHour) > 12) scheduledHour -= 12;
-                    } else if (parseInt(scheduledHour) === 0) {
-                        scheduledHour = 12;  // For midnight, show 12 AM
-                    }
-                }
-
-                // Ensure hours and minutes are always two digits
-                scheduledHour = scheduledHour.toString().padStart(2, '0');
-                scheduledMinute = scheduledMinute.toString().padStart(2, '0');
-
+          
                 // Populate the form fields with the assessment data
                 document.getElementById('assessment_name').value = assessmentName;
-                document.getElementById('assessment_date').value = scheduledDate;
-                document.getElementById('assessment_time').value = `${scheduledHour}:${scheduledMinute}`;
-                document.getElementById('time_period').value = period;
 
                 // Change the button text to 'Update Assessment'
                 let scheduleButton = document.getElementById('scheduleButton');

@@ -1,16 +1,17 @@
 {% load static %}
-<nav class="navbar">
-    <div class="nav-left">
-        <!-- Logo -->
-        <a href="logo.png" class="nav-logo">
-            <img src="{% static 'main/logo.png' %}" alt="Assessment Logo" class="logo">
-        </a>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<header class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <div class="logo d-flex align-items-center">
+        <img src="{%static 'main/logo.png' %}" style="height: 60px;width: 60px;" alt="EvalZen Logo" class="me-2">
+        <div>
+            <h1 class="m-0">EvalZen</h1>
+            <p class="m-0">Assess with Confidence</p>
+        </div>
     </div>
-    <div class="nav-center">
-        <span class="nav-title">Assessment Platform</span>
-    </div>
-    <div class="nav-right">
-        <!-- Menu Icon -->
-        <img src="{%static 'main/dots.png'%}" alt="Menu" class="icon">
-    </div>
-</nav>
+    <nav>
+        <ul class="nav">
+            <li class="nav-item"><a href="{% url 'candidate_login' %}" class="nav-link">Dashboard</a></li>
+   
+        </ul>
+    </nav>
+</header> 

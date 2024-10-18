@@ -38,6 +38,13 @@ collection = feedback_db['Details']
 class QuestionDB:
     
     @staticmethod
+    def generate_assessment_id():
+        current_year = datetime.now().year
+        existing_assessments = assessment_collection.find()
+        count = len(list(existing_assessments))
+        new_id = f"Evalzen-{count + 1}"
+        return new_id
+
     def delete_assessment(assessment_id):
         return assessment_collection.delete_one({'assessment_name': assessment_id})
 
@@ -80,15 +87,10 @@ class QuestionDB:
         return False
 
     @staticmethod
-    def get_scheduled_count():
-        query = {"status": "scheduled"}
+    def get_assessment_count(status):
+        query = {"status": status}
         return assessment_collection.count_documents(query)
-
-    @staticmethod
-    def get_unscheduled_count():
-        query = {"status": {"$ne": "scheduled"}}
-        return assessment_collection.count_documents(query)
-
+    
     @staticmethod
     def schedule_assessment_in_db(assessment_name, assessment_date,assessment_time,time_period):
         query = {"assessment_name": assessment_name}
@@ -143,6 +145,22 @@ class QuestionDB:
                 }
             }
             assessment_collection.update_one(query, new_values)
+    @staticmethod
+    def fetch_Assessment(assessment_name, candidate_email):
+        if not isinstance(assessment_name, str) or not isinstance(candidate_email, str):
+            print("Error: Both assessment_name and candidate_email should be strings.")
+            return None
+
+        query = {"assessment_id": assessment_name, "candidates": candidate_email}
+        assessment = assessment_collection.find_one(query)
+        
+        if assessment:
+            print("Assessment found:", assessment)
+        else:
+            return false
+
+        return assessment
+
 
 class Admin:
     @staticmethod

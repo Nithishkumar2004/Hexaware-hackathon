@@ -113,7 +113,8 @@ section.container h2 {
                     <li><strong>Attempts:</strong> <span>once</span></li>
                     <li><strong>Pass Points:</strong> <span>80 Points</span></li>
                 </ul>
-                <a href="{% url 'candidate_assesment_choice'%}" class="btn btn-primary w-100 mt-4">Start</a>
+
+                <a href="{% url 'candidate_assessment_choice' assessment_name|urlencode %}" class="btn btn-primary w-100 mt-4">Start</a>
             </div>
         </div>
         <p class="text-center mt-4">
