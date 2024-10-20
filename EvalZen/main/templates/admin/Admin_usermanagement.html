@@ -98,17 +98,17 @@
                                 <td>{{ candidate.first_name }} {{ candidate.last_name }}</td>
                                 <td>{{ candidate.email }}</td>
                                 <td>{{ candidate.mobile }}</td>
-                                
-                                    <td>
-                                        {% if candidate.profile_image %}
-                                        <img src="{{ candidate.profile_image }}" alt="Profile Image"
-                                             style="width: 50px; height: 50px;">
-                                        {% else %}
-                                        No Image
-                                        {% endif %}
-                                    </td>
-                                    
-                                
+
+                                <td>
+                                    {% if candidate.profile_image %}
+                                    <img src="{{ candidate.profile_image }}" alt="Profile Image"
+                                        style="width: 50px; height: 50px;">
+                                    {% else %}
+                                    No Image
+                                    {% endif %}
+                                </td>
+
+
                                 <td>
                                     <button class="status btn btn-secondary btn-sm">
                                         {% if candidate.status == "deactivated" %}
@@ -118,6 +118,8 @@
                                         {% endif %}
                                     </button>
                                     <button class="btn btn-danger btn-sm delete-candidate">Delete</button>
+                                    <button class="btn btn-success btn-sm Download-candidate">Download</button>
+
                                 </td>
                             </tr>
                             {% endfor %}
@@ -165,6 +167,7 @@
     </div>
 
     <script>
+
         document.querySelectorAll(".delete-candidate").forEach(button => {
             button.addEventListener('click', function (e) {
                 const email = e.target.parentNode.parentNode.children.item(1).innerHTML.trim();
@@ -214,7 +217,6 @@
                 });
         }
 
-        // Function to sort the table by column
         function sortTable(columnIndex) {
             var table, rows, switching, i, x, y, shouldSwitch;
             table = document.getElementById("userTable");
@@ -238,7 +240,6 @@
             }
         }
 
-        // Example: Add search filter functionality
         document.getElementById('search').addEventListener('keyup', function () {
             var filter = this.value.toLowerCase();
             var rows = document.querySelectorAll('#userTable tr');
@@ -251,6 +252,49 @@
                 }
             });
         });
+document.querySelectorAll(".Download-candidate").forEach(button => {
+    button.addEventListener('click', function (e) {
+        // Get the candidate's email from the second column (index 1)
+        let email = e.target.closest('tr').children.item(1).innerText.trim();
+
+        // Send the request to the server to download the PDF
+        fetch('/admin/download_candidate_detail/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // CSRF token is required in Django
+            },
+            body: JSON.stringify({ email: email }) // Send email as JSON
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Failed to download PDF.');
+                    });
+                }
+                return response.blob(); // Convert the response to a Blob
+            })
+            .then(blob => {
+                // Create a URL for the Blob
+                const url = window.URL.createObjectURL(blob);
+                // Create a temporary <a> element to trigger the download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${email}.pdf`; // Set the file name for download
+                document.body.appendChild(a);
+                a.click(); // Trigger the download
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                alert('PDF downloaded successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error occurred while downloading the PDF: ${error.message}`);
+            });
+    });
+});
+
 
         document.querySelectorAll(".status").forEach(button => {
             button.addEventListener('click', function (e) {

@@ -8,7 +8,7 @@ from .views import (
     instructor_registration, candidate_login, candidate_registration, candidate_dashboard,
     candidate_preassessment, candidate_assessment, contact_us, admindashboard, 
     assessment, instructor_report, instructor_review_submission, instructor_schedule,
-    instructor_settings, instructor_usermanagement, manualquestionupload, report, settings,
+    instructor_settings, instructor_usermanagement, manualquestionupload, report, admin_settings,
     submit_feedback, system_check, usermanagement, admin_login, candidate_assessment_choice,
     submit_coding_test
 )
@@ -73,7 +73,7 @@ urlpatterns = [
         path('change_status/', change_account_status, name="change_status"),
         path('manualquestionupload/', manualquestionupload, name='manualquestionupload'),
         path('report/', report, name='report'),
-        path('settings/', settings, name='settings'),
+        path('settings/', admin_settings, name='settings'),
         path('usermanagement/', usermanagement, name='usermanagement'),
         path('login/', admin_login, name='admin_login'),
         path('logout/', admin_logout, name='admin_logout'),

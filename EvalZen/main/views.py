@@ -15,10 +15,18 @@ from django.contrib.auth import logout
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.http import require_GET
 from urllib.parse import unquote
-
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
+from reportlab.pdfgen import canvas
+from PyPDF2 import PdfReader, PdfWriter
+from django.conf import settings
+from reportlab.lib.units import inch
+from reportlab.lib.colors import HexColor
 
 from .models import Admin, Candidate, Instructor, MongoDBConnection, QuestionDB, FeedbackModel
 from .forms import SignupForm
+
 
 otp_storage = {}
 load_dotenv()
@@ -36,7 +44,7 @@ def submit_feedback(request):
         feedback_data = {'name': name, 'email': email, 'feedback': feedback}
         FeedbackModel.insert_feedback(feedback_data)
         messages.success(request, 'Thank you for your feedback!')
-        return redirect('feedback') 
+        return redirect('feedback')
     return render(request, 'main/Main_contact_us.html')
 
 def features(request):
@@ -176,10 +184,10 @@ def get_dashboard_data(request):
     try:
         # Compute the server load
         server_load = psutil.cpu_percent(interval=1)
-        
+
         # Check MongoDB status
         database_status = MongoDBConnection.check_connection()  # Call the model function
-        
+
         # Prepare the data dictionary with precomputed values
         data = {
             'success': True,
@@ -197,7 +205,7 @@ def get_dashboard_data(request):
 
         # Return the data as a JSON response
         return JsonResponse(data)
-    
+
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 # Instructor views
@@ -454,10 +462,10 @@ def submit_coding_test(request):
             # Ensure we're only capturing answers and not other form fields (like CSRF token)
             if key.startswith('answer_'):
                 submitted_answers[key] = request.POST[key]
-        
+
         # Process the submitted answers as needed
         # For example, you can save them to the database, evaluate them, etc.
-        
+
         # Debug: Print the submitted answers (or handle them as needed)
         print(submitted_answers)
            # Add a success message
@@ -494,7 +502,7 @@ def schedule_assessment(request):
         assessment_name = request.POST.get('assessment_name')
         assessment_date = request.POST.get('assessment_date')
         assessment_time = request.POST.get('assessment_time')
-        duration = request.POST.get('assessment_duration')        
+        duration = request.POST.get('assessment_duration')
         QuestionDB.schedule_assessment_in_db(assessment_name, assessment_date,assessment_time,duration)
         assessments = QuestionDB.get_all_assessment()
         messages.success(request, 'Assessment scheduled successfully!')
@@ -548,9 +556,9 @@ def manualquestionupload(request):
             tags = data.get('tags', [])
             if not assessment_name:
                 return JsonResponse({'error': 'Assessment name is required.'}, status=400)
-            
+
             assessment_id=QuestionDB.generate_assessment_id()
-            
+
             assessment_document = {
                 'assessment_name': assessment_name,
                 'assessment_id':assessment_id,
@@ -597,7 +605,7 @@ def report(request):
         return redirect('admin_login')
     return render(request, 'admin/Admin_report.html')
 
-def settings(request):
+def admin_settings(request):
     if 'admin_id' not in request.session:
         messages.warning(request, 'Please log in to continue.')
         return redirect('admin_login')
@@ -652,32 +660,38 @@ def proctoring_view(request):
                 return JsonResponse({"error": "More than one face detected.", "screenshot": screenshot_path})
             return JsonResponse({"message": "Frame received", "num_faces": num_faces_detected})
     return JsonResponse({"message": "Invalid request."})
-import os
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.pdfgen import canvas
-from django.conf import settings
-from reportlab.lib.units import inch
-
-
-
-def create_pdf(email):
+def create_candidate_pdf(email):
     print("Creating PDF document...")
 
-    # Fetch candidate data based on the email
     data = Candidate.find_candidate_by_email(email)
     if not data:
         print(f"No candidate found for email: {email}")
         return
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(email, pagesize=letter)
+    template_path = os.path.join(getattr(settings, 'STATICFILES_DIRS', [''])[0], 'file', 'CandidateDetailTemplate.pdf')
+    if not os.path.exists(template_path):
+        print("Template path does not exist:", template_path)
+        return
 
-    # Prepare the candidate details in a table format
+    temp_pdf_path = email + "_temp.pdf"
+    c = canvas.Canvas(temp_pdf_path, pagesize=letter)
+
+    line_y_position = letter[1] - 200
+    margin_below_line = 5.25 * 28.35
+
+    profile_image_path = Candidate.get_image(data.get('profile_image_id'))
+    if profile_image_path:
+        image_x_position = letter[0] - 18 * 28.35  # Move it to the left (3 cm from the right edge)
+        image_y_position = line_y_position + 10
+        image_width = 2.5 * 28.35
+        image_height = 2.5 * 28.35
+        c.drawImage(profile_image_path, image_x_position, image_y_position, width=image_width, height=image_height)
+    else:
+        print("Profile image not found for ID:", data.get('profile_image_id'))
+
     print("Preparing candidate details...")
     details = [
-        ['Field', 'Value'],  # Header row
+        ['Field', 'Value'],
         ['First Name', data.get('first_name', '')],
         ['Last Name', data.get('last_name', '')],
         ['Dob', data.get('dob', '')],
@@ -693,52 +707,45 @@ def create_pdf(email):
         ['Status', data.get('status', '')],
         ['Profile Image Id', str(data.get('profile_image_id', ''))],
     ]
-    print("Candidate details prepared:", details)
 
-    # Create a table with the candidate details
     print("Creating table...")
     table = Table(details)
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align text
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
-        ('BACKGROUND', (0, 1), (-1, -1), colors.aqua),  # Body background
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
+        ('BACKGROUND', (0, 0), (-1, 0), HexColor("#2173D8")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     print("Table created.")
 
-    # Create a canvas to draw the logo and other elements
-    c = canvas.Canvas(email+".pdf", pagesize=letter)
-
-    # Add the Evalzen logo at the center top
-    logo_path = os.path.join(getattr(settings, 'STATICFILES_DIRS', [''])[0], 'main', 'adminlogo.png')
-    if os.path.exists(logo_path):
-        print("Drawing logo from:", logo_path)
-        c.drawImage(logo_path, (letter[0] - 3 * inch) / 2, letter[1] - 100, width=3 * inch, height=1 * inch)
-    else:
-        print("Logo path does not exist:", logo_path)
-
-    # Draw the profile image at the top right if it exists
-    profile_image_path = Candidate.get_image(data.get('profile_image_id'))  # Assuming this returns the image path
-    if profile_image_path:
-        print("Drawing profile image from:", profile_image_path)
-        c.drawImage(profile_image_path, letter[0] - 2 * inch, letter[1] - 2 * inch, width=1 * inch, height=1 * inch)
-    else:
-        print("Profile image not found for ID:", data.get('profile_image_id'))
-
-    # Draw the table below the logo and profile image
-    y_position = letter[1] - 600  # Adjust starting position based on logo and image height
-    print(letter)
-    print("Y Position for table:", y_position)
+    table_x_position = 3 * 28.35
+    table_y_position = line_y_position - margin_below_line - 200
     table.wrapOn(c, letter[0], letter[1])
-    table.drawOn(c, 50, y_position)  # Set the position for the table
+    table.drawOn(c, table_x_position, table_y_position)
 
-    # Save the PDF
-    print("Saving the PDF...")
     c.save()
-    print("PDF saved successfully:", email)
 
-# Call the function with the email and filename
-create_pdf("praveenkal0508@gmail.com")
+    print("Merging with the letterhead template...")
+    existing_pdf = PdfReader(template_path)
+    temp_pdf = PdfReader(temp_pdf_path)
+    output = PdfWriter()
+
+    existing_page = existing_pdf.pages[0]
+    temp_page = temp_pdf.pages[0]
+    existing_page.merge_page(temp_page)
+
+    output.add_page(existing_page)
+
+    final_pdf_path = email + ".pdf"
+    with open(final_pdf_path, "wb") as output_stream:
+        output.write(output_stream)
+
+    os.remove(temp_pdf_path)
+
+    print("PDF saved successfully:", final_pdf_path)
+
+
+create_candidate_pdf("balachandarsanthoshkumar111@gmail.com")

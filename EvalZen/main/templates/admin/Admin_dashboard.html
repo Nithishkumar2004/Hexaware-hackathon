@@ -80,59 +80,46 @@
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Total Users</h4>
-                            <p>Candidates : <b><span id="candidate-count"></span></b> </p>
+                            <p>Candidates : <b><span id="candidate-count">Loading...</span></b> </p>
                             <!-- Display total users -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Total Users</h4>
-                            <p>instructors : <b><span id="instructors-count"></span></b> </p>
+                            <p>instructors : <b><span id="instructors-count">Loading...</span></b> </p>
                             <!-- Display total users -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
                             <h4>scheduled Assessments</h4>
-                            <p>Assessments Completed : <b><span id="scheduled-Assessments">0</span></b> </p>
+                            <p>Assessments Completed : <b><span id="scheduled-Assessments">Loading...</span></b> </p>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
                         <div class="widget">
                             <h4>Active Assessments</h4>
-                            <p>Active Assessments : <b><span id="Active-Assessments"></span></b> </p>
+                            <p>Active Assessments : <b><span id="Active-Assessments">Loading...</span></b> </p>
                             <!-- Display active assessments -->
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
                             <h4>Unactive Assessments</h4>
-                            <p>Assessments are not yet scheduled : <b><span id="Unactive-Assessments">0</span></b> </p>
+                            <p>Assessments are not yet scheduled : <b><span id="Unactive-Assessments">Loading...</span></b> </p>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-12">
                         <div class="widget">
                             <h4>Ended Assessments</h4>
-                            <p>Assessments Completed : <b><span id="ended-Assessments">0</span></b> </p>
+                            <p>Assessments Completed : <b><span id="ended-Assessments">Loading...</span></b> </p>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- Recent Activity -->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="widget">
-                            <h4>Recent Activity</h4>
-                            <ul>
-                                {% for activity in recent_activity %}
-                                <li>{{ activity }}</li> <!-- Display recent activity -->
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
+               
                 <!-- System Status -->
                 <div class="row">
                     <div class="col-md-6 col-sm-12">
